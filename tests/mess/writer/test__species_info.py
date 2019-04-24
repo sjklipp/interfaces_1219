@@ -1,7 +1,7 @@
 """ Tests the writing of the energy transfer section
 """
 
-import mess_io.writers
+import mess_io.writer
 
 
 def test__core_rigidrotor_writer():
@@ -15,13 +15,13 @@ def test__core_rigidrotor_writer():
             ('N', (6.537299661, 0.16134481659, -0.05448080419)))
 
     # Use the writer to create a string for each of the core sections
-    core_rigrot_str1 = mess_io.writers.write_core_rigidrotor(geom, sym_factor, interp_emax='')
+    core_rigrot_str1 = mess_io.writer.write_core_rigidrotor(geom, sym_factor, interp_emax='')
 
     # Set additional value for energy interpolation used in messpf
     interp_emax = 1500
 
     # Use the writer to create a string for each of the core sections with additional keys set 
-    core_rigrot_str2 = mess_io.writers.write_core_rigidrotor(geom, sym_factor, interp_emax=interp_emax)
+    core_rigrot_str2 = mess_io.writer.write_core_rigidrotor(geom, sym_factor, interp_emax=interp_emax)
 
     # Print the core string
     print(core_rigrot_str1)
@@ -44,15 +44,15 @@ def test__core_multirotor_writer():
     group = [11, 10, 9, 8, 7, 6]
     axis = [3, 2, 1]
     symmetry = 1
-    rotor_int_str = mess_io.writers.write_rotor_internal(group, axis, symmetry, 
-                                                 rotor_id='NNO',
-                                                 mass_exp_size=5, pot_exp_size=5,
-                                                 hmin=13, hmax=101,
-                                                 grid_size=100)
+    rotor_int_str = mess_io.writer.write_rotor_internal(group, axis, symmetry, 
+                                                        rotor_id='NNO',
+                                                        mass_exp_size=5, pot_exp_size=5,
+                                                        hmin=13, hmax=101,
+                                                        grid_size=100)
     
     # Use the writer to create a string for each of the core sections
-    core_multirotor_str = mess_io.writers.write_core_multirotor(geom, sym_factor, pot_surf, rotor_int_str,
-                                                                interp_emax=100, quant_lvl_emax=9)
+    core_multirotor_str = mess_io.writer.write_core_multirotor(geom, sym_factor, pot_surf, rotor_int_str,
+                                                               interp_emax=100, quant_lvl_emax=9)
 
     # Print the core string
     print(core_multirotor_str)
@@ -73,8 +73,8 @@ def test__core_phasespace_writer():
     stoich = 'N2O1'
 
     # Use the writer to create a string for each of the core sections
-    core_phasespace_str = mess_io.writers.write_core_phasespace(geom1, geom2, sym_factor, stoich,
-                                                                pot_prefactor=10, pot_power_exp=6)
+    core_phasespace_str = mess_io.writer.write_core_phasespace(geom1, geom2, sym_factor, stoich,
+                                                               pot_prefactor=10, pot_power_exp=6)
 
     # Print the core string
     print(core_phasespace_str)
@@ -90,7 +90,7 @@ def test__core_rotd_writer():
     ne_file = 'ne.dat'
 
     # Use the writer to create a string for each of the core sections
-    core_rotd_str = mess_io.writers.write_core_rotd(sym_factor, ne_file, stoich)
+    core_rotd_str = mess_io.writer.write_core_rotd(sym_factor, ne_file, stoich)
 
     # Print the core string
     print(core_rotd_str)
@@ -108,7 +108,7 @@ def test__rotor_hindered_writer():
                 -0.03,    3.49,    9.96,   12.63,    9.08,    2.93]
 
     # Use the writer to create a string for the molecule section
-    rot_hind_str = mess_io.writers.write_rotor_hindered(group, axis, symmetry, potential)
+    rot_hind_str = mess_io.writer.write_rotor_hindered(group, axis, symmetry, potential)
 
     # Print the hindered rotor section string
     print(rot_hind_str)
@@ -124,11 +124,11 @@ def test__rotor_internal_writer():
     symmetry = 1
     
     # Use the writer to create a string for the molecule section
-    rotor_int_str = mess_io.writers.write_rotor_internal(group, axis, symmetry, 
-                                                         rotor_id='NNO',
-                                                         mass_exp_size=5, pot_exp_size=5,
-                                                         hmin=13, hmax=101,
-                                                         grid_size=100)
+    rotor_int_str = mess_io.writer.write_rotor_internal(group, axis, symmetry, 
+                                                        rotor_id='NNO',
+                                                        mass_exp_size=5, pot_exp_size=5,
+                                                        hmin=13, hmax=101,
+                                                        grid_size=100)
     
     # Print the internal rotor string
     print(rotor_int_str)
@@ -144,7 +144,7 @@ def test__tunnel_eckart_writer():
     well_depth2 = 20
 
     # Use the writer to create a string for each of the tunnel sections
-    tunnel_eckart_str = mess_io.writers.write_tunnel_eckart(imag_freq, well_depth1, well_depth2)
+    tunnel_eckart_str = mess_io.writer.write_tunnel_eckart(imag_freq, well_depth1, well_depth2)
 
     # Print the Eckart tunnel section
     print(tunnel_eckart_str)
@@ -160,7 +160,7 @@ def test__tunnel_sct_writer():
     tunnel_file = 'imactint.dat'
 
     # Use the writer to create a string for each of the tunnel sections
-    tunnel_sct_str = mess_io.writers.write_tunnel_sct(imag_freq, cutoff_energy, tunnel_file)
+    tunnel_sct_str = mess_io.writer.write_tunnel_sct(imag_freq, cutoff_energy, tunnel_file)
 
     # Print the SCT tunnel string
     print(tunnel_sct_str)

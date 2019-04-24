@@ -37,13 +37,24 @@ def write_atom(atom_name, elec_levels):
 
 
 def write_molecule(core, freqs, zero_energy, elec_levels,
-                   hind_rot='', anharm='', tunnel=''):
+                   hind_rot='', tunnel='',
+                   anharm='', rovib_coups='', rot_dists=''):
     """ Write molecular info section
     """
 
     # Build a formatted frequencies and elec levels string
     nfreqs, freqs = util.freqs_format(freqs)
     nlevels, levels = util.elec_levels_format(elec_levels)
+
+    # Format the rovib couplings and rotational distortions if needed
+    if rovib_coups != '':
+        rovib_coup_list = '  '.join(str(val) for val in rovib_coups)
+    if rot_dists != '':
+        rot_dists = util.format_rot_dist_consts(rot_dists)
+
+    # Indent the anharm matrix string if needed
+    if anharm != '':
+        anharm = util.indent(anharm, 2)        
 
     # Create dictionary to fill template
     molec_keys = {

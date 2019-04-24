@@ -105,3 +105,20 @@ def format_rotor_potential(potential):
     potential_string = indent(potential_string, 4)
 
     return npotential, potential_string
+
+
+def format_rot_dist_consts(rot_dists):
+    """ Format the rotational distortion constants.
+    """
+    
+    # Build rotational dists string
+    rot_dists_string = ''
+    for symb, val in zip(rot_dists):
+        rot_dists_string += '{0}  {1}'.format(symb, val)
+        if (i+1) != len(rot_dists):
+            rot_dists_string += '\n'
+
+    # Indent the lines
+    rot_dists_string = indent(rot_dists_string, 4)
+
+    return rot_dists_string

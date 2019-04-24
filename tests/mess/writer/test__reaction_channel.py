@@ -1,7 +1,7 @@
 """ Tests the writing of the species section
 """
 
-import mess_io.writers
+import mess_io.writer
 
 
 MOLECULE_MESS_STRING = """RRHO
@@ -41,7 +41,7 @@ def test__species_writer():
     species_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    species_section_str = mess_io.writers.write_species(species_label, species_data)
+    species_section_str = mess_io.writer.write_species(species_label, species_data)
 
     # Print the well section string
     print(species_section_str)
@@ -58,7 +58,7 @@ def test__well_writer():
     well_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    well_section_str = mess_io.writers.write_well(well_label, well_data)
+    well_section_str = mess_io.writer.write_well(well_label, well_data)
 
     # Print the well section string
     print(well_section_str)
@@ -83,10 +83,10 @@ def test__bimolecular_writer():
     ground_energy = 50.0
 
     # Use the writer to create a string for the molecule section
-    bimolecular_str = mess_io.writers.write_bimolecular(bimol_label,
-                                                        species1_label, species1_data,
-                                                        species2_label, species2_data,
-                                                        ground_energy)
+    bimolecular_str = mess_io.writer.write_bimolecular(bimol_label,
+                                                       species1_label, species1_data,
+                                                       species2_label, species2_data,
+                                                       ground_energy)
 
     # Print the bimol section string
     print(bimolecular_str)
@@ -105,7 +105,7 @@ def test__ts_sadpt_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts sadpt section
-    ts_sadpt_str = mess_io.writers.write_ts_sadpt(ts_label, reac_label, prod_label, ts_data)
+    ts_sadpt_str = mess_io.writer.write_ts_sadpt(ts_label, reac_label, prod_label, ts_data)
 
     # Print the ts sadpoint section
     print(ts_sadpt_str)
@@ -131,7 +131,7 @@ def test__ts_irc_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts irc section
-    ts_irc_str = mess_io.writers.write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strings)
+    ts_irc_str = mess_io.writer.write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strings)
 
     # Print the ts sadpoint section
     print(ts_irc_str)

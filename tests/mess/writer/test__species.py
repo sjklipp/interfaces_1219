@@ -1,7 +1,7 @@
 """ Tests the writing of the energy transfer section
 """
 
-import mess_io.writers
+import mess_io.writer
 
 
 def test__atom_writer():
@@ -13,7 +13,7 @@ def test__atom_writer():
     atom_elec_levels = ((1, 0.00), (3, 150.0), (9, 450.0))
 
     # Use the writer to create a string for the atom section
-    atom_section_str = mess_io.writers.write_atom(atom_name, atom_elec_levels)
+    atom_section_str = mess_io.writer.write_atom(atom_name, atom_elec_levels)
 
     # Print the atom section string
     print(atom_section_str)
@@ -33,11 +33,12 @@ def test__molecule_writer():
     mol_zero_e = -35.0
 
     # Get the string for the core using the geometry
-    mol_core = mess_io.writers.write_core_rigidrotor(mol_geom, mol_symfactor, interp_emax='')
+    mol_core = mess_io.writer.write_core_rigidrotor(mol_geom, mol_symfactor, interp_emax='')
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str = mess_io.writers.write_molecule(mol_core, mol_freqs, mol_zero_e, mol_elec_levels,
-                                                          hind_rot='', anharm='', tunnel='')
+    molecule_section_str = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e, mol_elec_levels,
+                                                         hind_rot='', tunnel='',
+                                                         anharm='', rovib_coups='', rot_dists='')
 
     # Print the molecule section string
     print(molecule_section_str)

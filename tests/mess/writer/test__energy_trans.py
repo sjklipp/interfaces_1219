@@ -1,7 +1,7 @@
 """ test the writing of the energy transfer section
 """
 
-import mess_io.writers
+import mess_io.writer
 
 
 def test__energy_trans_writer():
@@ -20,10 +20,10 @@ def test__energy_trans_writer():
     mass2 = 25.0
 
     # Use the writer to create a string for the energy transfer section
-    energy_trans_section_str = mess_io.writers.write_energy_transfer(exp_factor, exp_power, exp_cutoff,
-                                                                     eps1, eps2,
-                                                                     sig1, sig2,
-                                                                     mass1, mass2)
+    energy_trans_section_str = mess_io.writer.write_energy_transfer(exp_factor, exp_power, exp_cutoff,
+                                                                    eps1, eps2,
+                                                                    sig1, sig2,
+                                                                    mass1, mass2)
 
     # Print the energy transfer section string
     print(energy_trans_section_str)
