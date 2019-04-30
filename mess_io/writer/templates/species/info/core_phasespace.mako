@@ -7,4 +7,4 @@ ${geom2}
     PotentialPrefactor[au] 	      ${pot_prefactor}
     PotentialPowerExponent 	      ${pot_power_exp}
   End
-  Stoichiometry  ${stoich}
+  Stoichiometry  ${stoich}\

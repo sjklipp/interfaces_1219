@@ -5,4 +5,4 @@ Core MultiRotor
   QuantumLevelEnergyMax[kcal/mol]         ${quant_lvl_emax}
 ${int_rot}
 Geometry[angstrom]                        ${natom1}
-${geom1}
+${geom1}\

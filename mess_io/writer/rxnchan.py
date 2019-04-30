@@ -4,7 +4,7 @@ Writes MESS input for a molecule
 
 import os
 from mako.template import Template
-from writers import util
+from mess_io.writer import util
 
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #

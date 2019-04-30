@@ -36,12 +36,41 @@ def test__molecule_writer():
     mol_core = mess_io.writer.write_core_rigidrotor(mol_geom, mol_symfactor, interp_emax='')
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e, mol_elec_levels,
-                                                         hind_rot='', tunnel='',
-                                                         anharm='', rovib_coups='', rot_dists='')
+    molecule_section_str1 = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e, mol_elec_levels,
+                                                          hind_rot='', tunnel='',
+                                                          anharm='', rovib_coups='', rot_dists='')
+
+    ## Set the additional optional keywords for
+    hind_rot = """Rotor  Hindered
+  Group                11  10  9   8   7   6   
+  Axis                 3   2   1   
+  Symmetry             1
+  Potential[kcal/mol]  12
+    0.00    2.91    9.06    12.63   9.97    3.51    
+    -0.03   3.49    9.96    12.63   9.08    2.93     
+End"""
+
+    tunnel = """Tunneling  Eckart 
+  ImaginaryFrequency[1/cm]  2000 
+  WellDepth[kcal/mol]       10 
+  WellDepth[kcal/mol]       20""" 
+    anharm = """10000
+2000 3000
+4000 5000 6000"""
+    rovib_coups = [100, 200, 300]
+    rot_dists = [['aaaa', 1000], ['bbaa', 2000], ['bbbb', 3000]] 
+
+    # Use the writer to create a string for the molecule section
+    molecule_section_str2 = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e, mol_elec_levels,
+                                                          hind_rot=hind_rot, tunnel=tunnel,
+                                                          anharm=anharm, rovib_coups=rovib_coups, 
+                                                          rot_dists=rot_dists)
+
 
     # Print the molecule section string
-    print(molecule_section_str)
+    print(molecule_section_str1)
+    print('\n')
+    print(molecule_section_str2)
 
 
 if __name__ == '__main__':

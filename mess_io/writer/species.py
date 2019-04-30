@@ -4,7 +4,7 @@ Writes MESS for an atom
 
 import os
 from mako.template import Template
-from writers import util
+from mess_io.writer import util
 
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
@@ -48,13 +48,18 @@ def write_molecule(core, freqs, zero_energy, elec_levels,
 
     # Format the rovib couplings and rotational distortions if needed
     if rovib_coups != '':
-        rovib_coup_list = '  '.join(str(val) for val in rovib_coups)
+        rovib_coups = '  '.join(str(val) for val in rovib_coups)
+        rovib_coups = util.indent(rovib_coups, 4)
     if rot_dists != '':
         rot_dists = util.format_rot_dist_consts(rot_dists)
 
-    # Indent the anharm matrix string if needed
+    # Indent various strings string if needed
     if anharm != '':
-        anharm = util.indent(anharm, 2)        
+        anharm = util.indent(anharm, 4)        
+    if hind_rot != '':
+        hind_rot = util.indent(hind_rot, 2)        
+    if tunnel != '':
+        tunnel = util.indent(tunnel, 2)        
 
     # Create dictionary to fill template
     molec_keys = {
@@ -66,7 +71,9 @@ def write_molecule(core, freqs, zero_energy, elec_levels,
         'levels': levels,
         'hind_rot': hind_rot,
         'anharm': anharm,
-        'tunnel': tunnel
+        'tunnel': tunnel,
+        'rovib_coups': rovib_coups,
+        'rot_dists': rot_dists
     }
 
     # Set template name and path for a molecule

@@ -5,6 +5,35 @@ Grabs all of the rate constants out of a MESS output file
 import sys
 
 
+def read_rates(rates_file_name, reaction, temps=[], pressures=[]):
+    """ Reads the rates
+    """
+
+   
+
+
+def print_rates(temps, pressures):
+    """ Prints the rates
+    """
+
+    # Print header for rate constant table to the screen
+    print('Rate Constants for the Reaction: {0}\n'.format(rxn))
+    print_head = '{0:>5}'.format('T K')
+    for i in range(len(pressures)):
+        print_head = print_head + '{0:>16}'.format(pressures[i]+' atm')
+    print_head = print_head + '{0:>16}'.format('High P')
+    print(print_head)
+    
+    # Print values for rate constant table to the screen
+    for i in range(len(temps)):
+        print_str = '{0:>5}'.format(temps[i])
+        for j in range(len(pressures)+1):
+            print_str = print_str + '{0:>16}'.format(rate_constants[j][i])
+        print(print_str)
+
+    return None
+
+
 def grab_rate_constants(block_start, rxn):
     """ Obtain the rate constants for each pressure """
 
@@ -23,8 +52,6 @@ def grab_rate_constants(block_start, rxn):
             break
         else:
             rate_constants.append(RATE_LINES[i].strip().split()[rxn_col])
-
-    print(rate_constants)
 
     return rate_constants
 
@@ -91,20 +118,3 @@ for i in range(HIGH_PRESSURE_BLOCK_START, len(RATE_LINES)):
         rate_const_block_start = i
         rate_constants.append(grab_rate_constants(rate_const_block_start, rxn))
         break
-
-# Print header for rate constant table to the screen
-print('\n\n')
-print('Rate Constants for the Reaction: {0}\n'.format(rxn))
-print_head = '{0:>5}'.format('T K')
-for i in range(len(PRESSURES)):
-    print_head = print_head + '{0:>16}'.format(PRESSURES[i]+' atm')
-print_head = print_head + '{0:>16}'.format('High P')
-print(print_head)
-
-# Print values for rate constant table to the screen
-for i in range(len(TEMPS)):
-    print_str = '{0:>5}'.format(TEMPS[i])
-    for j in range(len(PRESSURES)+1):
-        print_str = print_str + '{0:>16}'.format(rate_constants[j][i])
-    print(print_str)
-print('\n\n')

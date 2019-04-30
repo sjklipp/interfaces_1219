@@ -113,11 +113,11 @@ def format_rot_dist_consts(rot_dists):
     
     # Build rotational dists string
     rot_dists_string = ''
-    for symb, val in zip(rot_dists):
-        rot_dists_string += '{0}  {1}'.format(symb, val)
+    for i, const in enumerate(rot_dists):
+        rot_dists_string += '  '.join(map(str, const))
         if (i+1) != len(rot_dists):
             rot_dists_string += '\n'
-
+    
     # Indent the lines
     rot_dists_string = indent(rot_dists_string, 4)
 
