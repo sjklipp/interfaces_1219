@@ -121,7 +121,8 @@ def test__ts_irc_writer():
     # Loop over all the points of the irc and build MESS strings
     irc_pt_strings = []
     for i in range(21):
-        irc_pt_string = '! IRC Point {0}\n'.format(str(i+1))
+        irc_pt_string = mess_io.writer.stringslib.INTERMEDIATE_SEP_STR
+        irc_pt_string += '! IRC Point {0}\n'.format(str(i+1))
         irc_pt_string += MOLECULE_MESS_STRING
         irc_pt_strings.append(irc_pt_string)
 

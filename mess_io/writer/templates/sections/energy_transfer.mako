@@ -1,5 +1,5 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++
-!               ENERGY TRANSFER SECTION
+!  ENERGY TRANSFER SECTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++
 Model
   EnergyRelaxation
@@ -13,4 +13,4 @@ Model
        Epsilons[K]                      ${epsilon1}    ${epsilon2}
        Sigmas[angstrom]                 ${sigma1}    ${sigma2}
        Masses[amu]                      ${mass1}    ${mass2}
-    End
+    End\

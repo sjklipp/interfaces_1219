@@ -16,4 +16,4 @@ ChemicalEigenvalueMax                  0.2
 ReductionMethod                        diagonalization 
 !
 AtomDistanceMin[bohr]                  1.3
-RateOutput                             rate.out\
+RateOutput                             rate.out
