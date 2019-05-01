@@ -2,9 +2,11 @@
 libraries of functions to write the mess input
 """
 
+import os
 import autofile
 import mess_io.writer
 import util
+
 
 # FOR SECTIONS #
 
@@ -88,6 +90,19 @@ def bimolecular(filename='', bimol_label='',
         f.write(bimolecular_str)
 
 
+def ts_sadpt(filename='',
+             ts_label='', reac_label='', prod_label='',
+             ts_data=''):
+    """ ts saddle-point writer
+    """
+
+    # Write the ts saddle-point string
+    ts_sadpt_str = mess_io.writer.write_ts_sadpt(ts_label, reac_label, prod_label, ts_data)
+    
+    # Write the ts saddle-point section string
+    with open(filename, 'a') as f:
+        f.write(ts_sadpt_str)
+
 
 # SECTION HEADER and SEPERATOR STRINGS #
 
@@ -139,36 +154,77 @@ def atom(name='', elec_levels=''):
     return atom_str
 
 
-def molecule(core='', 
-             zero_energy='',
-             geom='', 
-             sym_factor='',
-             freqs='',
-             elec_levels=''):
+def molecule(core='', freqs='', zero_energy='', elec_levels='',
+             hind_rot='', tunnel='',
+             anharm='', rovib_coups='', rot_dists=''):
     """ molecule writer
     """
 
-    # Get the string for the core using the geometry
-    if core == 'rigidrotor':
-        core_str = mess_io.writer.write_core_rigidrotor(geom, sym_factor)
-    
     # Use the writer to create a string for the molecule section
+    # can't do sct_tunneling, anharm, rovib_coups, and rot_dists reading
     molecule_str = mess_io.writer.write_molecule(
-        core_str, freqs, zero_energy, elec_levels) 
+        core, freqs, zero_energy, elec_levels,
+        hind_rot=hind_rot, tunnel=tunnel,
+        anharm=anharm, rovib_coups=rovib_coups, rot_dists=rot_dists)
 
     return molecule_str
 
 
+def core(core_type,
+         geom1='', geom2='', stoich='',
+         sym_factor='', 
+         ne_file='',
+         interp_emax=100, quant_lvl_emax=9,
+         pot_prefactor=10, pot_power=6):
+    """  writes the core section since it is a bit more complicated 
+         might want to break up later, but this works for now
+    """
+    
+    # Get the string for the core using the geometry
+    if core_type == 'rigidrotor':
+        core_str = mess_io.writer.write_core_rigidrotor(geom1, sym_factor)
+    elif core_type == 'multirotor':
+        core_str = mess_io.writer.write_core_multirotor(geom1, sym_factor, pot_surf, rotor_int_str,
+                                                        interp_emax=interp_emax, 
+                                                        quant_lvl_emax=quant_lvl_emax)
+    elif core_type == 'phasespace':
+        core_str = mess_io.writer.write_core_phasespace(geom1, geom2, sym_factor, stoich,
+                                                        pot_prefactor=pot_prefactor, 
+                                                        pot_power_exp=pot_power_exp)
+    elif core_type == 'rotd':
+        core_str = mess_io.writer.write_core_rotd(sym_factor, ne_file, stoich)
+    else:
+        raise NotImplementedError
+
+    return core_str
+
+
+def hr(hr_list):
+    """ tries to 
+    """
+
+    hr_str = ''
+    for hr in hr_list:
+        group, axis, symmetry, potential = hr[0], hr[1], hr[2], hr[3]
+        hr_str += mess_io.writer.write_rotor_hindered(group, axis, symmetry, potential)
+
+    return hr_str
+
+
 # FUNCTIONS TO GET DATA FROM DIRECTORY PATHS #
 
-def energy_from_path(ref_elec_path='', ref_zpve_path='',
-                     spec1_elec_path='', spec1_zpve_path='',
-                     spec2_elec_path='', spec2_zpve_path=''):
+def energy_from_path(ref_elec=('', ''), ref_zpve=('', ''),
+                     spec1_elec=('', ''), spec1_zpve=('', ''),
+                     spec2_elec=('', ''), spec2_zpve=('', '')):
     """ obtains a relative energy for a unimolecular or bimolecular species
         from a series of paths
     """
-   
+  
+    
+
     # Read in the reference electronic energy and zpve
+    ref_elec_path = os.path.join(ref_elec[0], ref_elec[1])
+    ref_zpve_path = os.path.join(ref_zpve[0], ref_zpve[1])
     with open(ref_elec_path, 'r') as f:
         ref_energy_str = f.read()
     with open(ref_zpve_path, 'r') as f:
@@ -177,6 +233,8 @@ def energy_from_path(ref_elec_path='', ref_zpve_path='',
     ref_e_zpve = autofile.read.energy(ref_zpve_str)
 
     # Read in the species 1 electronic energy and zpve
+    spec1_elec_path = os.path.join(spec1_elec[0], spec1_elec[1])
+    spec1_zpve_path = os.path.join(spec1_zpve[0], spec1_zpve[1])
     with open(spec1_elec_path, 'r') as f:
         energy_str1 = f.read()
     with open(spec1_zpve_path, 'r') as f:
@@ -185,13 +243,14 @@ def energy_from_path(ref_elec_path='', ref_zpve_path='',
     e_zpve1 = autofile.read.energy(zpve_str1)
     
     # Read in the species 2 electronic energy and zpve
-    if spec2_elec_path == '':
+    if spec2_elec == ('', ''):
         e_elec2 = 0.0
     else: 
+        spec1_elec_path = os.path.join(spec1_elec[0], spec1_elec[1])
         with open(spec2_elec_path, 'r') as f:
             energy_str2 = f.read()
         e_elec2 = autofile.read.energy(energy_str2)
-    if spec2_zpve_path == '':
+    if spec2_zpve == ('', ''):
         e_zpve2 = 0.0
     else: 
         with open(spec2_zpve_path, 'r') as f:
@@ -209,23 +268,37 @@ def energy_from_path(ref_elec_path='', ref_zpve_path='',
     return rel_energy
 
 
-def geom_from_path(geom_path):
+def geom_from_path(file_path, file_name):
     """ obtains a geometry from a path
     """
     
-    with open(geom_path, 'r') as f:
+    geom_file = os.path.join(file_path, file_name)
+    with open(geom_file, 'r') as f:
         geom_str = f.read()
     geom = autofile.read.geometry(geom_str)
 
     return geom
 
 
-def freqs_from_path(freqs_path):
+def freqs_from_path(file_path, file_name):
     """ obtains a frequencies from a path
     """
     
+    freq_file = os.path.join(file_path, file_name)
     with open(freqs_path, 'r') as f:
         freqs_str = f.read()
     freqs = util.read_freqs(freqs_str)
 
     return freqs
+
+
+def hr_from_path(file_path, file_name):    
+    """ obtains hindered rotors from a path
+    """
+
+    hr_file = os.path.join(file_path, file_name)
+    with open(hr_file, 'r') as f:
+        hr_str = f.read()
+    hrs = util.read_hindered_rotors(hr_str)
+
+    return hrs

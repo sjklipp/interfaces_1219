@@ -2,7 +2,7 @@
 !  GLOBAL SECTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++
 TemperatureList[K]                     200  300  400
-PressureList[atm]                      200  300  400
+PressureList[atm]                      0.1  1.0  10.0
 !
 EnergyStepOverTemperature              .2
 ExcessEnergyOverTemperature            40
@@ -60,7 +60,7 @@ Bimolecular P1
   Fragment Mol1
     RRHO
       Core RigidRotor
-        SymmetryFactor          2.0
+        SymmetryFactor          3.0
       End
       Geometry[angstrom]        3
         O   3.612024942608438  0.3048975151173246  -0.10295379901379531
@@ -86,4 +86,47 @@ Bimolecular P1
 !---------------------------------------------------
   GroundEnergy[kcal/mol]    150.9160347499983
 !---------------------------------------------------
+End
+!**************************************************
+Barrier B1 R1 P1
+  RRHO
+    Core RigidRotor
+      SymmetryFactor          3.0
+    End
+    Geometry[angstrom]        3
+      O   3.612024942608438  0.3048975151173246  -0.10295379901379531
+      N   8.382681868298151  0.3048975151173246  -0.10295379901379531
+      N   12.353705959338303  0.3048975151173246  -0.10295379901379531
+    Frequencies[1/cm]         9
+      100.00  200.00  300.00  400.00  500.00  
+      600.00  700.00  800.00  900.00  
+    ZeroEnergy[kcal/mol]      18.511530249999215
+    ElectronicLevels[1/cm]    1
+      1  0.0
+    Rotor  Hindered
+      Group                6   7   8   9   10  11  
+      Axis                 3   2   
+      Symmetry             1
+      Potential[kcal/mol]  12
+        0.00    0.80    1.49    0.49    0.27    2.00    
+        3.01    1.37    0.99    2.12    2.20    1.03     
+    End
+    Rotor  Hindered
+      Group                9   10  11  
+      Axis                 6   3   
+      Symmetry             1
+      Potential[kcal/mol]  12
+        0.00    2.37    6.84    7.73    3.75    0.23    
+        0.82    1.63    0.69    0.40    1.46    1.28     
+    End
+    Rotor  Hindered
+      Group                10  11  
+      Axis                 9   6   
+      Symmetry             1
+      Potential[kcal/mol]  12
+        0.00    1.95    5.81    7.22    5.06    1.63    
+        0.00    1.79    5.58    7.25    5.32    1.80     
+    End
+  End
+End    
 End
