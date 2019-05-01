@@ -3,6 +3,9 @@ Builds a MESS input for a reaction
 """
 
 import os
+from mess_io.writer import write_global_pf as globalpf
+from mess_io.writer import write_global_reaction as globalrxn
+
 from lib import rxn_chan_head
 from lib import species_head
 from lib import species_sep
@@ -21,30 +24,24 @@ from lib import freqs_from_path
 from lib import hr_from_path
 
 
-# Set the name of the MESS input file to be created
+# Initialize input file name and empty file input string
+inp_str = ''
 mess_file_name = 'messrxn.inp'
 
 # Write the global keys section
-global_keys(
-    filename=mess_file_name,
-    messtype='reaction',
-    temperatures=[200, 300, 400],
-    pressures=[0.1, 1.0, 10.0]
-)
+input_str += globalrxn(temperatures=[200, 300, 400],
+                       pressures=[0.1, 1.0, 10.0])
 
 # Write the energy transfer section
-energy_transfer(
-    filename=mess_file_name,
-    exp_factor=150.0,
-    exp_power=50.0,
-    exp_cutoff=80.0,
-    eps1=100.0,
-    eps2=200.0,
-    sig1=10.0,
-    sig2=20.0,
-    mass1=15.0,
-    mass2=25.0
-)
+input_str += energy_transfer(exp_factor=150.0, 
+                             exp_power=50.0, 
+                             exp_cutoff=80.0,
+                             eps1=100.0, 
+                             eps2=200.0,
+                             sig1=10.0,
+                             sig2=20.0,
+                             mass1=15.0, 
+                             mass2=25.0)
 
 # Writes a string for the head of a reaction channel section
 rxn_chan_head(
@@ -144,5 +141,6 @@ ts_sadpt(
 )
 
 # Writes a final 'End' for the Model keyword
+mess_file_name = 'messrxn.inp'
 with open(mess_file_name, 'a') as f:
     f.write('End')
