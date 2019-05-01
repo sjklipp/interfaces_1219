@@ -59,17 +59,14 @@ input_str += well(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(mol_path, 'mol.xyz'),
-            sym_factor=2.000
-        ),
+            sym_factor=2.000),
         freqs=freqs_from_path(mol_path, 'mol.freqs'),
         zero_energy=energy_from_path(
             ref_elec=(ref_mol_path, 'ref.ene'),
             ref_zpve=(ref_mol_path, 'ref.zpve'),
             spec1_elec=(mol_path, 'mol.ene'),
-            spec1_zpve=(mol_path, 'mol.zpve')
-        ),
-        elec_levels=((1, 0.0),)
-    )
+            spec1_zpve=(mol_path, 'mol.zpve')),
+        elec_levels=((1, 0.0),))
 )
 
 # Writes a string for a string to seperate different species sections
@@ -86,25 +83,21 @@ input_str += bimolecular(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(spec1_path, 'mol.xyz'),
-            sym_factor=3.000
-        ),
+            sym_factor=3.000),
         freqs=freqs_from_path(spec1_path, 'mol.freqs'),
         zero_energy=0.0,
-        elec_levels=((1, 0.0),)
-    ),
+        elec_levels=((1, 0.0),)),
     species2_label='Atom2',
     species2_data=atom(
         name='O',
-        elec_levels=((1, 0.0), (3, 150.0), (5, 450.0))
-    ),
+        elec_levels=((1, 0.0), (3, 150.0), (5, 450.0))),
     ground_energy=energy_from_path(
         ref_elec=(ref_mol_path, 'ref.ene'),
         ref_zpve=(ref_mol_path, 'ref.zpve'),
         spec1_elec=(spec1_path, 'mol.ene'),
         spec1_zpve=(spec1_path, 'mol.zpve'),
         spec2_elec=(spec2_path, 'atom.ene'),
-        spec2_zpve=('', '')
-    )
+        spec2_zpve=('', ''))
 )
 
 # Writes a string for a string to seperate different species sections
@@ -121,23 +114,19 @@ input_str += ts_sadpt(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(ts_path, 'mol.xyz'),
-            sym_factor=3.000
-        ),
+            sym_factor=3.000),
         freqs=freqs_from_path(ts_path, 'mol.freqs'),
         zero_energy=energy_from_path(
             ref_elec=(ref_mol_path, 'ref.ene'),
             ref_zpve=(ref_mol_path, 'ref.zpve'),
             spec1_elec=(ts_path, 'mol.ene'),
-            spec1_zpve=(ts_path, 'mol.zpve')
-        ),
+            spec1_zpve=(ts_path, 'mol.zpve')),
         elec_levels=((1, 0.0),),
-        hind_rot=build_hr(hr_from_path(ts_path, 'mol.hr'))
-    )
+        hind_rot=build_hr(hr_from_path(ts_path, 'mol.hr')))
 )
 
 # Writes a final 'End' for the Model keyword
 input_str += 'End'
-
 
 # Writes the string to a file
 mess_file_name = 'messrxn.inp'
