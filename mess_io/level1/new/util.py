@@ -83,13 +83,14 @@ def energy_from_path(ref_elec=('', ''), ref_zpve=('', ''),
     if spec2_elec == ('', ''):
         e_elec2 = 0.0
     else: 
-        spec1_elec_path = os.path.join(spec1_elec[0], spec1_elec[1])
+        spec2_elec_path = os.path.join(spec2_elec[0], spec2_elec[1])
         with open(spec2_elec_path, 'r') as f:
             energy_str2 = f.read()
         e_elec2 = autofile.read.energy(energy_str2)
     if spec2_zpve == ('', ''):
         e_zpve2 = 0.0
     else: 
+        spec2_zpve_path = os.path.join(spec2_zpve[0], spec2_zpve[1])
         with open(spec2_zpve_path, 'r') as f:
             zpve_str2 = f.read()
         e_zpve2 = autofile.read.energy(zpve_str2)
@@ -125,8 +126,8 @@ def freqs_from_path(file_path, file_name):
     """
     
     # Set the file path and read in the file string    
-    freq_file = os.path.join(file_path, file_name)
-    with open(freqs_path, 'r') as f:
+    freqs_file = os.path.join(file_path, file_name)
+    with open(freqs_file, 'r') as f:
         freqs_str = f.read()
     
     # Obtain a freqs object from the string
