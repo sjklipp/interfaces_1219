@@ -5,7 +5,6 @@ Builds a MESS input for a reaction
 # import string lib because I am lazy
 import mess_io.writer
 # Writes main sections of the MESS input
-from mess_io.writer import write_global_pf as globalpf
 from mess_io.writer import write_global_reaction as globalrxn
 from mess_io.writer import write_energy_transfer as etransfer
 from mess_io.writer import write_species as species
@@ -14,6 +13,7 @@ from mess_io.writer import write_bimolecular as bimolecular
 from mess_io.writer import write_ts_sadpt as tssadpt
 from mess_io.writer import write_molecule as molecule
 from mess_io.writer import write_atom as atom
+from mess_io.writer import write_tunnel_eckart as eckart
 # Helper build functions
 from util import build_core
 from util import build_hr
@@ -52,8 +52,8 @@ input_str += mess_io.writer.stringslib.RXN_CHAN_HEAD_STR
 ref_mol_path='./data/well'
 mol_path='./data/well'
 input_str += well(
-    'R1',
-    molecule(
+    well_label='R1',
+    well_data=molecule(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(mol_path, 'mol.xyz'),
@@ -64,7 +64,7 @@ input_str += well(
             ref_zpve=(ref_mol_path, 'ref.zpve'),
             spec1_elec=(mol_path, 'mol.ene'),
             spec1_zpve=(mol_path, 'mol.zpve')),
-        elec_levels=((1, 0.0),))
+        elec_levels=((0.0, 1),))
 )
 
 # Writes a string for a string to seperate different species sections
@@ -75,21 +75,21 @@ spec1_path='./data/bimol/s1'
 spec2_path='./data/bimol/s2'
 ref_mol_path='./data/bimol'
 input_str += bimolecular(
-    'P1',
-    'Mol1',
-    molecule(
+    bimol_label = 'P1',
+    species1_label = 'Mol1',
+    species1_data=molecule(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(spec1_path, 'mol.xyz'),
             sym_factor=3.000),
         freqs=freqs_from_path(spec1_path, 'mol.freqs'),
         zero_energy=0.0,
-        elec_levels=((1, 0.0),)),
-    'Atom2',
-    atom(
-        'O',
-        ((1, 0.0), (3, 150.0), (5, 450.0))),
-    energy_from_path(
+        elec_levels=((0.0, 1),)),
+    species2_label = 'Atom2',
+    species2_data=atom(
+        name='O',
+        elec_levels=((0.0, 1), (150.0, 3), (450.0, 5))),
+    ground_energy=energy_from_path(
         ref_elec=(ref_mol_path, 'ref.ene'),
         ref_zpve=(ref_mol_path, 'ref.zpve'),
         spec1_elec=(spec1_path, 'mol.ene'),
@@ -103,12 +103,14 @@ input_str += mess_io.writer.stringslib.SPECIES_SEC_SEP_STR
 
 # Set paths to the directory to file containing a transition state
 ts_path='./data/ts'
+reac_path='./data/ts'
+prod_path='./data/ts'
 ref_mol_path='./data/ts'
 input_str += tssadpt(
-    'B1',
-    'R1',
-    'P1',
-    molecule(
+    ts_label='B1',
+    reac_label='R1',
+    prod_label='P1',
+    ts_data=molecule(
         core=build_core(
             'rigidrotor',
             geom1=geom_from_path(ts_path, 'mol.xyz'),
@@ -119,8 +121,17 @@ input_str += tssadpt(
             ref_zpve=(ref_mol_path, 'ref.zpve'),
             spec1_elec=(ts_path, 'mol.ene'),
             spec1_zpve=(ts_path, 'mol.zpve')),
-        elec_levels=((1, 0.0),),
-        hind_rot=build_hr(hr_from_path(ts_path, 'mol.hr')))
+        elec_levels=((0.0, 1),),
+        hind_rot=build_hr(hr_from_path(ts_path, 'mol.hr')),
+        tunnel='',
+#        tunnel=eckart(eckart_from_path(
+#            ts_freqs_path=(ts_path, 'mol.freqs')
+#            ts_energy_path=(ts_path, 'mol.ene')
+#            reac_energy_path=(reac_path, 'mol.ene') 
+#            prod_energy_path=(prod_path, 'mol.ene')):
+        anharm='',
+        rovib_coups='',
+        rot_dists='')
 )
 
 # Writes a string to show end of last section and last 'End for Model keyword

@@ -21,7 +21,7 @@ def write_atom(name, elec_levels):
 
     # Create dictionary to fill template
     atom_keys = {
-        'atom_name': atom_name,
+        'name': name,
         'nlevels': nlevels,
         'levels': levels
     }

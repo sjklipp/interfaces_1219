@@ -90,12 +90,12 @@ def write_bimolecular(bimol_label,
     return bimolecular_str
 
 
-def write_ts_sadpt(ts_label, reac_label, prod_label, ts_sadpt_data):
+def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data):
     """ Writes a TS section containing only a saddle point 
     """
 
     # Indent the string containing all of data for the saddle point
-    ts_data = util.indent(ts_sadpt_data, 2)
+    ts_data = util.indent(ts_data, 2)
 
     # Create dictionary to fill template
     ts_sadpt_keys = {

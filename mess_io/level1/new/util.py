@@ -10,11 +10,11 @@ import mess_io.writer
 # FUNCTIONS TO HELP BUILD MORE COMPLICATED PARTS OF THE MESS INPUT #
 
 def build_core(core_type,
-         geom1='', geom2='', stoich='',
-         sym_factor='', 
-         ne_file='',
-         interp_emax=100, quant_lvl_emax=9,
-         pot_prefactor=10, pot_power=6):
+               geom1='', geom2='', stoich='',
+               sym_factor='', 
+               ne_file='',
+               interp_emax=100, quant_lvl_emax=9,
+               pot_prefactor=10, pot_power=6):
     """  writes the core section since it is a bit more complicated 
          might want to break up later, but this works for now
     """
@@ -80,6 +80,7 @@ def energy_from_path(ref_elec=('', ''), ref_zpve=('', ''),
     e_zpve1 = autofile.read.energy(zpve_str1)
     
     # Read in the species 2 electronic energy and zpve
+    # Values will be set to 0.0 if rel energy is being computed for a single species
     if spec2_elec == ('', ''):
         e_elec2 = 0.0
     else: 
@@ -151,6 +152,42 @@ def hr_from_path(file_path, file_name):
     return hrs
 
 
+def eckart_from_path(ts_freqs_path=('', ''), 
+                     ts_energy_path=('', ''),
+                     reac_energy_path=('', ''), 
+                     prod_energy_path=('', '')):
+    """ Get Eckart tunneling
+    """
+
+    # Get the imaginary frequency
+    ts_freqs_file = os.path.join(ts_freqs_path[0], ts_freqs_path[1])
+    with open(ts_freq_file, 'r') as f:
+        ts_freqs_str = f.read()
+    imag_freq = read_imag_freq(ts_freqs_str)
+
+    # Get the energies to compute well depths
+    ts_file = os.path.join(ts_path[0], ts_path[1])
+    reac_file = os.path.join(reac_path[0], reac_path[1])
+    prod_file = os.path.join(prod_path[0], prod_path[1])
+    with open(ts_file, 'r') as f:
+        ts_str = f.read()
+    e_ts = autofile.read.energy(ts_str)
+    with open(reac_file, 'r') as f:
+        reac_str = f.read()
+    e_reac = autofile.read.energy(reac_str)
+    with open(prod_file, 'r') as f:
+        prod_str = f.read()
+    e_prod = autofile.read.energy(prod_str)
+   
+    # Calculate the well depths
+    well_depth1 = ( e_ts - e_reac ) * 627.5095         
+    well_depth2 = ( e_ts - e_prod ) * 627.5095         
+    e_elec1 = autofile.read.energy(energy_str1)
+
+
+    return imag_freq, well_depth1, well_depth2
+
+
 # FUNCTIONS TO READ DATA FROM FILES, COUPLED TO ABOVE PATH FUNCTIONS; SHOULD BE REPLACED #
 
 def read_freqs(file_str):
@@ -195,3 +232,13 @@ def read_hindered_rotors(file_str):
             hind_rot.append( [group, axis, symmetry, potential] )            
     
     return hind_rot
+
+
+def read_imag_freq(file_str):
+    """ imag freq
+    """
+    for line in file_str.splitlines():
+        if 'i' in line:
+            imag_freq = line.strip().replace('i', '')
+        
+    return imag_freq

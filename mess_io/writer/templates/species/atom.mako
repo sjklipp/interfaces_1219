@@ -1,4 +1,4 @@
 Atom
-  Name ${atom_name}
+  Name ${name}
   ElectronicLevels[1/cm]    ${nlevels}
 ${levels}

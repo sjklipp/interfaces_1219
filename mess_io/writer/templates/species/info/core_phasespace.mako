@@ -1,3 +1,4 @@
+  Stoichiometry  ${stoich}
   Core PhaseSpaceTheory
     FragmentGeometry[angstrom]    ${natom1}
 ${geom1}
@@ -7,4 +8,3 @@ ${geom2}
     PotentialPrefactor[au] 	      ${pot_prefactor}
     PotentialPowerExponent 	      ${pot_power_exp}
   End
-  Stoichiometry  ${stoich}\
