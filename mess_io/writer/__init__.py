@@ -20,7 +20,7 @@ from mess_io.writer.info import write_rotor_hindered
 from mess_io.writer.info import write_rotor_internal
 from mess_io.writer.info import write_tunnel_eckart
 from mess_io.writer.info import write_tunnel_sct
-from mess_io.writer.stringslib import SPECIES_HEAD_STR
+import mess_io.writer.stringslib
 
 
 __all__ = [
@@ -42,5 +42,5 @@ __all__ = [
     'write_rotor_internal',
     'write_tunnel_eckart',
     'write_tunnel_sct',
-    'SPECIES_HEAD_STR'
+    'mess_io.writer.stringslib'
 ]

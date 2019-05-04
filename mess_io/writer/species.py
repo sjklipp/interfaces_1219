@@ -48,14 +48,13 @@ def write_molecule(core, freqs, zero_energy, elec_levels,
 
     # Format the rovib couplings and rotational distortions if needed
     if rovib_coups != '':
-        rovib_coups = '  '.join(str(val) for val in rovib_coups)
-        rovib_coups = util.indent(rovib_coups, 4)
+        rovib_coups = util.format_rovib_coups(rovib_coups)
     if rot_dists != '':
         rot_dists = util.format_rot_dist_consts(rot_dists)
+    if anharm != '':
+        anharm = util.format_anharm(anharm)
 
     # Indent various strings string if needed
-    if anharm != '':
-        anharm = util.indent(anharm, 4)        
     if hind_rot != '':
         hind_rot = util.indent(hind_rot, 2)        
     if tunnel != '':

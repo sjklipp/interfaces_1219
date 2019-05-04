@@ -27,6 +27,7 @@ ${rovib_coups}\
 % if rot_dists != '':
   RotationalDistortion[1/cm]
 ${rot_dists}\
+  End
 % endif
 ## Tunnel Section
 % if tunnel != '':

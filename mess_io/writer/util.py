@@ -2,6 +2,9 @@
 Utility functions
 """
 
+import numpy
+
+
 def indent(string, nspaces):
     """ Indents a multiline string. Required for Python 2,
         import textwrap textwrap.indent works for Python 3
@@ -107,6 +110,19 @@ def format_rotor_potential(potential):
     return npotential, potential_string
 
 
+def format_rovib_coups(rovib_coups):
+    """ Format the rovibrational couplings
+    """
+
+    # Join the values into a string
+    rovib_coups_str = '  '.join(str(val) for val in rovib_coups)
+  
+    # Indent the lines
+    rovib_coups_str = indent(rovib_coups_str, 4)
+
+    return rovib_coups_str
+
+
 def format_rot_dist_consts(rot_dists):
     """ Format the rotational distortion constants.
     """
@@ -122,3 +138,24 @@ def format_rot_dist_consts(rot_dists):
     rot_dists_string = indent(rot_dists_string, 4)
 
     return rot_dists_string
+
+
+def format_anharm(anharm):
+    """ Format the anharm section
+    """
+    
+    # Get the lower triangle of the anharm matrix  
+    anharm_tril = numpy.tril(numpy.array(anharm))
+
+    # Loop over the rows of the anharm numpy array   
+    anharm_string = ''
+    for i in range(anharm_tril.shape[0]):
+        anharm_string += '  '.join([str(val) for val in list(anharm_tril[i, :]) 
+                                    if val != 0.0])
+        if (i+1) != anharm_tril.shape[0]:
+            anharm_string += '\n'
+    
+    # Indent the lines
+    anharm_string = indent(anharm_string, 4)        
+
+    return anharm_string
