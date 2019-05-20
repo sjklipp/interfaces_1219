@@ -18,13 +18,14 @@ def build_mess_wells_str(wells):
     for well in wells:
     
         # Set dictionaries for clarity
-        data_dict = well[0]
-        path_dict = well[1]
+        head_dict = well[0]
+        data_dict = well[1]
+        path_dict = well[2]
         
         # SET THE VALUES FOR REQUIRED INFORMATION #
     
         # Check for existance of required keys
-        assert MESS.MOL_LBL in data_dict
+        assert MESS.HD_LBL in head_dict
         assert MESS.GEOM in data_dict
         assert MESS.SYMF in data_dict
         assert MESS.FREQ in data_dict
@@ -36,10 +37,10 @@ def build_mess_wells_str(wells):
         assert data_dict[MESS.CORE] == 'rigidrotor' or data_dict[MESS.CORE] == 'multirotor'
 
         # Build the molecule string with the core string and above data
-        molecule_str = build_mess_molecule_str(data_dict, path_dict)
+        molecule_str = build_mess_molecule_str(head_dict, data_dict, path_dict)
     
         # Build the wells string with the label and molecule string
-        well_str = mess_io.writer.write_well(data_dict[MESS.MOL_LBL], molecule_str)
+        well_str = mess_io.writer.write_well(head_dict[MESS.HD_LBL], molecule_str)
 
         # Add to the wells string the well string and a seperator
         wells_str += well_str

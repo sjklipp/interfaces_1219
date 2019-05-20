@@ -41,9 +41,8 @@ class MESS():
     
     # MESS Input Labels
     MTYP = 'mol_type'
-    TS_LBL = 'ts_label'
-    BI_LBL = 'bimolecular_label'
-    MOL_LBL = 'mol_label'
+    HD_LBL = 'head_label'
+    MOL_LBL = 'spec_label'
     R_LBL = 'reactant_label'
     P_LBL = 'product_label'
     

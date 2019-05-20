@@ -40,12 +40,13 @@ def geom_format(geom):
     """
 
     # Get the number of atoms
-    natoms = len(geom)
+    natoms = len(geom) 
 
-    # Build geom string
+    # Build geom string; converting the coordinates to angstrom
     geom_string = ''
     for (asymb, xyz) in geom:
-        geom_string += '{:s}   {:s}  {:s}  {:s}\n'.format(asymb, *map(repr, xyz))
+        geom_string += '{:s}   {:>12.8f}  {:>12.8f}  {:>12.8f}\n'.format(
+                        asymb, *tuple([val*0.529177 for val in xyz]))
 
     # Remove final newline character
     geom_string = geom_string.rstrip()
@@ -66,10 +67,10 @@ def freqs_format(freqs):
     # Build freqs string
     freq_string = ''
     for i, freq in enumerate(freqs):
-        if ((i+1) % 5) == 0 and (i+1) != len(freqs):
-            freq_string += '{0:<8.2f}\n'.format(freq)
+        if ((i+1) % 6) == 0 and (i+1) != len(freqs):
+            freq_string += '{0:<10.2f}\n'.format(freq)
         else:
-            freq_string += '{0:<8.2f}'.format(freq)
+            freq_string += '{0:<10.2f}'.format(freq)
 
     # Indent the lines
     freq_string = indent(freq_string, 4)

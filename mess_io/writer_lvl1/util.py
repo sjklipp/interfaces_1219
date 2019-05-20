@@ -63,8 +63,8 @@ def energy_from_path(main_path='', elec_path='', zpve_path=''):
         energy_str = f.read()
     with open(zpve_path, 'r') as f:
         zpve_str = f.read()
-    e_elec = autofile.read.energy(energy_str)
-    e_zpve = autofile.read.energy(zpve_str)
+    e_elec = autofile.file.read.energy(energy_str)
+    e_zpve = autofile.file.read.energy(zpve_str)
 
     # Calculate the total energy
     total_energy = e_elec + e_zpve
@@ -82,7 +82,7 @@ def geom_from_path(file_path, file_name):
         geom_str = f.read()
     
     # Obtain a geom object from the string
-    geom = autofile.read.geometry(geom_str)
+    geom = autofile.file.read.geometry(geom_str)
 
     return geom
 
@@ -168,15 +168,24 @@ def imag_freq_from_path(file_path, file_name):
 
 
 # FUNCTIONS TO READ DATA FROM FILES, COUPLED TO ABOVE PATH FUNCTIONS; SHOULD BE REPLACED #
-
 def read_freqs(file_str):
     """ freqs
     """
+    import sys    
+    flines = file_str.splitlines()
+    
+    # Get nonzero frequencies
     freqs = []
-    for line in file_str.splitlines():
-        if 'i' not in line:
-            freqs.append(float(line.strip()))                
-        
+    for i, line in enumerate(flines):
+        if 0.0 != float(flines[i].strip()):
+            freqs.append(float(flines[i].strip()))                
+
+    # Remove last frequencies
+    if (0.0 != float(flines[-1].strip()) and 
+        0.0 == float(flines[-2].strip()) and 
+        0.0 == float(flines[-3].strip())):
+        freqs = freqs[:-1]
+
     return freqs
 
 

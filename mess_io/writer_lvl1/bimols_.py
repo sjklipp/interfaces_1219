@@ -2,9 +2,11 @@
 uses dictionaries defined in other file to build the MESS strings
 """
 
+import os
 import mess_io
 from mess_io.writer_lvl1.params import MESS
 from mess_io.writer_lvl1.molecule_ import build_mess_molecule_str
+from mess_io.writer_lvl1.molecule_ import build_mess_atom_str
 from mess_io.writer_lvl1.util import geom_from_path
 from mess_io.writer_lvl1.util import energy_from_path
 from mess_io.writer_lvl1.util import freqs_from_path
@@ -21,9 +23,9 @@ def build_mess_bimols_str(bimols):
 
     # Loop over each bimolecular species
     for bimol in bimols:
-    
+        
         # Set dictionaries for clarity
-        bimol_dict = bimol[0]
+        head_dict = bimol[0]
         spec1_data_dict = bimol[1][0]
         spec1_path_dict = bimol[1][1]
         spec2_data_dict = bimol[2][0]
@@ -32,8 +34,8 @@ def build_mess_bimols_str(bimols):
         # SET THE VALUES FOR REQUIRED INFORMATION #
             
         # Checks that the bimolecular label and grount-energy is set in the initial dictionary
-        assert MESS.BI_LBL in bimol_dict
-        assert MESS.GENE in bimol_dict
+        assert MESS.HD_LBL in head_dict
+        assert MESS.GENE in head_dict
     
         # Check if the species1 and species2 molecule type is set to a molecule or atom
         assert spec1_data_dict[MESS.MTYP] == 'molecule' or spec1_data_dict[MESS.MTYP] == 'atom' 
@@ -59,7 +61,7 @@ def build_mess_bimols_str(bimols):
             assert spec1_data_dict[MESS.CORE] == 'rigidrotor' or spec1_data_dict[MESS.CORE] == 'multirotor' 
             
             # Build the molecule string 
-            spec1_str = build_mess_molecule_str(spec1_data_dict, spec1_path_dict)
+            spec1_str = build_mess_molecule_str(head_dict, spec1_data_dict, spec1_path_dict)
         
         else:
             
@@ -90,7 +92,7 @@ def build_mess_bimols_str(bimols):
             assert spec2_data_dict[MESS.CORE] == 'rigidrotor' or spec1_data_dict[MESS.CORE] == 'multirotor' 
         
             # Build the molecule string 
-            spec2_str = build_mess_molecule_str(spec2_data_dict, spec2_path_dict)
+            spec2_str = build_mess_molecule_str(head_dict, spec2_data_dict, spec2_path_dict)
 
         else:
             
@@ -102,25 +104,40 @@ def build_mess_bimols_str(bimols):
             spec2_str = build_mess_atom_str(spec2_data_dict, spec2_path_dict)
 
         # Ground-Energy set directly from dictionary or using paths
-        if bimol_dict[MESS.GENE] == 'PATH':
+        if head_dict[MESS.GENE] == 'PATH':
+            assert MESS.REF_PATH in head_dict
+            assert MESS.REF_ENE_PATH in head_dict
+            assert MESS.REF_ZPVE_PATH in head_dict
+            assert MESS.MOL_PATH in spec1_path_dict
+            assert MESS.MOL_ENE_PATH in spec1_path_dict
+            assert MESS.MOL_ZPVE_PATH in spec1_path_dict
+            assert MESS.MOL_PATH in spec2_path_dict
+            assert MESS.MOL_ENE_PATH in spec2_path_dict
+            assert MESS.MOL_ZPVE_PATH in spec2_path_dict
+            assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ENE_PATH]))    
+            assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ZPVE_PATH]))    
+            assert os.path.exists(os.path.join(spec1_path_dict[MESS.MOL_PATH], spec1_path_dict[MESS.MOL_ENE_PATH]))    
+            assert os.path.exists(os.path.join(spec1_path_dict[MESS.MOL_PATH], spec1_path_dict[MESS.MOL_ZPVE_PATH]))    
+            assert os.path.exists(os.path.join(spec2_path_dict[MESS.MOL_PATH], spec2_path_dict[MESS.MOL_ENE_PATH]))    
+            assert os.path.exists(os.path.join(spec2_path_dict[MESS.MOL_PATH], spec2_path_dict[MESS.MOL_ZPVE_PATH]))    
             # Get the total energy for the reference, species 1, and species 2    
-            ref_total_energy = energy_from_path(bimol_dict[MESS.REF_PATH], 
-                                                bimol_dict[MESS.REF_ENE_PATH], 
-                                                bimol_dict[MESS.REF_ZPVE_PATH])
-            spec1_total_energy = energy_from_path(spec1_path_dict[MESS.MOL_PATH], 
-                                                  spec1_path_dict[MESS.MOL_ENE_PATH], 
-                                                  spec1_path_dict[MESS.MOL_ZPVE_PATH])
-            spec2_total_energy = energy_from_path(spec2_path_dict[MESS.MOL_PATH], 
-                                                  spec2_path_dict[MESS.MOL_ENE_PATH], 
-                                                  spec2_path_dict[MESS.MOL_ZPVE_PATH])
+            ref_total_energy = energy_from_path(head_dict[MESS.REF_PATH], 
+                                                head_dict[MESS.REF_ENE_PATH], 
+                                                head_dict[MESS.REF_ZPVE_PATH])
+            spc1_total_energy = energy_from_path(spec1_path_dict[MESS.MOL_PATH], 
+                                                 spec1_path_dict[MESS.MOL_ENE_PATH], 
+                                                 spec1_path_dict[MESS.MOL_ZPVE_PATH])
+            spc2_total_energy = energy_from_path(spec2_path_dict[MESS.MOL_PATH], 
+                                                 spec2_path_dict[MESS.MOL_ENE_PATH], 
+                                                 spec2_path_dict[MESS.MOL_ZPVE_PATH])
             # Calculate the relative ground energy using the species energies
-            ground_energy = (spec1_total_energy + spec2_total_energy) - ref_total_energy
-            ground_energy *= 627.5095
+            ground_energy = (spc1_total_energy + spc2_total_energy) - ref_total_energy
+            ground_energy = '{0:<8.3f}'.format(ground_energy * 627.5095)
         else:
-            ground_energy = data_dict[MESS.GENE]
+            ground_energy = head_dict[MESS.GENE]
     
         # Build the bimolecular string with the label and molecule string
-        bimol_str = mess_io.writer.write_bimolecular(bimol_dict[MESS.BI_LBL],
+        bimol_str = mess_io.writer.write_bimolecular(head_dict[MESS.HD_LBL],
                                                      spec1_data_dict[MESS.MOL_LBL],
                                                      spec1_str, 
                                                      spec2_data_dict[MESS.MOL_LBL],
@@ -131,4 +148,4 @@ def build_mess_bimols_str(bimols):
         bimols_str += bimol_str
         bimols_str += mess_io.writer.stringslib.SPECIES_SEC_SEP_STR
 
-        return bimols_str
+    return bimols_str

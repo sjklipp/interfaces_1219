@@ -10,7 +10,7 @@ Model
     End
   CollisionFrequency
     LennardJones
-       Epsilons[K]                      ${epsilon1}    ${epsilon2}
-       Sigmas[angstrom]                 ${sigma1}    ${sigma2}
-       Masses[amu]                      ${mass1}    ${mass2}
-    End\
+       Epsilons[K]                      ${epsilons}
+       Sigmas[angstrom]                 ${sigmas}
+       Masses[amu]                      ${masses}
+    End

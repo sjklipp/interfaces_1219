@@ -29,17 +29,19 @@ def write_energy_transfer(exp_factor, exp_power, exp_cutoff,
         :rtype: string
     """
 
+    # Put the values into a string
+    epsilon_str = '{0:<10.3f} {1:<10.3f}'.format(eps1, eps2)
+    sigma_str = '{0:<10.3f} {1:<10.3f}'.format(sig1, sig2)
+    mass_str = '{0:<10.3f} {1:<10.3f}'.format(mass1, mass2)
+
     # Create dictionary to fill template
     energy_trans_keys = {
         'exp_factor': exp_factor,
         'exp_power': exp_power,
         'exp_cutoff': exp_cutoff,
-        'epsilon1': eps1,
-        'epsilon2': eps2,
-        'sigma1': sig1,
-        'sigma2': sig2,
-        'mass1': mass1,
-        'mass2': mass2
+        'epsilons': epsilon_str,
+        'sigmas': sigma_str,
+        'masses': mass_str
     }
 
     # Set template name and path for the energy transfer section 

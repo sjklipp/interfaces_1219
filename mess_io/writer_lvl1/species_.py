@@ -18,13 +18,14 @@ def build_mess_species_str(species):
     for specie in species:
     
         # Set dictionaries for clarity
-        data_dict = specie[0]
-        path_dict = specie[1]
+        head_dict = specie[0]
+        data_dict = specie[1]
+        path_dict = specie[2]
         
         # SET THE VALUES FOR REQUIRED INFORMATION #
     
         # Check for existance of required keys
-        assert MESS.MOL_LBL in data_dict
+        assert MESS.HD_LBL in head_dict
         assert MESS.GEOM in data_dict
         assert MESS.SYMF in data_dict
         assert MESS.FREQ in data_dict
@@ -36,10 +37,10 @@ def build_mess_species_str(species):
         assert data_dict[MESS.CORE] == 'rigidrotor' or data_dict[MESS.CORE] == 'multirotor'
 
         # Build the molecule string with the core string and above data
-        molecule_str = build_mess_molecule_str(data_dict, path_dict)
+        molecule_str = build_mess_molecule_str(head_dict, data_dict, path_dict)
     
         # Build the species string with the label and molecule string
-        specie_str = mess_io.writer.write_species(data_dict[MESS.MOL_LBL], molecule_str)
+        specie_str = mess_io.writer.write_species(head_dict[MESS.HD_LBL], molecule_str)
 
         # Add to the species string the specie string and a seperator
         species_str += specie_str
