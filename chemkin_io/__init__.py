@@ -1,15 +1,19 @@
-""" read and write CHEMKIN-format files
+""" CHEMKIN I/O
 """
-from ._parse import species_names
-from ._parse import reaction_data
-from ._parse import thermo_data
-from ._parse import reaction_unit_names
-from ._parse import thermo_t_common_default
+from chemkin_io.mechanism import species_block
+from chemkin_io.mechanism import reaction_block
+from chemkin_io.mechanism import thermo_block
+from chemkin_io import species
+from chemkin_io import reaction
+from chemkin_io import thermo
+from chemkin_io import util
 
 __all__ = [
-    'species_names',
-    'reaction_data',
-    'thermo_data',
-    'reaction_unit_names',
-    'thermo_t_common_default',
+    'species_block',
+    'reaction_block',
+    'thermo_block',
+    'species',
+    'reaction',
+    'thermo',
+    'util',
 ]
