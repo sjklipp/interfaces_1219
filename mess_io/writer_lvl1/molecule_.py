@@ -54,26 +54,46 @@ def build_mess_molecule_str(head_dict, data_dict, path_dict):
    
     # Zero-Energy set directly from dictionary or using paths; species2 sections of fxn call set to ''
     if data_dict[MESS.ZENE] == 'PATH':
+        
+        # Check that all the reference 1 energy paths have been provided and exist
         assert MESS.REF_PATH in head_dict
         assert MESS.REF_ENE_PATH in head_dict
         assert MESS.REF_ZPVE_PATH in head_dict
+        assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ENE_PATH]))    
+        assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ZPVE_PATH]))    
+        
+        # Get the total energy for the reference    
+        ref_total_energy_1 = energy_from_path(head_dict[MESS.REF_PATH], 
+                                              head_dict[MESS.REF_ENE_PATH], 
+                                              head_dict[MESS.REF_ZPVE_PATH])
+
+        # Check that all the reference 2 energy paths have been provided; set the species 2 path variables 
+        if MESS.REF_PATH_2 in head_dict and MESS.REF_ENE_PATH_2 in head_dict and MESS.REF_ZPVE_PATH_2 in head_dict:
+            # Check if paths exist
+            assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH_2], head_dict[MESS.REF_ENE_PATH_2]))    
+            assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH_2], head_dict[MESS.REF_ZPVE_PATH_2]))    
+            # Get the total energy for the reference 2   
+            ref_total_energy_2 = energy_from_path(head_dict[MESS.REF_PATH_2], 
+                                                  head_dict[MESS.REF_ENE_PATH_2], 
+                                                  head_dict[MESS.REF_ZPVE_PATH_2])
+        else:
+            ref_total_energy_2 = 0.0
+
+        
+        # Check that the molecule energy paths have been provided and exist
         assert MESS.MOL_PATH in path_dict
         assert MESS.MOL_ENE_PATH in path_dict
         assert MESS.MOL_ZPVE_PATH in path_dict
-        assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ENE_PATH]))    
-        assert os.path.exists(os.path.join(head_dict[MESS.REF_PATH], head_dict[MESS.REF_ZPVE_PATH]))    
         assert os.path.exists(os.path.join(path_dict[MESS.MOL_PATH], path_dict[MESS.MOL_ENE_PATH]))    
         assert os.path.exists(os.path.join(path_dict[MESS.MOL_PATH], path_dict[MESS.MOL_ZPVE_PATH]))    
-        # Get the total energy for the reference    
-        ref_total_energy = energy_from_path(head_dict[MESS.REF_PATH], 
-                                            head_dict[MESS.REF_ENE_PATH], 
-                                            head_dict[MESS.REF_ZPVE_PATH])
-        # Get the total energy for the species 1    
+
+        # Get the total energy for the species
         spc_total_energy = energy_from_path(path_dict[MESS.MOL_PATH], 
                                             path_dict[MESS.MOL_ENE_PATH], 
                                             path_dict[MESS.MOL_ZPVE_PATH])
+        
         # Calculate the relative ground energy using the species energies
-        zero_energy = spc_total_energy - ref_total_energy
+        zero_energy = spc_total_energy - (ref_total_energy_1 + ref_total_energy_2)
         zero_energy = '{0:<8.3f}'.format(zero_energy * 627.5095)
     else:
         zero_energy = data_dict[MESS.ZENE]

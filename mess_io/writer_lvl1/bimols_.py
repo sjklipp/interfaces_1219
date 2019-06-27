@@ -19,7 +19,8 @@ def build_mess_bimols_str(bimols):
     """
     
     # Initialize the species string with the species header
-    bimols_str = mess_io.writer.stringslib.BIMOL_HEAD_STR
+    #bimols_str = mess_io.writer.stringslib.BIMOL_HEAD_STR
+    bimols_str = ''
 
     # Loop over each bimolecular species
     for bimol in bimols:

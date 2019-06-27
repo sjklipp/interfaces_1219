@@ -6,7 +6,6 @@ import os
 import autofile
 import mess_io.writer
 
-
 # FUNCTIONS TO HELP BUILD MORE COMPLICATED PARTS OF THE MESS INPUT #
 
 def build_core(core_type,
@@ -56,15 +55,15 @@ def energy_from_path(main_path='', elec_path='', zpve_path=''):
     """ obtains the total energy for a given species from a series of paths
     """
 
-    # Read in the reference electronic energy and zpve
+    # Read in the electronic energy for species 1
     elec_path = os.path.join(main_path, elec_path)
+    e_elec_str = autofile.file.read_file(elec_path)
+    e_elec = autofile.file.read.energy(e_elec_str)
+    
+    # Read in the zpve species 1
     zpve_path = os.path.join(main_path, zpve_path)
-    with open(elec_path, 'r') as f:
-        energy_str = f.read()
-    with open(zpve_path, 'r') as f:
-        zpve_str = f.read()
-    e_elec = autofile.file.read.energy(energy_str)
-    e_zpve = autofile.file.read.energy(zpve_str)
+    e_zpve_str = autofile.file.read_file(zpve_path)
+    e_zpve = autofile.file.read.energy(e_zpve_str)
 
     # Calculate the total energy
     total_energy = e_elec + e_zpve
@@ -83,7 +82,7 @@ def geom_from_path(file_path, file_name):
     
     # Obtain a geom object from the string
     geom = autofile.file.read.geometry(geom_str)
-
+    
     return geom
 
 
@@ -171,7 +170,6 @@ def imag_freq_from_path(file_path, file_name):
 def read_freqs(file_str):
     """ freqs
     """
-    import sys    
     flines = file_str.splitlines()
     
     # Get nonzero frequencies
@@ -225,8 +223,9 @@ def read_hindered_rotors(file_str):
 def read_imag_freq(file_str):
     """ imag freq
     """
-    for line in file_str.splitlines():
-        if 'i' in line:
-            imag_freq = line.strip().replace('i', '')
-        
+    freqs = file_str.splitlines()
+    imag_freq = freqs[-1].strip()
+    imag_freq = imag_freq.replace('-','')
+    imag_freq = imag_freq.replace('i','')
+
     return imag_freq

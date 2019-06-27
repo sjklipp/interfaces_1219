@@ -12,7 +12,8 @@ def build_mess_wells_str(wells):
     """
     
     # Initialize the wells string with the wells header
-    wells_str = mess_io.writer.stringslib.WELLS_HEAD_STR
+    #wells_str = mess_io.writer.stringslib.WELLS_HEAD_STR
+    wells_str = ''
 
     # Loop over each well
     for well in wells:

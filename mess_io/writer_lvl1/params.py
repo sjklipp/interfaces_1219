@@ -45,12 +45,15 @@ class MESS():
     MOL_LBL = 'spec_label'
     R_LBL = 'reactant_label'
     P_LBL = 'product_label'
-    
+    NAME = 'atom_name'
+    TS_TYP = 'ts_type'
+
     # Head Paths
     MOL_PATH = 'spec_path'
     REAC_PATH = 'reac_path'
     PROD_PATH = 'prod_path'
     REF_PATH = 'reference_path'
+    REF_PATH_2 = 'reference_path_2'
     # Data Paths
     GEOM_PATH = 'geom_path'
     SYMF_PATH = 'sym_factor_path'
@@ -69,3 +72,5 @@ class MESS():
     PROD_ZPVE_PATH = 'prod_zpve_path'
     REF_ENE_PATH = 'reference_energy_path'
     REF_ZPVE_PATH = 'reference_zpve_path'
+    REF_ENE_PATH_2 = 'reference_energy_path_2'
+    REF_ZPVE_PATH_2 = 'reference_zpve_path_2'
