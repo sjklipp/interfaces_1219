@@ -16,6 +16,7 @@ def test__reaction_data():
     mech_txt = os.path.join(HEPTANE_PATH, 'mechanism.txt')
     mech_str = open(mech_txt, encoding='utf8', errors='ignore').read()
     rxn_dat_lst = chemkin_io.reaction_data(mech_str)
+    print(rxn_dat_lst[0])
     assert len(rxn_dat_lst) == 5336
 
 
@@ -58,6 +59,6 @@ def test__thermo_t_common_default():
 
 if __name__ == '__main__':
     # test__thermo_t_common_default()
-    test__thermo_data()
+    # test__thermo_data()
     # test__reaction_unit_names()
-    # test__reaction_data()
+    test__reaction_data()
