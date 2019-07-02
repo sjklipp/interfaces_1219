@@ -10,6 +10,19 @@ CHEMKIN_ARROW = (app.maybe(app.escape('<')) + app.escape('=') +
                  app.maybe(app.escape('>')))
 
 
+def reactant_and_product_names(block_str,
+                               exclude_names=('OHV', 'CHV', 'CH(6)')):
+    """ reactants and products, by species_names
+    """
+    rxn_strs = data_strings(block_str)
+    rct_names_lst = list(map(DataString.reactant_names, rxn_strs))
+    prd_names_lst = list(map(DataString.product_names, rxn_strs))
+    rxn_names_lst = tuple(filter(
+        lambda x: not any(name in exclude_names for name in x[0] + x[1]),
+        zip(rct_names_lst, prd_names_lst)))
+    return rxn_names_lst
+
+
 def data_strings(block_str):
     """ reaction strings
     """
