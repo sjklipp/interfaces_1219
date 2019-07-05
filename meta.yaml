@@ -1,0 +1,15 @@
+# cmd: conda build . --python 3 -c pacchem
+package: 
+    name: interfaces
+    version: "0.1.1"
+ 
+source:
+    path: .
+
+requirements:
+    build:
+        - python=3.6
+    run:
+        - numpy
+        - pacchem::autofile
+        - pacchem:: dsarrfit
