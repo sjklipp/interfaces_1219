@@ -38,7 +38,7 @@ def write_atom(name, elec_levels):
 
 def write_molecule(core, freqs, zero_energy, elec_levels,
                    hind_rot='', tunnel='',
-                   anharm='', rovib_coups='', rot_dists=''):
+                   xmat=None, rovib_coups='', rot_dists=''):
     """ Write molecular info section
     """
 
@@ -51,8 +51,10 @@ def write_molecule(core, freqs, zero_energy, elec_levels,
         rovib_coups = util.format_rovib_coups(rovib_coups)
     if rot_dists != '':
         rot_dists = util.format_rot_dist_consts(rot_dists)
-    if anharm != '':
-        anharm = util.format_anharm(anharm)
+    if xmat is not None:
+        anharm = util.format_xmat(xmat)
+    else:
+        anharm = ''
 
     # Indent various strings string if needed
     if hind_rot != '':
