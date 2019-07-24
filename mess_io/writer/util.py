@@ -141,19 +141,17 @@ def format_rot_dist_consts(rot_dists):
     return rot_dists_string
 
 
-def format_anharm(anharm):
-    """ Format the anharm section
+def format_xmat(xmat):
+    """ Format the xmat anharm section
     """
     
-    # Get the lower triangle of the anharm matrix  
-    anharm_tril = numpy.tril(numpy.array(anharm))
-
+    xmat = numpy.array(xmat)
     # Loop over the rows of the anharm numpy array   
     anharm_string = ''
-    for i in range(anharm_tril.shape[0]):
-        anharm_string += '  '.join([str(val) for val in list(anharm_tril[i, :]) 
+    for i in range(xmat.shape[0]):
+        anharm_string += '  '.join([str(val) for val in list(xmat[i, :]) 
                                     if val != 0.0])
-        if (i+1) != anharm_tril.shape[0]:
+        if (i+1) != xmat.shape[0]:
             anharm_string += '\n'
     
     # Indent the lines

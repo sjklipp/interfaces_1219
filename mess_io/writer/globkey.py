@@ -39,19 +39,24 @@ def write_global_reaction(temperatures, pressures):
     return global_rxn_str
 
 
-def write_global_pf(temperatures, rel_temp_inc=0.001, atom_dist_min=0.6):
+def write_global_pf(temperatures=(), temp_step=100, ntemps=30, rel_temp_inc=0.001, atom_dist_min=0.6):
     """ Writes the global keywords section of the MESS input file.
         :param float temperatures: List of temperatures (in K)
+        :param float temp_step: temperature step (in K)
+        :param ntemps: number of temperature values on grid
         :return global_pf_str: String for section
         :rtype: string
     """
 
-    # Format temperature and pressure lists
-    temperature_list = '  '.join(str(val) for val in temperatures)
-
+    if temperatures:
+        temperature_list = '  '.join(str(val) for val in temperatures)
+    else:
+        temperature_list = ''
     # Create dictionary to fill template
     global_pf_keys = {
         'temperatures': temperature_list,
+        'temp_step': temp_step,
+        'ntemps': ntemps,
         'rel_temp_inc': rel_temp_inc,
         'atom_dist_min': atom_dist_min
     }
