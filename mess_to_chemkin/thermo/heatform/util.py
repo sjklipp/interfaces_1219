@@ -18,3 +18,11 @@ def get_atom_counts_dict(stoich):
                         for k, v in re.findall(search_str, stoich)}
 
     return atom_counts_dict
+
+
+def inchi_formula(ich):
+    """ gets the formula from an inchi string
+    """
+    formula = ich.split('/')[1]
+    return formula
+

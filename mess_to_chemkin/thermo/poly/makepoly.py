@@ -11,13 +11,6 @@ from mako.template import Template
 TEMPLATE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def get_stoichiometry(formula, atom):
-    """ obtains the stoichiometry
-    """
-    stoich = ''
-    return stoich
-
-
 def write_thermp_input(formula, deltaH,
                        enthalpyT=0.0, breakT=1000.0,
                        thermp_file_name='thermp.dat'):
@@ -48,7 +41,7 @@ def write_thermp_input(formula, deltaH,
         thermp_file.write(thermp_str)
 
 
-def read_dHf_thermp(output_string):
+def read_thermp_dHf(output_string):
     """
     Obtains deltaHf from thermp output
     """
@@ -86,15 +79,51 @@ def run_pac99(path, formula):
 
     # Set file names for pac99
     i97_file = os.path.join(path, formula + '.i97')
-    #c97_file = os.path.join(path, formula + '.c97')
-    #o97_file = os.path.join(path, formula + '.o97')
     newgroups_file = os.path.join(path, 'newgroups')
 
     # Check for the existance of pac99 files
     assert os.path.exists(i97_file)
-    #assert os.path.exists(c97_file)
-    #assert os.path.exists(o97_file)
     assert os.path.exists(newgroups_file)
 
     # Run pac99
-    subprocess.check_call(['pac99'])
+    subprocess.call(['pac99'])
+    subprocess.call([formula])
+
+
+def read_polyn(string, poly):
+    """ read in the polyn
+    """
+    
+    pac_polynomial = ''
+
+    return pacc_polynomial
+
+
+def convert_pac_to_chemkin(pac_polynomial_str):
+    """ convert the polynimal from pac format to chemkin polynomial
+    """
+
+    # Get a reordered string
+    polynomial_lines = pac_polynomial_str.splitlines()
+    reorder_lines = [] 
+    reorder_lines.append(polynomial_lines[9])
+    reorder_lines.append(polynomial_lines[10])
+    reorder_lines.append(polynomial_lines[6])
+    reorder_lines.append(polynomial_lines[7])
+    reorder_lines.append(polynomial_lines[3])
+    reorder_lines.append(polynomial_lines[4])
+    
+    poly_vals = [val for line in reorder_lines
+                     for val in line.split() 
+                     if val != 0]
+
+    chemkin_polynomial_str = ''
+    nline = 2
+    for i, val in enumerate(poly_vals):
+        if i % 5 == 0:
+            chemkin_polynomial_str += str(nline) + '\n'
+            nline += 1
+        else:
+            chemkin_polynomial_str += str(val)
+
+    return chemkin_polynomial

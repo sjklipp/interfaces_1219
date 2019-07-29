@@ -3,6 +3,22 @@ Computes the Heat of Formation at 0 K for a given species
 """
 
 import numpy as np
+import util
+
+
+def calc_hform_0k(hzero_mol, hzero_basis, coeff):
+    """ calculates the heat-of-formation at 0 K
+    """
+
+    # Calculate sum of energies from basis species
+    hzero_reacs = 0.0
+    for i, energy in enumerate(hzero_basis):
+        hzero_reacs += coeff[i] * energy
+
+    # Calculate the heat of formation
+    dhform = hzero_mol - hzero_reacs
+
+    return dhform
 
 
 def select_basis(atom_dct, attempt=0):
@@ -21,7 +37,6 @@ def select_basis(atom_dct, attempt=0):
 
     # Determine number of basis species required
     nbasis = len(atom_dct)
-    print(nbasis)
 
     # Get a list of all the atom types in the molecule
     atoms = list(atom_dct.keys())
@@ -31,11 +46,11 @@ def select_basis(atom_dct, attempt=0):
     counter = 1
     # N2
     if 'N' in atoms and attempt < 2 and counter <= nbasis:
-        basis.append('InChI=1S/counter2/c1-2')
+        basis.append('InChI=1S/N2/c1-2')
         counter += 1
     # NH3
     if 'N' in atoms and 'H' in atoms and attempt > 1 and counter <= nbasis:
-        basis.append('InChI=1S/H3counter/h1H3')
+        basis.append('InChI=1S/H3N/h1H3')
         counter += 1
     # SO2
     if 'S' in atoms and counter <= nbasis:
@@ -117,7 +132,7 @@ def select_basis(atom_dct, attempt=0):
     return basis
 
 
-def form_mat(basis, atom_dct):
+def calc_coefficients(basis, mol_atom_dict):
     """
     Form a matrix for a given basis and atomlist
     INPUT:
@@ -130,29 +145,46 @@ def form_mat(basis, atom_dct):
     """
 
     # Initialize an natoms x natoms matrix
-    nbasis = len(atom_dct)
-    mat = np.zeros(nbasis, nbasis)
+    nbasis = len(basis)
+    basis_mat = np.zeros((nbasis, nbasis))
+
+    # Build listof basis species consisting of formula
+    basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     # Set the elements of the matrix
-    for i, mol in enumerate(basis):
-        mat[i] = get_stoich(ob.get_formula(ob.get_mol(mol)),atomlist)
+    for i, spc in enumerate(basis_formulae):
+        basis_atom_dict = util.get_atom_counts_dict(spc)
+        basis_vals = []
+        for key in mol_atom_dict.keys():
+            if key in basis_atom_dict:
+                basis_vals.append(basis_atom_dict[key])
+            else:
+                basis_vals.append(0)
+        basis_mat[i] = basis_vals
 
-    # Transpose the matrix
-    mat = mat.T
+    #  Transpose
+    basis_mat = basis_mat.T
 
-    return mat
+    # Form stoich vector
+    stoich_vec = np.zeros(len(mol_atom_dict))
+    for i, key in enumerate(mol_atom_dict.keys()):
+        stoich_vec[i] = mol_atom_dict[key]
+
+    # Solve C = M^-1 S
+    basis_mat = np.linalg.inv(basis_mat)
+    coeff = np.dot(basis_mat, stoich_vec)
+
+    return coeff
 
 
-# def calc_Hform(Hzero_mol, Hzero_basis, coeff):
-#    """ calculates the heat-of-formation at 0 K
-#    """
-#
-#    # Calculate sum of energies from basis species
-#    Hzero_reacs = 0.0
-#    for i, energy in enumerate(Hzero_basis):
-#        Hzero_reacs += coeff[i] * energy
-#
-#    # Calculate the heat of formation
-#    DHform = Hzero_mol - Hzero_reacs
-#
-#    return DHform
+def get_basis_energy(basis):
+    """ get the energies for all the basis species
+    """
+    vals = np.arange(1.0, len(basis) + 1)
+    return [-1.0*val for val in vals]
+
+
+def get_mol_energy():
+    """ get the energy for the molecule
+    """
+    return -100.
