@@ -3,7 +3,19 @@ Computes the Heat of Formation at 0 K for a given species
 """
 
 import numpy as np
-import util
+import re
+from . import util
+
+
+def get_hform_298k_thermp(output_string):
+    """
+    Obtains deltaHf from thermp output
+    """
+
+    dHf298_str = ' h298 final\s*([\d,\-,\.]*)'
+    dHf298 = float(re.findall(dHf298_str, output_string)[-1])
+
+    return dHf298
 
 
 def calc_hform_0k(hzero_mol, hzero_basis, coeff):
