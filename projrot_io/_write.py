@@ -3,6 +3,7 @@ Functions to write the ProjRot input file
 """
 
 import os
+import numpy as np
 from mako.template import Template
 from qcelemental import constants as qcc
 from qcelemental import periodictable as ptab
@@ -24,7 +25,7 @@ def write_rpht_input(geom, grad, hess,
     # Format the molecule info
     natoms = len(geom)
     geom_str = format_geom_str(geom)
-    grad_str = format_grad_str(grad)
+    grad_str = format_grad_str(geom,grad)
     hess_str = format_hessian_str(hess)
     nrotors = rotors_str.count('pivotA')
 
@@ -89,18 +90,21 @@ def format_geom_str(geo):
     return geom_str
 
 
-def format_grad_str(grad):
+def format_grad_str(geom, grad):
     """ Write the gradient section of the input file
         grads in Hartrees/Bohr
     """
 
+    atom_list = []
+    for i, (sym, _) in enumerate(geom):
+        atom_list.append(int(ptab.to_Z(sym)))
+    
     # Format the strings for the xyz gradients
     full_grads_str = ''
-    for i, (sym, grads) in enumerate(grad):
-        anum = int(ptab.to_Z(sym))
+    for i, grads in enumerate(grad):
         grads_str = '{0:>14.8f}{1:>14.8f}{2:>14.8f}'.format(
             grads[0], grads[1], grads[2])
-        full_grads_str += '{0:2d}{1:4d}{2}\n'.format(i+1, anum, grads_str)
+        full_grads_str += '{0:2d}{1:4d}{2}\n'.format(i+1, atom_list[i], grads_str)
 
     return full_grads_str
 
@@ -109,6 +113,7 @@ def format_hessian_str(hess):
     """ Write the Hessian section of the input file
     """
 
+    hess = np.array(hess)
     # # Format the Hessian
     NROWS, NCOLS = hess.shape
 
