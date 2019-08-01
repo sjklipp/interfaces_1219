@@ -4,12 +4,13 @@
 
 import os
 import subprocess
+import shutil
 from mako.template import Template
 from . import util
 
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
-TEMPLATE_PATH = os.path.dirname(os.path.realpath(__file__))
+CUR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def write_thermp_input(formula, deltaH,
@@ -36,7 +37,7 @@ def write_thermp_input(formula, deltaH,
 
     # Set template name and path for an atom
     template_file_name = 'thermp.mako'
-    template_file_path = os.path.join(TEMPLATE_PATH, template_file_name)
+    template_file_path = os.path.join(CUR_PATH, template_file_name)
 
     # Build a ProjRot input string
     thermp_str = Template(filename=template_file_path).render(**thermp_keys)
@@ -46,7 +47,7 @@ def write_thermp_input(formula, deltaH,
         thermp_file.write(thermp_str)
 
 
-def run_thermp(path, thermp_file_name='thermp.dat', pf_file_name='pf.out'):
+def run_thermp(pf_path, thermp_path, thermp_file_name='thermp.dat', pf_file_name='pf.out'):
     """
     Runs thermp.exe
     Requires thermp input file to be present
@@ -54,12 +55,15 @@ def run_thermp(path, thermp_file_name='thermp.dat', pf_file_name='pf.out'):
     """
 
     # Set full paths to files
-    thermp_file = os.path.join(path, thermp_file_name)
-    pf_file = os.path.join(path, pf_file_name)
+    thermp_file = os.path.join(thermp_path, thermp_file_name)
+    pf_file = os.path.join(pf_path, pf_file_name)
+    new_pf_file = os.path.join(thermp_path, 'pf.dat')
+    shutil.copyfile(pf_file, new_pf_file)
 
     # Check for the existance of ThermP input and PF output
     assert os.path.exists(thermp_file)
     assert os.path.exists(pf_file)
+    assert os.path.exists(new_pf_file)
 
     # Run thermp
     subprocess.check_call(['thermp', thermp_file])
@@ -75,11 +79,16 @@ def run_pac99(path, formula):
     # Set file names for pac99
     i97_file = os.path.join(path, formula + '.i97')
     newgroups_file = os.path.join(path, 'new.groups')
+    newgroups_ref = os.path.join(CUR_PATH, 'new.groups')
+    shutil.copyfile(newgroups_ref, newgroups_file)
 
     # Check for the existance of pac99 files
     assert os.path.exists(i97_file)
     assert os.path.exists(newgroups_file)
 
     # Run pac99
+    print(os.getcwd())
+    print(path)
+    print(formula)
     p = subprocess.Popen('pac99', stdin=subprocess.PIPE)
     p.communicate(formula)

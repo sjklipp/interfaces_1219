@@ -21,11 +21,11 @@ anim_freq(if_Maxstep=1)         2
 onlyrotors(0=yes,1=no)          0
 proj_rea_coo(0=yes(def),1=no)   1
 ## Set if projections to be done in internal or cartesian coordinates
-% if coord_proj == 'cartesian':
-internalcoord(1=yes)            0
-% elif coord_proj == 'internal':
-internalcoord(1=yes)            1
-% endif
+##% if coord_proj == 'cartesian':
+##internalcoord(1=yes)            0
+##% elif coord_proj == 'internal':
+##internalcoord(1=yes)            1
+##% endif
 ## Define all of the rotors
 numrotors                       ${nrotors}
 ${rotors_str}
