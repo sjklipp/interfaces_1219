@@ -93,4 +93,4 @@ def run_pac99(path, formula):
 
     # Run pac99
     proc = subprocess.Popen('pac99', stdin=subprocess.PIPE)
-    proc.communicate(formula)
+    proc.communicate(bytes(formula, 'utf-8'))

@@ -32,16 +32,15 @@ def parse_line16(string):
     Parse string containing exponental numbers of length 16 chars.
     Note: Numbers may not have a space in between.
     """
-    
+
     assert len(string) % 16 == 0, 'Given string should have 16n chararacters'
-    assert len(string) > 0, 'Given string for should have 16n chararacters'
 
     # Replace the exponent D with E
-    string2 = string.replace('D','E')
+    string2 = string.replace('D', 'E')
 
     # Build a list of values from the string
-    nchunks = len(string) / 16
-    vals  = [0.0 for i in range(len(string) / 16)]
+    nchunks = len(string2) // 16
+    vals = [0.0 for i in range(nchunks)]
     for i in range(nchunks):
         vals[i] = float(string2[i*16: (i+1)*16])
 
