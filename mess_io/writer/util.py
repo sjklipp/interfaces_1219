@@ -40,7 +40,7 @@ def geom_format(geom):
     """
 
     # Get the number of atoms
-    natoms = len(geom) 
+    natoms = len(geom)
 
     # Build geom string; converting the coordinates to angstrom
     geom_string = ''
@@ -117,7 +117,7 @@ def format_rovib_coups(rovib_coups):
 
     # Join the values into a string
     rovib_coups_str = '  '.join(str(val) for val in rovib_coups)
-  
+
     # Indent the lines
     rovib_coups_str = indent(rovib_coups_str, 4)
 
@@ -127,14 +127,14 @@ def format_rovib_coups(rovib_coups):
 def format_rot_dist_consts(rot_dists):
     """ Format the rotational distortion constants.
     """
-    
+
     # Build rotational dists string
     rot_dists_string = ''
     for i, const in enumerate(rot_dists):
         rot_dists_string += '  '.join(map(str, const))
         if (i+1) != len(rot_dists):
             rot_dists_string += '\n'
-    
+
     # Indent the lines
     rot_dists_string = indent(rot_dists_string, 4)
 
@@ -144,17 +144,50 @@ def format_rot_dist_consts(rot_dists):
 def format_xmat(xmat):
     """ Format the xmat anharm section
     """
-    
+
     xmat = numpy.array(xmat)
-    # Loop over the rows of the anharm numpy array   
+    # Loop over the rows of the anharm numpy array
     anharm_string = ''
     for i in range(xmat.shape[0]):
-        anharm_string += '  '.join([str(val) for val in list(xmat[i, :]) 
+        anharm_string += '  '.join([str(val) for val in list(xmat[i, :])
                                     if val != 0.0])
         if (i+1) != xmat.shape[0]:
             anharm_string += '\n'
-    
+
     # Indent the lines
-    anharm_string = indent(anharm_string, 4)        
+    anharm_string = indent(anharm_string, 4)
 
     return anharm_string
+
+
+def molec_spec_format(geom):
+    """ Helps format the molecular section from the geometry
+    """
+
+    # Get the number of atoms
+    natoms = len(geom)
+
+    # Build geom string; converting the coordinates to angstrom
+    atom_list_string = ''
+    for (asymb, _) in geom:
+        atom_list_string += '{:s}\n'.format(asymb)
+
+    # Remove final newline character
+    atom_list_string = atom_list_string.rstrip()
+
+    # Indent the lines
+    atom_list_string = indent(atom_list_string, 6)
+
+    return natoms, atom_list_string
+
+
+def format_flux_mode_indices(atom_indices):
+    """ formats the atom indices for flux modes
+    """
+
+    # Build string containing the values of each keyword
+    flux_mode_idx_string = ''
+    for vals in atom_indices:
+        flux_mode_idx_string += '{0:<4d}'.format(vals)
+
+    return flux_mode_idx_string
