@@ -9,11 +9,11 @@ def test__atom_writer():
     """
 
     # Set the name and electronic levels for the atom
-    atom_name = 'O'
+    atom_mass = '16.0'
     atom_elec_levels = ((1, 0.00), (3, 150.0), (9, 450.0))
 
     # Use the writer to create a string for the atom section
-    atom_section_str = mess_io.writer.write_atom(atom_name, atom_elec_levels)
+    atom_section_str = mess_io.writer.write_atom(atom_mass, atom_elec_levels)
 
     # Print the atom section string
     print(atom_section_str)
