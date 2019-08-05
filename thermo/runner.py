@@ -47,8 +47,8 @@ def write_thermp_input(formula, deltaH,
         thermp_file.write(thermp_str)
 
 
-def run_thermp(pf_path, thermp_path, 
-               thermp_file_name='thermp.dat', pf_file_name='pf.out'):
+def run_thermp(pf_path, thermp_path,
+               thermp_file_name='thermp.dat', pf_file_name='pf.dat'):
     """
     Runs thermp.exe
     Requires thermp input file to be present
@@ -66,7 +66,6 @@ def run_thermp(pf_path, thermp_path,
     # Check for the existance of ThermP input and PF output
     assert os.path.exists(thermp_file)
     assert os.path.exists(pf_outfile)
-    assert os.path.exists(pf_datfile)
 
     # Run thermp
     subprocess.check_call(['thermp', thermp_file])
