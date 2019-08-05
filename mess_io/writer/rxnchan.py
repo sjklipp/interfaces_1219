@@ -13,6 +13,7 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 RXNCHAN_PATH = os.path.join(SECTION_PATH, 'reaction_channel')
 
+
 def write_species(species_label, species_data):
     """ Writes a species section.
     """

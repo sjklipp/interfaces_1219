@@ -20,6 +20,8 @@ from mess_io.writer.info import write_rotor_hindered
 from mess_io.writer.info import write_rotor_internal
 from mess_io.writer.info import write_tunnel_eckart
 from mess_io.writer.info import write_tunnel_sct
+from mess_io.writer.monte_carlo import write_monte_carlo
+from mess_io.writer.monte_carlo import write_fluxional_mode
 import mess_io.writer.stringslib
 
 
@@ -42,5 +44,7 @@ __all__ = [
     'write_rotor_internal',
     'write_tunnel_eckart',
     'write_tunnel_sct',
+    'write_monte_carlo',
+    'write_fluxional_mode',
     'mess_io.writer.stringslib'
 ]
