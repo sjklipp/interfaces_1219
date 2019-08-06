@@ -12,7 +12,7 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 
-def write_atom(name, elec_levels):
+def write_atom(mass, elec_levels):
     """ Writes the atom section of a MESS input file
     """
 
@@ -21,7 +21,7 @@ def write_atom(name, elec_levels):
 
     # Create dictionary to fill template
     atom_keys = {
-        'name': name,
+        'mass': mass,
         'nlevels': nlevels,
         'levels': levels
     }

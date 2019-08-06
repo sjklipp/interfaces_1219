@@ -47,23 +47,25 @@ def write_thermp_input(formula, deltaH,
         thermp_file.write(thermp_str)
 
 
-def run_thermp(pf_path, thermp_path, thermp_file_name='thermp.dat', pf_file_name='pf.out'):
+def run_thermp(pf_path, thermp_path,
+               thermp_file_name='thermp.dat', pf_file_name='pf.dat'):
     """
     Runs thermp.exe
     Requires thermp input file to be present
-    partition function (pf) output file and 
+    partition function (pf) output file and
     """
 
     # Set full paths to files
     thermp_file = os.path.join(thermp_path, thermp_file_name)
-    pf_file = os.path.join(pf_path, pf_file_name)
-    new_pf_file = os.path.join(thermp_path, 'pf.dat')
-    shutil.copyfile(pf_file, new_pf_file)
+    pf_outfile = os.path.join(pf_path, pf_file_name)
+
+    # Copy MESSPF output file to THERMP run dir and rename to pf.dat
+    pf_datfile = os.path.join(thermp_path, 'pf.dat')
+    shutil.copyfile(pf_outfile, pf_datfile)
 
     # Check for the existance of ThermP input and PF output
     assert os.path.exists(thermp_file)
-    assert os.path.exists(pf_file)
-    assert os.path.exists(new_pf_file)
+    assert os.path.exists(pf_outfile)
 
     # Run thermp
     subprocess.check_call(['thermp', thermp_file])
@@ -80,6 +82,8 @@ def run_pac99(path, formula):
     i97_file = os.path.join(path, formula + '.i97')
     newgroups_file = os.path.join(path, 'new.groups')
     newgroups_ref = os.path.join(CUR_PATH, 'new.groups')
+
+    # Copy new.groups file from thermo src dir to run dir
     shutil.copyfile(newgroups_ref, newgroups_file)
 
     # Check for the existance of pac99 files
@@ -87,8 +91,5 @@ def run_pac99(path, formula):
     assert os.path.exists(newgroups_file)
 
     # Run pac99
-    print(os.getcwd())
-    print(path)
-    print(formula)
-    p = subprocess.Popen('pac99', stdin=subprocess.PIPE)
-    p.communicate(formula)
+    proc = subprocess.Popen('pac99', stdin=subprocess.PIPE)
+    proc.communicate(bytes(formula, 'utf-8'))

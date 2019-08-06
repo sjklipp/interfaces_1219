@@ -15,7 +15,7 @@ def test__global_reaction():
     # Use the writer to create a string for the global keyword section for reactions
     global_reaction_str = mess_io.writer.write_global_reaction(temps, pressures)
 
-    # Print the global section string
+     # Print the global section string
     print(global_reaction_str)
 
 
@@ -24,10 +24,19 @@ def test__global_pf():
     """
 
     # Set the temperatures and pressures in a list
-    temps = [100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0]
+    temperatures = []
+    temp_step = 100
+    ntemps = 30
+    rel_temp_inc = 0.001
+    atom_dist_min = 0.6
 
-    # Use the writer to create a string for the global keyword section for messpf
-    global_pf_str = mess_io.writer.write_global_pf(temps, rel_temp_inc=0.001, atom_dist_min=0.6)
+    # Use the writer to create a string for the messpf global keyword section
+    global_pf_str = mess_io.writer.write_global_pf(
+            temperatures=temperatures,
+            temp_step=temp_step,
+            ntemps=ntemps,
+            rel_temp_inc=rel_temp_inc,
+            atom_dist_min=atom_dist_min)
 
     # Print the global section string
     print(global_pf_str)

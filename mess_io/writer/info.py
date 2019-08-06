@@ -13,6 +13,7 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 SPEC_INFO_PATH = os.path.join(SPECIES_PATH, 'info')
 
+
 def write_core_rigidrotor(geom1, sym_factor, interp_emax=''):
     """ Writes a rigid-rotor core section. 
     """
