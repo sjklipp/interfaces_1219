@@ -7,14 +7,14 @@ def read_pf(pf_file_name):
     """ reads the pf.dat file.
     """
 
-    temps, logQ, dQ, dQ2 = [], [], [], []
+    temps, logq, dq, dq2 = [], [], [], []
     with open(pf_file_name, 'r') as pf_file:
         for i, line in enumerate(pf_file):
             if i != 0:
                 tmp = line.strip().split()
                 temps.append(tmp[0])
-                logQ.append(tmp[1])
-                dQ.append(tmp[2])
-                dQ2.append(tmp[3])
+                logq.append(tmp[1])
+                dq.append(tmp[2])
+                dq2.append(tmp[3])
 
-    return temps, logQ, dQ, dQ2
+    return temps, logq, dq, dq2
