@@ -147,7 +147,33 @@ def select_basis(atom_dct, attempt=0):
     return basis
 
 
-def calc_coefficients(basis, mol_atom_dict):
+def get_reduced_basis(basis_formulae, species_formula):
+    """
+    Form a matrix for a given basis and atomlist
+    INPUT:
+    input_basis     - ich stringes for set of reference molecules
+    atomlist  - list of atoms (all atoms that appear
+                in basis should be in atomlist)
+    OUTPUT:
+    mat       - matrix (length of basis by length of atomlist)
+                (square if done right)
+    """
+
+    reduced_basis = []
+    for i, basis_formula in enumerate(basis_formulae):
+        basis_atom_dict = util.get_atom_counts_dict(basis_formula)
+        flag = True
+        for key, _ in basis_atom_dict.items():
+            if key not in species_formula:
+                flag = False
+
+        if flag:
+            reduced_basis.append(basis_formulae[i])
+
+    return reduced_basis
+
+
+def calc_coefficients(basis_formulae, mol_atom_dict):
     """
     Form a matrix for a given basis and atomlist
     INPUT:
@@ -160,11 +186,8 @@ def calc_coefficients(basis, mol_atom_dict):
     """
 
     # Initialize an natoms x natoms matrix
-    nbasis = len(basis)
+    nbasis = len(basis_formulae)
     basis_mat = np.zeros((nbasis, nbasis))
-
-    # Build listof basis species consisting of formula
-    basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     # Set the elements of the matrix
     for i, spc in enumerate(basis_formulae):
