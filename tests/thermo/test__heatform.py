@@ -32,24 +32,33 @@ def test__calc_hform_0k():
     basis = heatform.select_basis(atom_dict)
     print('\nbasis:')
     print(basis)
+    
+    # Get the basis list from reduced_basis
+    red_basis = heatform.select_basis(basis_ich, formula)
+    print('\nreduced basis:')
+    print(red_basis)
 
     # Get the coefficients for the balanced heat-of-formation eqn
     coeff = heatform.calc_coefficients(basis, atom_dict)
     print('\ncoeff:')
     print(coeff)
 
-    # Get the energy for the species
-    e_mol = heatform.get_mol_energy()
-    print('\ne_mol:')
-    print(e_mol)
+    # Obtain the reference energies from the database
+    print('\nref e:')
+    for spc in basis:
+        ref_e = heatform.get_ref_h(spc, 'ATcT', 0)
+        print(spc)
+        print(ref_e)
 
-    # Get the energy for each of the basis species
-    e_basis = heatform.get_basis_energy(basis)
-    print('\ne_basis:')
+    # Get the energy for the species and basis
+    e_mol = -100.0
+    e_basis = [-1.0, -2.0, -3.0, -4.0]
+    print('\ne_mol and e_basis:')
+    print(e_mol)
     print(e_basis)
 
     # Get the 0 K heat of formation
-    hform = heatform.calc_hform_0k(e_mol, e_basis, coeff)
+    hform = heatform.calc_hform_0k(e_mol, e_basis, basis, coeff, ref_set='ATcT')
     print('\nhform(0 K):')
     print(hform)
 

@@ -2,10 +2,18 @@
 Computes the Heat of Formation at 0 K for a given species
 """
 
+import os
+import csv
 import numpy as np
+from qcelemental import constants as qcc
 import autoparse.pattern as app
 import autoparse.find as apf
 from . import util
+
+
+KJ2KCAL = qcc.conversion_factor('kJ/mol', 'kcal/mol')
+
+SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def get_hform_298k_thermp(output_string):
@@ -13,27 +21,50 @@ def get_hform_298k_thermp(output_string):
     Obtains deltaHf from thermp output
     """
 
-    dHf298_str = ('h298 final' +
+    dHf298_pattern = ('h298 final' +
                   app.one_or_more(app.SPACE) +
                   app.capturing(app.FLOAT))
-    dHf298 = float(apf.last_capture(dHf298_str, output_string))
+    dHf298 = float(apf.last_capture(dHf298_pattern, output_string))
 
     return dHf298
 
 
-def calc_hform_0k(hzero_mol, hzero_basis, coeff):
+def calc_hform_0k(hzero_mol, hzero_basis, basis, coeff, ref_set):
     """ calculates the heat-of-formation at 0 K
     """
 
-    # Calculate sum of energies from basis species
-    hzero_reacs = 0.0
-    for i, energy in enumerate(hzero_basis):
-        hzero_reacs += coeff[i] * energy
-
     # Calculate the heat of formation
-    dhform = hzero_mol - hzero_reacs
+    dhzero = hzero_mol
+    for i, spc in enumerate(basis):
+        h_basis = get_ref_h(spc, ref_set, 0)
+        if h_basis is None:
+            h_basis = 0.0
+        dhzero += coeff[i] * h_basis * KJ2KCAL
+        dhzero -= coeff[i] * hzero_basis[i]
 
-    return dhform
+    return dhzero
+
+
+def get_ref_h(species, ref, temp):
+    """ gets a reference value
+    """
+
+    # Set path and name to thermo database file
+    thermodb_name = 'thermodb_{}K.csv'.format(str(int(temp)))
+    thermodb_file = os.path.join(SRC_PATH, thermodb_name)
+
+    # Find the energy value for the given species and enery type
+    h_species = None
+    with open(thermodb_file, 'r') as db_file:
+        reader = csv.DictReader(db_file)
+        for row in reader:
+            if row['inchi'] == species:
+                val = row[ref]
+                if val == '':
+                    val = None
+                h_species = float(val)
+
+    return h_species
 
 
 def select_basis(atom_dct, attempt=0):
@@ -73,11 +104,11 @@ def select_basis(atom_dct, attempt=0):
         counter += 1
     # H2
     if 'H' in atoms and attempt < 2 and counter <= nbasis:
-        basis.append('InCHI=1S/H2/h1H')
+        basis.append('InChI=1S/H2/h1H')
         counter += 1
     # H2
     elif 'H' in atoms and 'C' not in atoms and attempt < 3 and counter <= nbasis:
-        basis.append('InCHI=1S/H2/h1H')
+        basis.append('InChI=1S/H2/h1H')
         counter += 1
     # O2
     if 'O' in atoms and attempt < 3 and counter <= nbasis:
@@ -113,11 +144,11 @@ def select_basis(atom_dct, attempt=0):
         counter += 1
     # H2
     if 'H' in atoms and attempt < 1 and counter <= nbasis:
-        basis.append('InCHI=1S/H2/h1H')
+        basis.append('InChI=1S/H2/h1H')
         counter += 1
     # H2
     elif 'H' in atoms and 'C' not in atoms and attempt < 3 and counter <= nbasis:
-        basis.append('InCHI=1S/H2/h1H')
+        basis.append('InChI=1S/H2/h1H')
         counter += 1
     # O2
     if 'O' in atoms and attempt < 2 and counter <= nbasis:
@@ -158,6 +189,9 @@ def get_reduced_basis(basis_formulae, species_formula):
     mat       - matrix (length of basis by length of atomlist)
                 (square if done right)
     """
+    
+    # Get the basis formulae list
+    #basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     reduced_basis = []
     for i, basis_formula in enumerate(basis_formulae):
@@ -173,7 +207,7 @@ def get_reduced_basis(basis_formulae, species_formula):
     return reduced_basis
 
 
-def calc_coefficients(basis_formulae, mol_atom_dict):
+def calc_coefficients(basis, mol_atom_dict):
     """
     Form a matrix for a given basis and atomlist
     INPUT:
@@ -186,8 +220,11 @@ def calc_coefficients(basis_formulae, mol_atom_dict):
     """
 
     # Initialize an natoms x natoms matrix
-    nbasis = len(basis_formulae)
+    nbasis = len(basis)
     basis_mat = np.zeros((nbasis, nbasis))
+
+    # Get the basis formulae list
+    basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     # Set the elements of the matrix
     for i, spc in enumerate(basis_formulae):
@@ -213,16 +250,3 @@ def calc_coefficients(basis_formulae, mol_atom_dict):
     coeff = np.dot(basis_mat, stoich_vec)
 
     return coeff
-
-
-def get_basis_energy(basis):
-    """ get the energies for all the basis species
-    """
-    vals = np.arange(1.0, len(basis) + 1)
-    return [-1.0*val for val in vals]
-
-
-def get_mol_energy():
-    """ get the energy for the molecule
-    """
-    return -100.
