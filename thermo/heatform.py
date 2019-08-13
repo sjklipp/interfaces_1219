@@ -12,6 +12,7 @@ from . import util
 
 
 KJ2KCAL = qcc.conversion_factor('kJ/mol', 'kcal/mol')
+EH2KCAL = qcc.conversion_factor('hartree', 'kcal/mol')
 
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -34,13 +35,19 @@ def calc_hform_0k(hzero_mol, hzero_basis, basis, coeff, ref_set):
     """
 
     # Calculate the heat of formation
-    dhzero = hzero_mol
+    print('calc_hform_test:')
+    print(hzero_mol)
+    print(hzero_basis)
+    print(basis)
+    print(coeff)
+    print(ref_set)
+    dhzero = hzero_mol * EH2KCAL 
     for i, spc in enumerate(basis):
         h_basis = get_ref_h(spc, ref_set, 0)
         if h_basis is None:
             h_basis = 0.0
         dhzero += coeff[i] * h_basis * KJ2KCAL
-        dhzero -= coeff[i] * hzero_basis[i]
+        dhzero -= coeff[i] * hzero_basis[i] * EH2KCAL
 
     return dhzero
 
@@ -178,7 +185,7 @@ def select_basis(atom_dct, attempt=0):
     return basis
 
 
-def get_reduced_basis(basis_formulae, species_formula):
+def get_reduced_basis(basis_ich, species_formula):
     """
     Form a matrix for a given basis and atomlist
     INPUT:
@@ -191,7 +198,7 @@ def get_reduced_basis(basis_formulae, species_formula):
     """
     
     # Get the basis formulae list
-    #basis_formulae = [util.inchi_formula(spc) for spc in basis]
+    basis_formulae = [util.inchi_formula(spc) for spc in basis_ich]
 
     reduced_basis = []
     for i, basis_formula in enumerate(basis_formulae):
@@ -202,7 +209,7 @@ def get_reduced_basis(basis_formulae, species_formula):
                 flag = False
 
         if flag:
-            reduced_basis.append(basis_formulae[i])
+            reduced_basis.append(basis_ich[i])
 
     return reduced_basis
 
@@ -224,6 +231,7 @@ def calc_coefficients(basis, mol_atom_dict):
     basis_mat = np.zeros((nbasis, nbasis))
 
     # Get the basis formulae list
+    print('basis test:', basis)  
     basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     # Set the elements of the matrix
