@@ -15,11 +15,9 @@ MOLECULE_MESS_STRING = """RRHO
   Frequencies[1/cm]         9
     100.00  200.00  300.00  400.00  500.00
     600.00  700.00  800.00  900.00
-  ZeroEnergy[kcal/mol]      -35.0
   ElectronicLevels[1/cm]    2
     1  0.0
     3  50.0
-End
 """
 
 ATOM_MESS_STRING = """Atom
@@ -29,6 +27,9 @@ ATOM_MESS_STRING = """Atom
     3  150.0
     9  450.0
 """
+
+ZERO_ENERGY = -35.0
+
 
 def test__species_writer():
     """ Writes the MESS input for a Well
@@ -41,10 +42,11 @@ def test__species_writer():
     species_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    species_section_str = mess_io.writer.write_species(species_label, species_data)
+    species_section_str = mess_io.writer.write_species(
+        species_label, species_data, ZERO_ENERGY)
 
     # Print the well section string
-    print(species_section_str)
+    print('\n'+species_section_str)
 
 
 def test__well_writer():
@@ -58,10 +60,11 @@ def test__well_writer():
     well_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    well_section_str = mess_io.writer.write_well(well_label, well_data)
+    well_section_str = mess_io.writer.write_well(
+        well_label, well_data, ZERO_ENERGY)
 
     # Print the well section string
-    print(well_section_str)
+    print('\n'+well_section_str)
 
 
 def test__bimolecular_writer():
@@ -83,13 +86,14 @@ def test__bimolecular_writer():
     ground_energy = 50.0
 
     # Use the writer to create a string for the molecule section
-    bimolecular_str = mess_io.writer.write_bimolecular(bimol_label,
-                                                       species1_label, species1_data,
-                                                       species2_label, species2_data,
-                                                       ground_energy)
+    bimolecular_str = mess_io.writer.write_bimolecular(
+        bimol_label,
+        species1_label, species1_data,
+        species2_label, species2_data,
+        ground_energy)
 
     # Print the bimol section string
-    print(bimolecular_str)
+    print('\n'+bimolecular_str)
 
 
 def test__ts_sadpt_writer():
@@ -105,10 +109,11 @@ def test__ts_sadpt_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts sadpt section
-    ts_sadpt_str = mess_io.writer.write_ts_sadpt(ts_label, reac_label, prod_label, ts_data)
+    ts_sadpt_str = mess_io.writer.write_ts_sadpt(
+        ts_label, reac_label, prod_label, ts_data, ZERO_ENERGY)
 
     # Print the ts sadpoint section
-    print(ts_sadpt_str)
+    print('\n'+ts_sadpt_str)
 
 
 def test__ts_irc_writer():
@@ -120,7 +125,7 @@ def test__ts_irc_writer():
 
     # Loop over all the points of the irc and build MESS strings
     irc_pt_strings = []
-    for i in range(21):
+    for i in range(nirc):
         irc_pt_string = mess_io.writer.stringslib.INTERMEDIATE_SEP_STR
         irc_pt_string += '! IRC Point {0}\n'.format(str(i+1))
         irc_pt_string += MOLECULE_MESS_STRING
@@ -132,10 +137,11 @@ def test__ts_irc_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts irc section
-    ts_irc_str = mess_io.writer.write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strings)
+    ts_irc_str = mess_io.writer.write_ts_irc(
+        ts_label, reac_label, prod_label, irc_pt_strings, ZERO_ENERGY)
 
     # Print the ts sadpoint section
-    print(ts_irc_str)
+    print('\n'+ts_irc_str)
 
 
 if __name__ == '__main__':
@@ -143,4 +149,4 @@ if __name__ == '__main__':
     test__well_writer()
     test__bimolecular_writer()
     test__ts_sadpt_writer()
-    test__ts_irc_writer()
+    # test__ts_irc_writer()

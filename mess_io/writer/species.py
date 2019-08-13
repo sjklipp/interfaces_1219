@@ -36,7 +36,7 @@ def write_atom(mass, elec_levels):
     return atom_string
 
 
-def write_molecule(core, freqs, zero_energy, elec_levels,
+def write_molecule(core, freqs, elec_levels,
                    hind_rot='', tunnel='',
                    xmat=None, rovib_coups='', rot_dists=''):
     """ Write molecular info section
@@ -67,7 +67,6 @@ def write_molecule(core, freqs, zero_energy, elec_levels,
         'core': core,
         'nfreqs': nfreqs,
         'freqs': freqs,
-        'zero_energy': zero_energy,
         'nlevels': nlevels,
         'levels': levels,
         'hind_rot': hind_rot,

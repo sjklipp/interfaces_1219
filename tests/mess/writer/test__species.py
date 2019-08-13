@@ -30,13 +30,12 @@ def test__molecule_writer():
     mol_symfactor = 1.000
     mol_freqs = (100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
     mol_elec_levels = ((1, 0.0), (3, 50.0))
-    mol_zero_e = -35.0
 
     # Get the string for the core using the geometry
     mol_core = mess_io.writer.write_core_rigidrotor(mol_geom, mol_symfactor, interp_emax='')
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str1 = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e,
+    molecule_section_str1 = mess_io.writer.write_molecule(mol_core, mol_freqs,
                                                           mol_elec_levels,
                                                           hind_rot='', tunnel='',
                                                           rovib_coups='', rot_dists='')
@@ -62,7 +61,7 @@ End"""
     rot_dists = [['aaaa', 1000], ['bbaa', 2000], ['bbbb', 3000]]
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str2 = mess_io.writer.write_molecule(mol_core, mol_freqs, mol_zero_e,
+    molecule_section_str2 = mess_io.writer.write_molecule(mol_core, mol_freqs,
                                                           mol_elec_levels,
                                                           hind_rot=hind_rot, tunnel=tunnel,
                                                           xmat=xmat,

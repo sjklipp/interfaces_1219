@@ -14,7 +14,7 @@ SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 RXNCHAN_PATH = os.path.join(SECTION_PATH, 'reaction_channel')
 
 
-def write_species(species_label, species_data):
+def write_species(species_label, species_data, zero_energy):
     """ Writes a species section.
     """
 
@@ -24,7 +24,8 @@ def write_species(species_label, species_data):
     # Create dictionary to fill template
     species_keys = {
         'species_label': species_label,
-        'species_data': species_data
+        'species_data': species_data,
+        'zero_energy': zero_energy
     }
 
     # Set template name and path for a species
@@ -37,7 +38,7 @@ def write_species(species_label, species_data):
     return species_str
 
 
-def write_well(well_label, well_data):
+def write_well(well_label, well_data, zero_energy):
     """ Writes a well section.
     """
 
@@ -47,7 +48,8 @@ def write_well(well_label, well_data):
     # Create dictionary to fill template
     well_keys = {
         'well_label': well_label,
-        'well_data': well_data
+        'well_data': well_data,
+        'zero_energy': zero_energy
     }
 
     # Set template name and path for a well
@@ -91,7 +93,7 @@ def write_bimolecular(bimol_label,
     return bimolecular_str
 
 
-def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data):
+def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
     """ Writes a TS section containing only a saddle point 
     """
 
@@ -103,7 +105,8 @@ def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data):
         'ts_label': ts_label,
         'reac_label': reac_label,
         'prod_label': prod_label,
-        'ts_data': ts_data
+        'ts_data': ts_data,
+        'zero_energy': zero_energy
     }
 
     # Set template name and path for a TS with only a single saddle point
@@ -116,7 +119,7 @@ def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data):
     return ts_sadpt_str
 
 
-def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs):
+def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
     """ Writes a TS section containing IRC information
     """
 
@@ -131,7 +134,8 @@ def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs):
         'ts_label': ts_label,
         'reac_label': reac_label,
         'prod_label': prod_label,
-        'ts_data': ts_data
+        'ts_data': ts_data,
+        'zero_energy': zero_energy
     }
 
     # Set template name and path for a TS with an IRC
