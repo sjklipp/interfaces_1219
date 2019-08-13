@@ -4,8 +4,6 @@ ${core}
 ## Frequencies Section
   Frequencies[1/cm]         ${nfreqs}
 ${freqs}
-## Zero Energy Section
-  ZeroEnergy[kcal/mol]      ${zero_energy}
 ## Electronic Levels Section
   ElectronicLevels[1/cm]    ${nlevels}
 ${levels}
@@ -16,21 +14,20 @@ ${hind_rot}\
 ## Anharmonicity Section
 % if anharm != '':
   Anharmonicities[1/cm]
-${anharm}\
+${anharm}
 % endif 
 ## Rovibrational Coupling Section
 % if rovib_coups != '':
   RovibrationalCouplings[1/cm]
-${rovib_coups}\
+${rovib_coups}
 % endif
 ## Rotational Distortion Section
 % if rot_dists != '':
   RotationalDistortion[1/cm]
-${rot_dists}\
+${rot_dists}
   End
 % endif
 ## Tunnel Section
 % if tunnel != '':
 ${tunnel}\
 % endif
-End
