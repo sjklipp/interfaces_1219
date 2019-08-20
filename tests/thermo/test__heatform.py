@@ -8,7 +8,7 @@ from thermo import util
 
 
 # Inchi string for methyl nitrate (CH3ONO2)
-ICH = 'InCHI=1S/CH3NO3/c1-5-2(3)4/h1H3'
+ICH = 'InChI=1S/CH3NO3/c1-5-2(3)4/h1H3'
 
 # Thermp output file name
 THERMP_OUTFILE_NAME = os.path.join(os.getcwd(), 'run', 'thermp.out')
@@ -34,9 +34,9 @@ def test__calc_hform_0k():
     print(basis)
     
     # Get the basis list from reduced_basis
-    red_basis = heatform.select_basis(basis_ich, formula)
-    print('\nreduced basis:')
-    print(red_basis)
+    #red_basis = heatform.select_basis(basis_ich, formula)
+    #print('\nreduced basis:')
+    #print(red_basis)
 
     # Get the coefficients for the balanced heat-of-formation eqn
     coeff = heatform.calc_coefficients(basis, atom_dict)
@@ -77,6 +77,27 @@ def test__read_hform_298k():
     print(hform)
 
 
+def test__cbhzed():
+    """ Fragments molecule in a way that conserves each heavy-atom/heavy-atom bond
+    """
+    frags = heatform.cbhzed(ICH)
+    print('\nCBH0 formula: ', heatform._print_lhs_rhs(ICH, frags))
+
+def test__cbhone():
+    """ Fragments molecule in a way that conserves each heavy-atom/heavy-atom bond
+    """
+    frags = heatform.cbhone(ICH)
+    print('\nCBH1 formula: ', heatform._print_lhs_rhs(ICH, frags))
+
+def test__cbhtwo():
+    """ Fragments molecule in a way that conserves each heavy-atom/heavy-atom bond
+    """
+    frags = heatform.cbhtwo(ICH)
+    print('\nCBH2 formula: ', heatform._print_lhs_rhs(ICH, frags))
+
 if __name__ == '__main__':
     test__calc_hform_0k()
     test__read_hform_298k()
+    test__cbhzed()
+    test__cbhone()
+    test__cbhtwo()
