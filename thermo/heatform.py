@@ -9,6 +9,8 @@ from qcelemental import constants as qcc
 import autoparse.pattern as app
 import autoparse.find as apf
 from . import util
+import automol.inchi
+import automol.graph
 
 
 KJ2KCAL = qcc.conversion_factor('kJ/mol', 'kcal/mol')
@@ -258,3 +260,276 @@ def calc_coefficients(basis, mol_atom_dict):
     coeff = np.dot(basis_mat, stoich_vec)
 
     return coeff
+
+def stoich(ich):
+    """
+    Finds the stoichiometry of a molecule
+    INPUT:
+    ich  -- STR inchii 
+    OUTPUT:
+    stoich -- dictionary with key = STR atomsymbol, 
+                val = INT number of atomsymbol in molecule
+    """
+    stoich = {'H': 0}
+    gra  = automol.inchi.graph(ich)
+    atms = automol.graph.atoms(gra)
+    for atm in atms:
+        stoich['H'] += atms[atm][1]
+        if atms[atm][0] in stoich:
+            stoich[atms[atm][0]] += 1
+        else:
+            stoich[atms[atm][0]]  = 1
+    return stoich
+
+
+def cbhzed(ich):
+    ''' 
+    Fragments molecule so that each heavy-atom is a seperate fragment
+    INPUT:
+    ich --  STR inchii name for molecule
+    OUTPUT 
+    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
+    '''
+    #Graphical info about molecule
+    gra      = automol.inchi.graph(ich)
+    rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
+    atm_vals = automol.graph.atom_element_valences(gra)
+    atms     = automol.graph.atoms(gra)
+    #Determine CBHzed fragments
+    frags = {}
+    for atm in atm_vals:
+       if atm in rad_atms:
+           atm_vals[atm] -= 1
+       atm_dic = {0: (atms[atm][0], int(atm_vals[atm]), None)}
+       gra     = (atm_dic, {})
+       frag = automol.graph.inchi(gra)
+       #frag = and_dicutomol.smiles.inchi('[{}H{:g}]'.format(atms[atm][0], atm_vals[atm]-1))
+       _add2dic(frags, frag)
+    return _balance_frags(ich, frags)
+
+def cbhone(ich):
+    ''' 
+    Fragments molecule in a way that conserves each heavy-atom/heavy-atom bond
+    INPUT:
+    ich --  STR inchii name for molecule
+    OUTPUT 
+    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
+    '''
+    #Graphical info about molecule
+    gra      = automol.inchi.graph(ich)
+    atms     = automol.graph.atoms(gra)
+    bnd_ords = automol.graph.one_resonance_dominant_bond_orders(gra)
+    rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
+    atm_vals = automol.graph.atom_element_valences(gra)
+    adj_atms = automol.graph.atom_neighbor_keys(gra)
+
+    #Determine CBHone fragments
+    frags = {}
+    for atm in atm_vals:
+        for adj in list(adj_atms[atm]):
+            if atm > adj:
+                vali = atm_vals[atm]
+                valj = atm_vals[adj]
+                if atm in rad_atms:
+                    vali -= 1
+                if adj in rad_atms:
+                    valj -= 1
+                key = frozenset({atm, adj})
+                bnd_ord = list(bnd_ords[key] )[0]
+                vali -= bnd_ord
+                valj -= bnd_ord
+                atm_dic = {0: (atms[atm][0], int(vali), None), 1: (atms[adj][0], int(valj), None)}
+                bnd_dic = {frozenset({0,1}): (1, None)}
+                gra     = (atm_dic, bnd_dic)
+                frag = automol.graph.inchi(gra)
+                _add2dic(frags, frag)
+    frags =  {k: v for k, v in frags.items() if v}
+
+    #Balance
+    balance_ = _balance(ich, frags)
+    balance_ =  {k: v for k, v in balance_.items() if v}
+
+    if balance_:
+        newfrags = {}
+        zedfrags = cbhzed(ich)
+        new      = {}
+        for frag in frags:
+             newfrags[frag] = frags[frag]
+             new = cbhzed(frag)
+             for n in new:
+                _add2dic(newfrags, n, - new[n] * frags[frag])
+        if not frags:
+            frags = cbhzed(ich)
+        for frag in zedfrags:
+            if frag in newfrags:
+                _add2dic(newfrags, frag, zedfrags[frag])
+        frags = newfrags
+        frags =  {k: v for k, v in frags.items() if v}
+        balance_ = _balance(ich, frags)
+        balance_ =  {k: v for k, v in balance_.items() if v}
+
+    if balance_:
+        frags = _balance_frags(ich, frags)
+
+    return frags
+
+
+def cbhtwo(ich):
+    ''' 
+    Fragments molecule for each heavy-atom to stay bonded to its adjacent atoms
+    INPUT:
+    ich --  STR inchii name for molecule
+    OUTPUT 
+    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
+   '''
+    #Graphical info about molecule
+    gra      = automol.inchi.graph(ich)
+    atms     = automol.graph.atoms(gra)
+    bnd_ords = automol.graph.one_resonance_dominant_bond_orders(gra)
+    rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
+    atm_vals = automol.graph.atom_element_valences(gra)
+    adj_atms = automol.graph.atom_neighbor_keys(gra)
+
+    #Determine CBHtwo fragments
+    frags = {}
+    for atm in atms:
+        vali = atm_vals[atm]
+        if atm in rad_atms:
+            vali -= 1
+        #First loop over all atoms of this frag to get saturation of atomi
+        for adj in list(adj_atms[atm]):
+            key     = frozenset({atm, adj})
+            bnd_ord = list(bnd_ords[key] )[0]
+            vali   -= bnd_ord
+        atm_dic = {0: (atms[atm][0], int(vali), None)}
+        bnd_dic = {}
+        #Then start adding bonds to the bnddic and atomdic
+        j = 0
+        for adj in list(adj_atms[atm]):
+            j   += 1
+            valj = atm_vals[adj]
+            if adj in rad_atms:
+                 valj -= 1
+            key     = frozenset({atm, adj})
+            bnd_ord = list(bnd_ords[key] )[0]
+            valj   -= bnd_ord
+            atm_dic[j] = (atms[adj][0], int(valj), None)
+            bnd_dic[frozenset({0,j})] =  (1, None)
+        gra     = (atm_dic, bnd_dic)
+        frag    = automol.graph.inchi(gra)
+        _add2dic(frags, frag)
+
+    frags =  {k: v for k, v in frags.items() if v}
+    #Balance
+    balance_ = _balance(ich, frags)
+    balance_ =  {k: v for k, v in balance_.items() if v}
+    if balance_:
+        newfrags = {}
+        onefrags = cbhone(ich)
+        new      = {}
+        for frag in frags:
+             newfrags[frag] = frags[frag]
+             new = cbhone(frag)
+             for n in new:
+                _add2dic(newfrags, n, - new[n] * frags[frag])
+        if not frags:
+            frags = cbhone(ich)
+        for frag in onefrags:
+            if frag in newfrags:
+                _add2dic(newfrags, frag, onefrags[frag])
+        frags = newfrags
+        frags =  {k: v for k, v in frags.items() if v}
+
+        balance_ = _balance(ich, frags)
+        balance_ =  {k: v for k, v in balance_.items() if v}
+        if balance_:
+            newfrags = {}
+            zedfrags = cbhzed(ich)
+            new      = {}
+            for frag in frags:
+                 newfrags[frag] = frags[frag]
+                 new = cbhzed(frag)
+                 for n in new:
+                    _add2dic(newfrags, n, - new[n] * frags[frag])
+            if not frags:
+                frags = cbhzed(ich)
+            for frag in zedfrags:
+                if frag in newfrags:
+                    _add2dic(newfrags, frag, zedfrags[frag])
+            frags = newfrags
+            frags =  {k: v for k, v in frags.items() if v}
+
+            balance_ = _balance(ich, frags)
+            balance_ =  {k: v for k, v in balance_.items() if v}
+            if balance_:
+                frags = _balance_frags(ich, frags)
+    return frags
+
+
+def _add2dic(dic, key, val = 1):
+    if key in dic:
+        dic[key] += val
+    else:
+        dic[key]  = val
+    return
+
+def _lhs_rhs(frags):
+    rhs = {}
+    lhs = {}
+    for frag in frags:
+        if frags[frag] > 0:
+            rhs[frag] = frags[frag]
+        elif frags[frag] < 0:
+            lhs[frag] = - frags[frag]
+    return lhs, rhs
+
+def _print_lhs_rhs(ich, frags):
+    lhs, rhs = _lhs_rhs(frags)
+    lhsprint = automol.inchi.smiles(ich)
+    rhsprint = ''
+    for frag in rhs:
+        if rhsprint:
+            rhsprint += ' +  {:.1f} {} '.format( rhs[frag], automol.inchi.smiles(frag))
+        else:
+            rhsprint  = ' {:.1f} {} '.format( rhs[frag], automol.inchi.smiles(frag))
+    for frag in lhs:
+            lhsprint += ' +  {:.1f} {} '.format( lhs[frag], automol.inchi.smiles(frag))
+    return '{} --> {}'.format(lhsprint, rhsprint)
+
+
+def _balance(ich, frags):
+    stoichs = {}
+    for frag in frags:
+        _stoich = stoich(frag)
+        for atm in _stoich:
+            if atm in stoichs:
+                stoichs[atm] += _stoich[atm] * frags[frag]
+            else:
+                stoichs[atm]  = _stoich[atm] * frags[frag]
+    balance_ = {}
+    _stoich = stoich(ich)
+    for atom in _stoich:
+        if atom in stoichs:
+            balance_[atom] = _stoich[atom] - stoichs[atom]
+        else:
+            balance_[atom] = _stoich[atom]
+    balance_ = {x:y for x,y in balance_.items() if y!=0}
+    return balance_
+
+def _balance_frags(ich, frags):
+    balance_ = _balance(ich, frags)
+    methane  = automol.smiles.inchi('C')
+    water    = automol.smiles.inchi('O')
+    ammonm   = automol.smiles.inchi('N')
+    hydrgn   = automol.smiles.inchi('[H][H]')
+    if 'C' in balance_:
+        _add2dic(frags, methane, balance_['C'])
+    if 'N' in balance_:
+        _add2dic(frags, ammonm,  balance_['N'])
+    if 'O' in balance_:
+        _add2dic(frags, water,   balance_['O'])
+    balance_ = _balance(ich, frags)
+    if 'H' in balance_:
+        _add2dic(frags, hydrgn,  balance_['H']/2)
+    return frags
+
