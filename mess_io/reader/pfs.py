@@ -3,7 +3,7 @@
 """
 
 
-def read_pf(pf_file_name):
+def read_pfs(pf_file_name):
     """ reads the pf.dat file.
     """
 

@@ -2,7 +2,8 @@
  Obtain rate constants [k(T, P)] for a given reaction
 """
 
-def read_highp_k(output_string, reaction, run_temps, run_pressures):
+
+def read_highp_ks(output_string, reaction, run_temps, run_pressures):
     """ Read the high-pressure rate constants
     """
 
@@ -21,7 +22,7 @@ def read_highp_k(output_string, reaction, run_temps, run_pressures):
     return rate_constants
 
 
-def read_pdep_k(output_string, reaction, run_temps, run_pressures)
+def read_pdep_ks(output_string, reaction, run_temps, run_pressures):
     """ Read the pressure-dependent rate constants
     """
     
@@ -104,22 +105,3 @@ def get_pressures(output_string):
             break
 
     return PRESSURES, PRESSURE_UNIT
-
-
-def get_valid_Tk(data, k):
-    """ this subroutine takes in a array of rate constants and
-        returns the subset of this array that is positive,
-        along with the corresponding Temperature array """
-
-    # start by using only the temperatures at which the rate constant is well defined
-    local_T = []
-    local_k = []
-    for (t, T) in enumerate(data.temperature):
-        if (k[t] > 0.0) and (T >= data.Tmin) and (T <= data.Tmax):
-            local_T.append(T)
-            local_k.append(k[t])
-
-    local_T = np.array(local_T, dtype=np.float64)
-    local_k = np.array(local_k, dtype=np.float64)
-
-    return local_T, local_k
