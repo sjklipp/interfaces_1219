@@ -25,7 +25,7 @@ def write_rpht_input(geom, grad, hess,
     # Format the molecule info
     natoms = len(geom)
     geom_str = format_geom_str(geom)
-    grad_str = format_grad_str(geom,grad)
+    grad_str = format_grad_str(geom, grad)
     hess_str = format_hessian_str(hess)
     nrotors = rotors_str.count('pivotA')
 
@@ -98,7 +98,7 @@ def format_grad_str(geom, grad):
     atom_list = []
     for i, (sym, _) in enumerate(geom):
         atom_list.append(int(ptab.to_Z(sym)))
-    
+
     # Format the strings for the xyz gradients
     full_grads_str = ''
     for i, grads in enumerate(grad):
