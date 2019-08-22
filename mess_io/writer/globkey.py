@@ -11,6 +11,7 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 
+
 def write_global_reaction(temperatures, pressures):
     """ Writes the global keywords section of the MESS input file.
         :param float temperatures: List of temperatures (in K)
