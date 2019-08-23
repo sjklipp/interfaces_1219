@@ -25,7 +25,7 @@ def write_global_reaction(temperatures, pressures):
     pressure_list = '  '.join(str(val) for val in pressures)
 
     # Create dictionary to fill template
-    global_rxn_keys = {
+    globrxn_keys = {
         'temperatures': temperature_list,
         'pressures': pressure_list
     }
@@ -35,12 +35,14 @@ def write_global_reaction(temperatures, pressures):
     template_file_path = os.path.join(SECTION_PATH, template_file_name)
 
     # Build global section string
-    global_rxn_str = Template(filename=template_file_path).render(**global_rxn_keys)
+    globrxn_str = Template(filename=template_file_path).render(**globrxn_keys)
 
-    return global_rxn_str
+    return globrxn_str
 
 
-def write_global_pf(temperatures=(), temp_step=100, ntemps=30, rel_temp_inc=0.001, atom_dist_min=0.6):
+def write_global_pf(temperatures=(),
+                    temp_step=100, ntemps=30,
+                    rel_temp_inc=0.001, atom_dist_min=0.6):
     """ Writes the global keywords section of the MESS input file.
         :param float temperatures: List of temperatures (in K)
         :param float temp_step: temperature step (in K)
@@ -53,8 +55,9 @@ def write_global_pf(temperatures=(), temp_step=100, ntemps=30, rel_temp_inc=0.00
         temperature_list = '  '.join(str(val) for val in temperatures)
     else:
         temperature_list = ''
+
     # Create dictionary to fill template
-    global_pf_keys = {
+    globpf_keys = {
         'temperatures': temperature_list,
         'temp_step': temp_step,
         'ntemps': ntemps,
@@ -67,6 +70,6 @@ def write_global_pf(temperatures=(), temp_step=100, ntemps=30, rel_temp_inc=0.00
     template_file_path = os.path.join(SECTION_PATH, template_file_name)
 
     # Build global section string
-    global_pf_str = Template(filename=template_file_path).render(**global_pf_keys)
+    globpf_str = Template(filename=template_file_path).render(**globpf_keys)
 
-    return global_pf_str
+    return globpf_str

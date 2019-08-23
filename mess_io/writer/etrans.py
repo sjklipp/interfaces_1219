@@ -16,14 +16,14 @@ def write_energy_transfer(exp_factor, exp_power, exp_cutoff,
                           sig1, sig2,
                           mass1, mass2):
     """ Writes the energy transfer section of the MESS input file
-        :param float exp_factor: Exponent factor  
+        :param float exp_factor: Exponent factor
         :param float exp_power: Exponent power
-        :param float exp_cutoff: Exponent cutoff  
-        :param float eps1: Epsilon of Species 1 
+        :param float exp_cutoff: Exponent cutoff
+        :param float eps1: Epsilon of Species 1
         :param float eps2: Epsilon of Species 2
-        :param float sig1: Sigma of Species 1 
+        :param float sig1: Sigma of Species 1
         :param float sig2: Sigma of Species 2
-        :param float mass1: Mass of Species 1 
+        :param float mass1: Mass of Species 1
         :param float mass2: Mass of Species 2
         :return energy_transfer_str: String for section
         :rtype: string
@@ -44,7 +44,7 @@ def write_energy_transfer(exp_factor, exp_power, exp_cutoff,
         'masses': mass_str
     }
 
-    # Set template name and path for the energy transfer section 
+    # Set template name and path for the energy transfer section
     template_file_name = 'energy_transfer.mako'
     template_file_path = os.path.join(SECTION_PATH, template_file_name)
 

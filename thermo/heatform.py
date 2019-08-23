@@ -8,14 +8,15 @@ import numpy as np
 from qcelemental import constants as qcc
 import autoparse.pattern as app
 import autoparse.find as apf
-from . import util
 import automol.inchi
 import automol.graph
+from . import util
 
-
+# Conversion factors
 KJ2KCAL = qcc.conversion_factor('kJ/mol', 'kcal/mol')
 EH2KCAL = qcc.conversion_factor('hartree', 'kcal/mol')
 
+# Path  the database files (stored in the thermo src directory)
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -24,12 +25,13 @@ def get_hform_298k_thermp(output_string):
     Obtains deltaHf from thermp output
     """
 
-    dHf298_pattern = ('h298 final' +
-                  app.one_or_more(app.SPACE) +
-                  app.capturing(app.FLOAT))
-    dHf298 = float(apf.last_capture(dHf298_pattern, output_string))
+    # Line pattern containing the DeltaHf value at 298 K
+    dhf298_pattern = ('h298 final' +
+                      app.one_or_more(app.SPACE) +
+                      app.capturing(app.FLOAT))
+    dhf298 = float(apf.last_capture(dhf298_pattern, output_string))
 
-    return dHf298
+    return dhf298
 
 
 def calc_hform_0k(hzero_mol, hzero_basis, basis, coeff, ref_set):
@@ -37,13 +39,7 @@ def calc_hform_0k(hzero_mol, hzero_basis, basis, coeff, ref_set):
     """
 
     # Calculate the heat of formation
-    print('calc_hform_test:')
-    print(hzero_mol)
-    print(hzero_basis)
-    print(basis)
-    print(coeff)
-    print(ref_set)
-    dhzero = hzero_mol * EH2KCAL 
+    dhzero = hzero_mol * EH2KCAL
     for i, spc in enumerate(basis):
         h_basis = get_ref_h(spc, ref_set, 0)
         if h_basis is None:
@@ -76,15 +72,15 @@ def get_ref_h(species, ref, temp):
     return h_species
 
 
-def select_basis(atom_dct, attempt=0):
+def select_basis(atom_dct, att=0):
     """
     Given a list of atoms, generates a list of molecules
     that is best suited to serve as a basis for those atoms
 
     :param atomlist: list of atoms
     :type atomlist: list
-    :param attempt: ???
-    :type attempt: ???
+    :param att: ???
+    :type att: ???
 
     OUPUT:
     basis    - recommended basis as a list of stoichiometries
@@ -100,11 +96,11 @@ def select_basis(atom_dct, attempt=0):
     basis = []
     counter = 1
     # N2
-    if 'N' in atoms and attempt < 2 and counter <= nbasis:
+    if 'N' in atoms and att < 2 and counter <= nbasis:
         basis.append('InChI=1S/N2/c1-2')
         counter += 1
     # NH3
-    if 'N' in atoms and 'H' in atoms and attempt > 1 and counter <= nbasis:
+    if 'N' in atoms and 'H' in atoms and att > 1 and counter <= nbasis:
         basis.append('InChI=1S/H3N/h1H3')
         counter += 1
     # SO2
@@ -112,31 +108,31 @@ def select_basis(atom_dct, attempt=0):
         basis.append('InChI=1S/O2S/c1-3-2')
         counter += 1
     # H2
-    if 'H' in atoms and attempt < 2 and counter <= nbasis:
+    if 'H' in atoms and att < 2 and counter <= nbasis:
         basis.append('InChI=1S/H2/h1H')
         counter += 1
     # H2
-    elif 'H' in atoms and 'C' not in atoms and attempt < 3 and counter <= nbasis:
+    elif 'H' in atoms and 'C' not in atoms and att < 3 and counter <= nbasis:
         basis.append('InChI=1S/H2/h1H')
         counter += 1
     # O2
-    if 'O' in atoms and attempt < 3 and counter <= nbasis:
+    if 'O' in atoms and att < 3 and counter <= nbasis:
         basis.append('InChI=1S/O2/c1-2')
         counter += 1
     # CH4
-    if 'C' in atoms and attempt < 4 and counter <= nbasis:
+    if 'C' in atoms and att < 4 and counter <= nbasis:
         basis.append('InChI=1S/CH4/h1H4')
         counter += 1
     # H2O
-    if 'O' in atoms and 'H' in atoms and attempt < 4 and counter <= nbasis:
+    if 'O' in atoms and 'H' in atoms and att < 4 and counter <= nbasis:
         basis.append('InChI=1S/H2O/h1H2')
         counter += 1
     # CO2
-    if 'C' in atoms and 'O' in atoms and attempt < 5 and counter <= nbasis:
+    if 'C' in atoms and 'O' in atoms and att < 5 and counter <= nbasis:
         basis.append('InChI=1S/CO2/c2-1-3')
         counter += 1
     # CH2O
-    if 'C' in atoms and 'O' in atoms and attempt < 5 and counter <= nbasis:
+    if 'C' in atoms and 'O' in atoms and att < 5 and counter <= nbasis:
         basis.append('InChI=1S/CH2O/c1-2/h1H2')
         counter += 1
     # CH3OH
@@ -152,31 +148,31 @@ def select_basis(atom_dct, attempt=0):
         basis.append('InChI=1S/O2S/c1-3-2')
         counter += 1
     # H2
-    if 'H' in atoms and attempt < 1 and counter <= nbasis:
+    if 'H' in atoms and att < 1 and counter <= nbasis:
         basis.append('InChI=1S/H2/h1H')
         counter += 1
     # H2
-    elif 'H' in atoms and 'C' not in atoms and attempt < 3 and counter <= nbasis:
+    elif 'H' in atoms and 'C' not in atoms and att < 3 and counter <= nbasis:
         basis.append('InChI=1S/H2/h1H')
         counter += 1
     # O2
-    if 'O' in atoms and attempt < 2 and counter <= nbasis:
+    if 'O' in atoms and att < 2 and counter <= nbasis:
         basis.append('InChI=1S/O2/c1-2')
         counter += 1
     # CH4
-    if 'C' in atoms and attempt < 3 and counter <= nbasis:
+    if 'C' in atoms and att < 3 and counter <= nbasis:
         basis.append('InChI=1S/CH4/h1H4')
         counter += 1
     # H2O
-    if 'O' in atoms and 'H' in atoms and attempt < 3 and counter <= nbasis:
+    if 'O' in atoms and 'H' in atoms and att < 3 and counter <= nbasis:
         basis.append('InChI=1S/H2O/h1H2')
         counter += 1
     # CO2
-    if 'C' in atoms and 'O' in atoms and attempt < 4 and counter <= nbasis:
+    if 'C' in atoms and 'O' in atoms and att < 4 and counter <= nbasis:
         basis.append('InChI=1S/CO2/c2-1-3')
         counter += 1
     # CH2O
-    if 'C' in atoms and 'O' in atoms and attempt < 4 and counter <= nbasis:
+    if 'C' in atoms and 'O' in atoms and att < 4 and counter <= nbasis:
         basis.append('InChI=1S/CH2O/c1-2/h1H2')
         counter += 1
     # CH3OH
@@ -198,7 +194,7 @@ def get_reduced_basis(basis_ich, species_formula):
     mat       - matrix (length of basis by length of atomlist)
                 (square if done right)
     """
-    
+
     # Get the basis formulae list
     basis_formulae = [util.inchi_formula(spc) for spc in basis_ich]
 
@@ -233,7 +229,6 @@ def calc_coefficients(basis, mol_atom_dict):
     basis_mat = np.zeros((nbasis, nbasis))
 
     # Get the basis formulae list
-    print('basis test:', basis)  
     basis_formulae = [util.inchi_formula(spc) for spc in basis]
 
     # Set the elements of the matrix
@@ -261,69 +256,77 @@ def calc_coefficients(basis, mol_atom_dict):
 
     return coeff
 
+
 def stoich(ich):
     """
     Finds the stoichiometry of a molecule
     INPUT:
-    ich  -- STR inchii 
+    ich  -- STR inchii
     OUTPUT:
-    stoich -- dictionary with key = STR atomsymbol, 
+    stoich -- dictionary with key = STR atomsymbol,
                 val = INT number of atomsymbol in molecule
     """
+
     stoich = {'H': 0}
-    gra  = automol.inchi.graph(ich)
+    gra = automol.inchi.graph(ich)
     atms = automol.graph.atoms(gra)
     for atm in atms:
         stoich['H'] += atms[atm][1]
         if atms[atm][0] in stoich:
             stoich[atms[atm][0]] += 1
         else:
-            stoich[atms[atm][0]]  = 1
+            stoich[atms[atm][0]] = 1
     return stoich
 
 
 def cbhzed(ich):
-    ''' 
+    """
     Fragments molecule so that each heavy-atom is a seperate fragment
     INPUT:
     ich --  STR inchii name for molecule
-    OUTPUT 
-    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
-    '''
-    #Graphical info about molecule
-    gra      = automol.inchi.graph(ich)
+    OUTPUT
+    frags -- DIC dictionary with keys as STR inchii name for fragments
+    and value as INT their coefficient
+    """
+
+    # Graphical info about molecule
+    gra = automol.inchi.graph(ich)
     rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
     atm_vals = automol.graph.atom_element_valences(gra)
-    atms     = automol.graph.atoms(gra)
-    #Determine CBHzed fragments
+    atms = automol.graph.atoms(gra)
+
+    # Determine CBHzed fragments
     frags = {}
     for atm in atm_vals:
-       if atm in rad_atms:
-           atm_vals[atm] -= 1
-       atm_dic = {0: (atms[atm][0], int(atm_vals[atm]), None)}
-       gra     = (atm_dic, {})
-       frag = automol.graph.inchi(gra)
-       #frag = and_dicutomol.smiles.inchi('[{}H{:g}]'.format(atms[atm][0], atm_vals[atm]-1))
-       _add2dic(frags, frag)
+        if atm in rad_atms:
+            atm_vals[atm] -= 1
+        atm_dic = {0: (atms[atm][0], int(atm_vals[atm]), None)}
+        gra = (atm_dic, {})
+        frag = automol.graph.inchi(gra)
+        _add2dic(frags, frag)
+
     return _balance_frags(ich, frags)
 
+
 def cbhone(ich):
-    ''' 
+    """
     Fragments molecule in a way that conserves each heavy-atom/heavy-atom bond
     INPUT:
     ich --  STR inchii name for molecule
-    OUTPUT 
-    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
-    '''
-    #Graphical info about molecule
-    gra      = automol.inchi.graph(ich)
-    atms     = automol.graph.atoms(gra)
+    OUTPUT
+    frags -- DIC dictionary with keys as STR inchii name for fragments
+    and value as INT their coefficient
+    """
+
+    # Graphical info about molecule
+    gra = automol.inchi.graph(ich)
+    atms = automol.graph.atoms(gra)
     bnd_ords = automol.graph.one_resonance_dominant_bond_orders(gra)
     rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
     atm_vals = automol.graph.atom_element_valences(gra)
     adj_atms = automol.graph.atom_neighbor_keys(gra)
 
-    #Determine CBHone fragments
+    # Determine CBHone fragments
     frags = {}
     for atm in atm_vals:
         for adj in list(adj_atms[atm]):
@@ -335,28 +338,29 @@ def cbhone(ich):
                 if adj in rad_atms:
                     valj -= 1
                 key = frozenset({atm, adj})
-                bnd_ord = list(bnd_ords[key] )[0]
+                bnd_ord = list(bnd_ords[key])[0]
                 vali -= bnd_ord
                 valj -= bnd_ord
-                atm_dic = {0: (atms[atm][0], int(vali), None), 1: (atms[adj][0], int(valj), None)}
-                bnd_dic = {frozenset({0,1}): (1, None)}
-                gra     = (atm_dic, bnd_dic)
+                atm_dic = {0: (atms[atm][0], int(vali), None),
+                           1: (atms[adj][0], int(valj), None)}
+                bnd_dic = {frozenset({0, 1}): (1, None)}
+                gra = (atm_dic, bnd_dic)
                 frag = automol.graph.inchi(gra)
                 _add2dic(frags, frag)
-    frags =  {k: v for k, v in frags.items() if v}
+    frags = {k: v for k, v in frags.items() if v}
 
-    #Balance
+    # Balance
     balance_ = _balance(ich, frags)
-    balance_ =  {k: v for k, v in balance_.items() if v}
+    balance_ = {k: v for k, v in balance_.items() if v}
 
     if balance_:
         newfrags = {}
         zedfrags = cbhzed(ich)
-        new      = {}
+        new = {}
         for frag in frags:
-             newfrags[frag] = frags[frag]
-             new = cbhzed(frag)
-             for n in new:
+            newfrags[frag] = frags[frag]
+            new = cbhzed(frag)
+            for n in new:
                 _add2dic(newfrags, n, - new[n] * frags[frag])
         if not frags:
             frags = cbhzed(ich)
@@ -364,9 +368,9 @@ def cbhone(ich):
             if frag in newfrags:
                 _add2dic(newfrags, frag, zedfrags[frag])
         frags = newfrags
-        frags =  {k: v for k, v in frags.items() if v}
+        frags = {k: v for k, v in frags.items() if v}
         balance_ = _balance(ich, frags)
-        balance_ =  {k: v for k, v in balance_.items() if v}
+        balance_ = {k: v for k, v in balance_.items() if v}
 
     if balance_:
         frags = _balance_frags(ich, frags)
@@ -375,62 +379,65 @@ def cbhone(ich):
 
 
 def cbhtwo(ich):
-    ''' 
+    """
     Fragments molecule for each heavy-atom to stay bonded to its adjacent atoms
     INPUT:
     ich --  STR inchii name for molecule
-    OUTPUT 
-    frags -- DIC dictionary with keys as STR inchii name for fragments and value as INT their coefficient
-   '''
-    #Graphical info about molecule
-    gra      = automol.inchi.graph(ich)
-    atms     = automol.graph.atoms(gra)
+    OUTPUT
+    frags -- DIC dictionary with keys as STR inchii name for fragments and
+    value as INT their coefficient
+    """
+
+    # Graphical info about molecule
+    gra = automol.inchi.graph(ich)
+    atms = automol.graph.atoms(gra)
     bnd_ords = automol.graph.one_resonance_dominant_bond_orders(gra)
     rad_atms = list(automol.graph.sing_res_dom_radical_atom_keys(gra))
     atm_vals = automol.graph.atom_element_valences(gra)
     adj_atms = automol.graph.atom_neighbor_keys(gra)
 
-    #Determine CBHtwo fragments
+    # Determine CBHtwo fragments
     frags = {}
     for atm in atms:
         vali = atm_vals[atm]
         if atm in rad_atms:
             vali -= 1
-        #First loop over all atoms of this frag to get saturation of atomi
+        # First loop over all atoms of this frag to get saturation of atomi
         for adj in list(adj_atms[atm]):
-            key     = frozenset({atm, adj})
-            bnd_ord = list(bnd_ords[key] )[0]
-            vali   -= bnd_ord
+            key = frozenset({atm, adj})
+            bnd_ord = list(bnd_ords[key])[0]
+            vali -= bnd_ord
         atm_dic = {0: (atms[atm][0], int(vali), None)}
         bnd_dic = {}
-        #Then start adding bonds to the bnddic and atomdic
+        # Then start adding bonds to the bnddic and atomdic
         j = 0
         for adj in list(adj_atms[atm]):
-            j   += 1
+            j += 1
             valj = atm_vals[adj]
             if adj in rad_atms:
-                 valj -= 1
-            key     = frozenset({atm, adj})
-            bnd_ord = list(bnd_ords[key] )[0]
-            valj   -= bnd_ord
+                valj -= 1
+            key = frozenset({atm, adj})
+            bnd_ord = list(bnd_ords[key])[0]
+            valj -= bnd_ord
             atm_dic[j] = (atms[adj][0], int(valj), None)
-            bnd_dic[frozenset({0,j})] =  (1, None)
-        gra     = (atm_dic, bnd_dic)
-        frag    = automol.graph.inchi(gra)
+            bnd_dic[frozenset({0, j})] = (1, None)
+        gra = (atm_dic, bnd_dic)
+        frag = automol.graph.inchi(gra)
         _add2dic(frags, frag)
 
-    frags =  {k: v for k, v in frags.items() if v}
-    #Balance
+    frags = {k: v for k, v in frags.items() if v}
+
+    # Balance
     balance_ = _balance(ich, frags)
-    balance_ =  {k: v for k, v in balance_.items() if v}
+    balance_ = {k: v for k, v in balance_.items() if v}
     if balance_:
         newfrags = {}
         onefrags = cbhone(ich)
-        new      = {}
+        new = {}
         for frag in frags:
-             newfrags[frag] = frags[frag]
-             new = cbhone(frag)
-             for n in new:
+            newfrags[frag] = frags[frag]
+            new = cbhone(frag)
+            for n in new:
                 _add2dic(newfrags, n, - new[n] * frags[frag])
         if not frags:
             frags = cbhone(ich)
@@ -438,18 +445,18 @@ def cbhtwo(ich):
             if frag in newfrags:
                 _add2dic(newfrags, frag, onefrags[frag])
         frags = newfrags
-        frags =  {k: v for k, v in frags.items() if v}
+        frags = {k: v for k, v in frags.items() if v}
 
         balance_ = _balance(ich, frags)
-        balance_ =  {k: v for k, v in balance_.items() if v}
+        balance_ = {k: v for k, v in balance_.items() if v}
         if balance_:
             newfrags = {}
             zedfrags = cbhzed(ich)
-            new      = {}
+            new = {}
             for frag in frags:
-                 newfrags[frag] = frags[frag]
-                 new = cbhzed(frag)
-                 for n in new:
+                newfrags[frag] = frags[frag]
+                new = cbhzed(frag)
+                for n in new:
                     _add2dic(newfrags, n, - new[n] * frags[frag])
             if not frags:
                 frags = cbhzed(ich)
@@ -457,21 +464,22 @@ def cbhtwo(ich):
                 if frag in newfrags:
                     _add2dic(newfrags, frag, zedfrags[frag])
             frags = newfrags
-            frags =  {k: v for k, v in frags.items() if v}
+            frags = {k: v for k, v in frags.items() if v}
 
             balance_ = _balance(ich, frags)
-            balance_ =  {k: v for k, v in balance_.items() if v}
+            balance_ = {k: v for k, v in balance_.items() if v}
             if balance_:
                 frags = _balance_frags(ich, frags)
+
     return frags
 
 
-def _add2dic(dic, key, val = 1):
+def _add2dic(dic, key, val=1):
     if key in dic:
         dic[key] += val
     else:
-        dic[key]  = val
-    return
+        dic[key] = val
+
 
 def _lhs_rhs(frags):
     rhs = {}
@@ -483,17 +491,21 @@ def _lhs_rhs(frags):
             lhs[frag] = - frags[frag]
     return lhs, rhs
 
+
 def _print_lhs_rhs(ich, frags):
     lhs, rhs = _lhs_rhs(frags)
     lhsprint = automol.inchi.smiles(ich)
     rhsprint = ''
     for frag in rhs:
         if rhsprint:
-            rhsprint += ' +  {:.1f} {} '.format( rhs[frag], automol.inchi.smiles(frag))
+            rhsprint += ' +  {:.1f} {} '.format(
+                rhs[frag], automol.inchi.smiles(frag))
         else:
-            rhsprint  = ' {:.1f} {} '.format( rhs[frag], automol.inchi.smiles(frag))
+            rhsprint = ' {:.1f} {} '.format(
+                rhs[frag], automol.inchi.smiles(frag))
     for frag in lhs:
-            lhsprint += ' +  {:.1f} {} '.format( lhs[frag], automol.inchi.smiles(frag))
+        lhsprint += ' +  {:.1f} {} '.format(
+            lhs[frag], automol.inchi.smiles(frag))
     return '{} --> {}'.format(lhsprint, rhsprint)
 
 
@@ -505,7 +517,7 @@ def _balance(ich, frags):
             if atm in stoichs:
                 stoichs[atm] += _stoich[atm] * frags[frag]
             else:
-                stoichs[atm]  = _stoich[atm] * frags[frag]
+                stoichs[atm] = _stoich[atm] * frags[frag]
     balance_ = {}
     _stoich = stoich(ich)
     for atom in _stoich:
@@ -513,23 +525,23 @@ def _balance(ich, frags):
             balance_[atom] = _stoich[atom] - stoichs[atom]
         else:
             balance_[atom] = _stoich[atom]
-    balance_ = {x:y for x,y in balance_.items() if y!=0}
+    balance_ = {x: y for x, y in balance_.items() if y != 0}
     return balance_
+
 
 def _balance_frags(ich, frags):
     balance_ = _balance(ich, frags)
-    methane  = automol.smiles.inchi('C')
-    water    = automol.smiles.inchi('O')
-    ammonm   = automol.smiles.inchi('N')
-    hydrgn   = automol.smiles.inchi('[H][H]')
+    methane = automol.smiles.inchi('C')
+    water = automol.smiles.inchi('O')
+    ammonm = automol.smiles.inchi('N')
+    hydrgn = automol.smiles.inchi('[H][H]')
     if 'C' in balance_:
         _add2dic(frags, methane, balance_['C'])
     if 'N' in balance_:
-        _add2dic(frags, ammonm,  balance_['N'])
+        _add2dic(frags, ammonm, balance_['N'])
     if 'O' in balance_:
-        _add2dic(frags, water,   balance_['O'])
+        _add2dic(frags, water, balance_['O'])
     balance_ = _balance(ich, frags)
     if 'H' in balance_:
-        _add2dic(frags, hydrgn,  balance_['H']/2)
+        _add2dic(frags, hydrgn, balance_['H']/2)
     return frags
-

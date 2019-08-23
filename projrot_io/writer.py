@@ -104,7 +104,8 @@ def format_grad_str(geom, grad):
     for i, grads in enumerate(grad):
         grads_str = '{0:>14.8f}{1:>14.8f}{2:>14.8f}'.format(
             grads[0], grads[1], grads[2])
-        full_grads_str += '{0:2d}{1:4d}{2}\n'.format(i+1, atom_list[i], grads_str)
+        full_grads_str += '{0:2d}{1:4d}{2}\n'.format(
+            i+1, atom_list[i], grads_str)
 
     return full_grads_str
 
@@ -113,23 +114,23 @@ def format_hessian_str(hess):
     """ Write the Hessian section of the input file
     """
 
+    # Format the Hessian
     hess = np.array(hess)
-    # # Format the Hessian
-    NROWS, NCOLS = hess.shape
+    nrows, ncols = hess.shape
 
-    if NROWS % 5 == 0:
-        NCHUNKS = NROWS // 5
+    if nrows % 5 == 0:
+        nchunks = nrows // 5
     else:
-        NCHUNKS = (NROWS // 5) + 1
+        nchunks = (nrows // 5) + 1
 
     hess_str = '   ' + '    '.join([str(val) for val in range(1, 6)]) + '\n'
-    N = 0
-    while N+1 <= NCHUNKS:
-        for i in range(NROWS):
+    cnt = 0
+    while cnt+1 <= nchunks:
+        for i in range(nrows):
             col_tracker = 1
-            if i >= 5*N:
+            if i >= 5*cnt:
                 hess_str += '{0}'.format(str(i+1))
-                for j in range(5*N, NCOLS):
+                for j in range(5*cnt, ncols):
                     if i >= j:
                         if col_tracker <= 5:
                             hess_str += '  {0:5.3f}'.format(hess[i][j])
@@ -143,10 +144,16 @@ def format_hessian_str(hess):
                         break
                     else:
                         break
-            if i+1 == NROWS and N+1 < NCHUNKS-1:
-                hess_str += '    ' + '    '.join([str(val) for val in range(5*(N+1) + 1, 5*(N+1) + 6)]) + '\n'
-            if i+1 == NROWS and N+1 == NCHUNKS-1:
-                hess_str += '    ' +  '    '.join([str(val) for val in range(5*(N+1) + 1, NROWS+1)]) + '\n'
-        N += 1
+            if i+1 == nrows and cnt+1 < nchunks-1:
+                val_str = '     '.join(
+                    [str(val)
+                     for val in range(5*(cnt+1) + 1, 5*(cnt+1) + 6)])
+                hess_str += '    ' + val_str + '\n'
+            if i+1 == nrows and cnt+1 == nchunks-1:
+                val_str = '     '.join(
+                    [str(val)
+                     for val in range(5*(cnt+1) + 1, nrows+1)])
+                hess_str += '    ' + val_str + '\n'
+        cnt += 1
 
     return hess_str

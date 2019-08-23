@@ -15,12 +15,12 @@ SPEC_INFO_PATH = os.path.join(SPECIES_PATH, 'info')
 
 
 def write_core_rigidrotor(geom1, sym_factor, interp_emax=''):
-    """ Writes a rigid-rotor core section. 
+    """ Writes a rigid-rotor core section.
     """
 
-    # Format the geometry section 
+    # Format the geometry section
     natom1, geom1 = util.geom_format(geom1)
-    
+
     # Create dictionary to fill template
     core_rigrot_keys = {
         'sym_factor': sym_factor,
@@ -44,9 +44,9 @@ def write_core_multirotor(geom1, sym_factor, pot_surf, int_rot,
     """ Writes a multi-rotor core section.
     """
 
-    # Format the geometry section 
+    # Format the geometry section
     natom1, geom1 = util.geom_format(geom1)
-    
+
     # Create dictionary to fill template
     core_multrot_keys = {
         'sym_factor': sym_factor,
@@ -76,7 +76,7 @@ def write_core_phasespace(geom1, geom2, sym_factor, stoich,
     # Format the geometry section of each fragment
     natom1, geom1 = util.geom_format(geom1)
     natom2, geom2 = util.geom_format(geom2)
-    
+
     # Indent the geometry strings
     geom1 = util.indent(geom1, 2)
     geom2 = util.indent(geom2, 2)
@@ -152,7 +152,7 @@ def write_rotor_hindered(group, axis, symmetry, potential):
     return rotor_hind_str
 
 
-def write_rotor_internal(group, axis, symmetry, 
+def write_rotor_internal(group, axis, symmetry,
                          rotor_id='',
                          mass_exp_size=5, pot_exp_size=5,
                          hmin=13, hmax=101,
@@ -170,7 +170,7 @@ def write_rotor_internal(group, axis, symmetry,
         'axis': rotor_int_axis,
         'rotor_id': rotor_id,
         'symmetry': symmetry,
-        'mass_exp_size': mass_exp_size, 
+        'mass_exp_size': mass_exp_size,
         'pot_exp_size': pot_exp_size,
         'hmin': hmin,
         'hmax': hmax,

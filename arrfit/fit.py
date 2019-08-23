@@ -1,24 +1,43 @@
 """ fit rate constants to Arrhenius expressions
 """
 
+# import sys
 import numpy as np
-import scipy.optimize.leastsq
+# import scipy.optimize.leastsq
 
 # put in QCEngine gas constant
-R = 8.314
+R = 1.000
 
 
-def get_valid_temps_rate_constants(temps, rate_constants):
+def get_valid_temps_rate_constants(temps, rate_constants,
+                                   tmin=None, tmax=None):
     """ this subroutine takes in a array of rate constants and
         returns the subset of this array that is positive,
         along with the corresponding Temperature array """
 
-    # start using only the temps at which the rate constant is well defined
+    # Convert temps and rate constants to floats
+    temps = [float(temp) for temp in temps]
+    rate_constants = [float(rate_constant)
+                      if rate_constant != '***' else rate_constant
+                      for rate_constant in rate_constants]
+
+    # Set tmin and tmax
+    if tmin is None:
+        tmin = min(temps)
+    if tmax is None:
+        tmax = max(temps)
+    assert tmin in temps and tmax in temps
+
+    # Grab the temperature, rate constant pairs which correspond to
+    # temp > 0, temp within tmin and tmax, rate constant defined (not ***)
     valid_t, valid_k = [], []
     for temp, rate_constant in zip(temps, rate_constants):
-        if rate_constant > 0.0 and min(temps) <= temp <= max(temps):
-            valid_t.append(temp)
-            valid_k.append(rate_constant)
+        if rate_constant == '***':
+            continue
+        else:
+            if float(rate_constant) > 0.0 and tmin <= temp <= tmax:
+                valid_t.append(temp)
+                valid_k.append(rate_constant)
 
     # Convert the lists to numpy arrays
     valid_t = np.array(valid_t, dtype=np.float64)
@@ -27,24 +46,26 @@ def get_valid_temps_rate_constants(temps, rate_constants):
     return valid_t, valid_k
 
 
-def fit_single_arrhenius(temps, rate_constants, t_ref):
+def single_arrhenius_fit(temps, rate_constants, t_ref,
+                         tmin=None, tmax=None):
     """ this subroutine takes in a vector of rate constants and
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
 
     # obtain temperatures at which the rate constant is well defined
-    valid_t, valid_k = get_valid_temps_rate_constants(temps, rate_constants)
+    valid_t, valid_k = get_valid_temps_rate_constants(temps, rate_constants,
+                                                      tmin, tmax)
 
     # consider several cases depending on the number of valid rate constants
     # no k is positive, so return all zeros
-    if not valid_k:
+    if len(valid_k) == 0:
         a_fit, n_fit, ea_fit = 0.0, 0.0, 0.0
         fit_range = [0, 0]
 
     # if num(k) > 0 is 1: set A = k
     elif len(valid_k) == 1:
         a_fit, n_fit, ea_fit = valid_k, 0.0, 0.0
-        fit_range = [temps.index(min(valid_t)), temps.index(max(valid_t))]
+        fit_range = [min(valid_t), max(valid_t)]
 
     # if num(k) > 0 is 2,3: fit A and Ea
     elif (len(valid_k) == 2) or (len(valid_k) == 3):
@@ -58,14 +79,14 @@ def fit_single_arrhenius(temps, rate_constants, t_ref):
         theta = np.linalg.lstsq(coeff_mat, k_vec)[0]
         # Set the fitting parameters
         a_fit, n_fit, ea_fit = np.exp(theta[0]), 0.0, theta[1]
-        fit_range = [temps.index(min(valid_t)), temps.index(max(valid_t))]
+        fit_range = [min(valid_t), max(valid_t)]
 
     # if num(k) > 0 is more than 3: fit A, n, and Ea
     elif len(valid_k) > 3:
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(valid_t))
         n_vec = np.log(valid_t / t_ref)
-        ea_vec = (-1.0 / R) * valid_t
+        ea_vec = (-1.0 / R) * (1.0 / valid_t)
         coeff_mat = np.array([a_vec, n_vec, ea_vec], dtype=np.float64)
         coeff_mat = coeff_mat.transpose()
         k_vec = np.log(valid_k)
@@ -73,12 +94,15 @@ def fit_single_arrhenius(temps, rate_constants, t_ref):
         theta = np.linalg.lstsq(coeff_mat, k_vec)[0]
         # Set the fitting parameters
         a_fit, n_fit, ea_fit = np.exp(theta[0]), theta[1], theta[2]
-        fit_range = [temps.index(min(valid_t)), temps.index(max(valid_t))]
+        fit_range = [min(valid_t), max(valid_t)]
 
-    return a_fit, n_fit, ea_fit, fit_range
+    # Pack the parameters into a list
+    fit_params = [a_fit, n_fit, ea_fit]
+
+    return fit_params, fit_range
 
 
-def fit_double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
+def double_arrhenius_fit_dsarrfit(temps, rate_constants, t_ref):
     """ the main subroutine for obtaining the sum of two Arrhenius expressions.
         (1) Basically, the subroutine first determines whether the curve is
             bending up or down at high temperature.
@@ -124,7 +148,7 @@ def fit_double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
     return best_guess
 
 
-def fit_double_arrhenius_python(temps, rate_constants, t_ref):
+def double_arrhenius_fit_scipy(temps, rate_constants, t_ref):
     """ perform a double Arrhenius fit with python
     """
 
@@ -162,25 +186,6 @@ def fit_double_arrhenius_python(temps, rate_constants, t_ref):
     # calculate sse for the final guess 
 
     return best_guess, fit_range
-
-
-def get_valid_temps_rate_constants(temps, rate_constants):
-    """ this subroutine takes in a array of rate constants and
-        returns the subset of this array that is positive,
-        along with the corresponding Temperature array """
-
-    # start using only the temps at which the rate constant is well defined
-    valid_t, valid_k = [], []
-    for temp, rate_constant in zip(temps, rate_constants):
-        if rate_constant > 0.0 and min(temps) <= temp <= max(temps):
-            valid_t.append(temp)
-            valid_k.append(rate_constant)
-
-    # Convert the lists to numpy arrays
-    valid_t = np.array(valid_t, dtype=np.float64)
-    valid_k = np.array(valid_k, dtype=np.float64)
-
-    return valid_t, valid_k
 
 
 def calc_sse_and_mae(local_ks, fit_ks):

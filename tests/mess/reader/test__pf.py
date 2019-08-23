@@ -10,11 +10,11 @@ def test__pf():
     """
 
     # Read the MESSPF output and store temps and Q fxns
-    temps, logQ, dQ, dQ2 = mess_io.reader.readpf('pf.out')
-   
+    temps, logq, dq_dt, dq2_dt2 = mess_io.reader.readpf('pf.out')
+
     # Print the values from the MESSPF output
-    for a, b, c, d in zip(temps, logQ, dQ, dQ2):
-        print('{0} {1} {2} {3}'.format(a, b, c, d))
+    for val1, val2, val3, val4 in zip(temps, logq, dq_dt, dq2_dt2):
+        print('{0} {1} {2} {3}'.format(val1, val2, val3, val4))
 
 
 if __name__ == '__main__':
