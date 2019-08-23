@@ -1,50 +1,50 @@
 """
- MESS interface writer functions
+  Functions write all the neccessary sections of MESS input
+  files for kinetics and thermochemistry calculations using
+  data from electronic structure calculations
 """
 
-from mess_io.writer.globkey import write_global_reaction
-from mess_io.writer.globkey import write_global_pf
-from mess_io.writer.etrans import write_energy_transfer
-from mess_io.writer.rxnchan import write_species
-from mess_io.writer.rxnchan import write_well
-from mess_io.writer.rxnchan import write_bimolecular
-from mess_io.writer.rxnchan import write_ts_sadpt
-from mess_io.writer.rxnchan import write_ts_irc
-from mess_io.writer.species import write_atom
-from mess_io.writer.species import write_molecule
-from mess_io.writer.info import write_core_rigidrotor
-from mess_io.writer.info import write_core_multirotor
-from mess_io.writer.info import write_core_phasespace
-from mess_io.writer.info import write_core_rotd
-from mess_io.writer.info import write_rotor_hindered
-from mess_io.writer.info import write_rotor_internal
-from mess_io.writer.info import write_tunnel_eckart
-from mess_io.writer.info import write_tunnel_sct
-from mess_io.writer.monte_carlo import write_monte_carlo
-from mess_io.writer.monte_carlo import write_fluxional_mode
-import mess_io.writer.stringslib
+from mess_io.writer.globkey import global_reaction
+from mess_io.writer.globkey import global_pf
+from mess_io.writer.etrans import energy_transfer
+from mess_io.writer.rxnchan import species
+from mess_io.writer.rxnchan import well
+from mess_io.writer.rxnchan import bimolecular
+from mess_io.writer.rxnchan import ts_sadpt
+from mess_io.writer.rxnchan import ts_irc
+from mess_io.writer.species import atom
+from mess_io.writer.species import molecule
+from mess_io.writer.mol_data import core_rigidrotor
+from mess_io.writer.mol_data import core_multirotor
+from mess_io.writer.mol_data import core_phasespace
+from mess_io.writer.mol_data import core_rotd
+from mess_io.writer.mol_data import rotor_hindered
+from mess_io.writer.mol_data import rotor_internal
+from mess_io.writer.mol_data import tunnel_eckart
+from mess_io.writer.mol_data import tunnel_sct
+from mess_io.writer.monte_carlo import monte_carlo
+from mess_io.writer.monte_carlo import fluxional_mode
 
 
 __all__ = [
-    'write_global_reaction',
-    'write_global_pf',
-    'write_energy_transfer',
-    'write_species',
-    'write_well',
-    'write_bimolecular',
-    'write_ts_sadpt',
-    'write_ts_irc',
-    'write_atom',
-    'write_molecule',
-    'write_core_rigidrotor',
-    'write_core_multirotor',
-    'write_core_phasepsace',
-    'write_core_rotd',
-    'write_rotor_hindered',
-    'write_rotor_internal',
-    'write_tunnel_eckart',
-    'write_tunnel_sct',
-    'write_monte_carlo',
-    'write_fluxional_mode',
-    'mess_io.writer.stringslib'
+    'global_reaction',
+    'global_pf',
+    'energy_transfer',
+    'species',
+    'well',
+    'bimolecular',
+    'ts_sadpt',
+    'ts_irc',
+    'atom',
+    'molecule',
+    'core_rigidrotor',
+    'core_multirotor',
+    'core_phasespace',
+    'core_rotd',
+    'rotor_hindered',
+    'rotor_internal',
+    'tunnel_eckart',
+    'tunnel_sct',
+    'monte_carlo',
+    'fluxional_mode',
 ]

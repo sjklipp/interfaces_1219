@@ -43,16 +43,7 @@ for pair in PAIRS:
     RATE_CONSTANTS.append(pair[1])
 
 T_REF = 1.0
-R = 1.000
-
-
-def single_arrhenius(a, n, ea, temp):
-    """ calc value with single arrhenius function
-    """
-    #print(a)
-    #print((temp / T_REF)**n)
-    #print(np.exp(-ea/R*temp))
-    return a*(temp / T_REF)**n*np.exp(-ea/R*temp)
+R = 8.314
 
 
 def test__fit():
@@ -61,16 +52,32 @@ def test__fit():
 
     # Run a single Arrhenius fit
     fit_params1, fit_range1 = arrfit.fit.single_arrhenius_fit(
-        TEMPS, RATE_CONSTANTS, T_REF, tmin=1100)
+        TEMPS, RATE_CONSTANTS, T_REF)
+    #    tmin=600, tmax=max(TEMPS))
     print('\nSingle Arrhenius Fit:')
     print('A =', fit_params1[0])
     print('n =', fit_params1[1])
     print('Ea =', fit_params1[2])
     print('Fit Range =', fit_range1)
 
-    for i in range(len(TEMPS)):
-        fit_k = single_arrhenius(fit_params1[0], fit_params1[1], fit_params1[2], float(TEMPS[i]))
-        print('{0}  {1}  {2}'.format(TEMPS[i], RATE_CONSTANTS[i], fit_k))
+    # Calculate fitted rate constants using the fitted parameters
+    fit_ks1 = arrfit.fit.single_arrhenius(
+        fit_params1[0], fit_params1[1], fit_params1[2],
+        T_REF, np.array(TEMPS[3:], dtype=np.float64))
+
+    # Print the fitted rate constants and errors
+    for i, _ in enumerate(TEMPS[3:]):
+        print('{0}  {1}  {2}'.format(
+            TEMPS[i], RATE_CONSTANTS[i], fit_ks1[i]))
+
+    # Calculate the sum-of-square erros and mean-average-errors
+    sse, mean_avg_err, max_avg_err = arrfit.fit.calc_sse_and_mae(
+        np.array(RATE_CONSTANTS[3:], dtype=np.float64),
+        np.array(fit_ks1, dtype=np.float64))
+    print('SSE =', sse)
+    print('Mean Avg. Err = ', mean_avg_err)
+    print('Max Avg. Err = ', max_avg_err)
+
 
     # # Run a double Arrhenius fit using SJK code
     # fit_params3, fit_range3 = arrfit.fit.double_arrhenius_fit_dsarrfit(

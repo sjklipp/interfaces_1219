@@ -12,8 +12,8 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 
 
-def write_global_reaction(temperatures, pressures):
-    """ Writes the global keywords section of the MESS input file.
+def global_reaction(temperatures, pressures):
+    """ Writes the global keywords section of the MESS input file
         :param float temperatures: List of temperatures (in K)
         :param float pressures: List of pressures (in atm)
         :return global_str: String for section
@@ -40,10 +40,10 @@ def write_global_reaction(temperatures, pressures):
     return globrxn_str
 
 
-def write_global_pf(temperatures=(),
-                    temp_step=100, ntemps=30,
-                    rel_temp_inc=0.001, atom_dist_min=0.6):
-    """ Writes the global keywords section of the MESS input file.
+def global_pf(temperatures=(),
+              temp_step=100, ntemps=30,
+              rel_temp_inc=0.001, atom_dist_min=0.6):
+    """ Writes the global keywords section of the MESS input file
         :param float temperatures: List of temperatures (in K)
         :param float temp_step: temperature step (in K)
         :param ntemps: number of temperature values on grid

@@ -6,44 +6,7 @@ import numpy as np
 # import scipy.optimize.leastsq
 
 # put in QCEngine gas constant
-R = 1.000
-
-
-def get_valid_temps_rate_constants(temps, rate_constants,
-                                   tmin=None, tmax=None):
-    """ this subroutine takes in a array of rate constants and
-        returns the subset of this array that is positive,
-        along with the corresponding Temperature array """
-
-    # Convert temps and rate constants to floats
-    temps = [float(temp) for temp in temps]
-    rate_constants = [float(rate_constant)
-                      if rate_constant != '***' else rate_constant
-                      for rate_constant in rate_constants]
-
-    # Set tmin and tmax
-    if tmin is None:
-        tmin = min(temps)
-    if tmax is None:
-        tmax = max(temps)
-    assert tmin in temps and tmax in temps
-
-    # Grab the temperature, rate constant pairs which correspond to
-    # temp > 0, temp within tmin and tmax, rate constant defined (not ***)
-    valid_t, valid_k = [], []
-    for temp, rate_constant in zip(temps, rate_constants):
-        if rate_constant == '***':
-            continue
-        else:
-            if float(rate_constant) > 0.0 and tmin <= temp <= tmax:
-                valid_t.append(temp)
-                valid_k.append(rate_constant)
-
-    # Convert the lists to numpy arrays
-    valid_t = np.array(valid_t, dtype=np.float64)
-    valid_k = np.array(valid_k, dtype=np.float64)
-
-    return valid_t, valid_k
+R = 8.314
 
 
 def single_arrhenius_fit(temps, rate_constants, t_ref,
@@ -71,7 +34,7 @@ def single_arrhenius_fit(temps, rate_constants, t_ref,
     elif (len(valid_k) == 2) or (len(valid_k) == 3):
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(valid_t))
-        ea_vec = (-1.0 / R) * valid_t
+        ea_vec = (-1.0 / R) * (1.0 / valid_t)
         coeff_mat = np.array([a_vec, ea_vec], dtype=np.float64)
         coeff_mat = coeff_mat.transpose()
         k_vec = np.log(valid_k)
@@ -156,8 +119,15 @@ def double_arrhenius_fit_scipy(temps, rate_constants, t_ref):
     valid_t, valid_k = get_valid_temps_rate_constants(temps, rate_constants)
 
     # obtain initial fitting coefficients from single fitting
-    s_a, s_n, s_ea, s_fit_range = fit_single_arrhenius(
+    s_a, s_n, s_ea, s_fit_range = single_arrhenius_fit(
         temps, rate_constants, t_ref)
+
+    # rate constants using fitted parameters
+    sgl_fit_ks = single_arrhenius(s_a, s_n, s_ea,
+                                  t_ref, temps)
+
+    # Compute new SSE and assess if this is the best guess
+    sgl_fit_sse = calc_sse_and_mae(valid_k, sgl_fit_ks)
 
     # Build a guess vector
     init_guess = [(s_a / 2.0), (s_n + 0.1), s_ea,
@@ -167,49 +137,24 @@ def double_arrhenius_fit_scipy(temps, rate_constants, t_ref):
     plsq = scipy.optimize.leastsq(mod_arr_residuals, init_guess,
                                   args=(valid_k, valid_t, data),
                                   ftol=1.0E-9, xtol=1.0E-9, maxfev=100000)
-    [a1, n1, ea1, a2, n2, ea2] = plsq[0]
+    [a_par1, n_par1, ea_par1, a_par2, n_par2, ea_par2] = plsq[0]
 
     # compute new rate constants using fitted parameters
-    fit_ks = (
-        a1 * (valid_t / t_ref)**n1 * np.exp(-ea1 / (R * valid_t)) +
-        a2 * (valid_t / t_ref)**n2 * np.exp(-ea2 / (R * valid_t))
-    )
+    dbl_fit_ks = double_arrhenius(a_par1, n_par1, ea_par1,
+                                  a_par2, n_par2, ea_par2,
+                                  t_ref, temps)
 
     # Compute new SSE and assess if this is the best guess
-    new_sse = 0.0
-    if new_sse < first_sse:
-        best_guess = [a1, n1, ea1, a2, n2, ea2]
+    dbl_fit_sse = calc_sse_and_mae(valid_k, dbl_fit_ks)
+
+    # Assess if double fit is better
+    if dbl_fit_sse < sgl_fit_sse:
+        best_guess = [a_par1, n_par1, ea_par1, a_par2, n_par2, ea_par2]
     else:
         print("nonlinear solver was not better than single exponential!")
         best_guess = init_guess
             
-    # calculate sse for the final guess 
-
     return best_guess, fit_range
-
-
-def calc_sse_and_mae(local_ks, fit_ks):
-    """ (1) get the sum of square error (SSE) useful when determining
-            which double plog routine will be used to initialize
-            the nonlinear solver
-        (2) also get the mean absolute error (MAE), which is written
-            to the plog file
-    """
-
-    # Only run if there are more than 2 rate constants
-    sse = 0.0
-    mae = []
-    if len(local_ks) > 2:
-        for local_k, fit_k in zip(local_ks, fit_ks):
-            sse += (np.log(local_k) - np.log(fit_k))**2.0
-            mae.append(np.abs((local_k - fit_k) / local_k))
-        mae = np.array(mae, dtype=np.float64)
-        mae = [np.mean(mae)*100.0, np.max(mae)*100.0]
-    else:
-        sse = 0.0
-        mae = [0.0, 0.0]
-
-    return sse, mae
 
 
 def mod_arr_residuals(p, target, temp, t_ref):
@@ -228,3 +173,86 @@ def mod_arr_residuals(p, target, temp, t_ref):
     err = np.log10(target) - np.log10(k_fit)
 
     return err
+
+
+def get_valid_temps_rate_constants(temps, rate_constants,
+                                   tmin=None, tmax=None):
+    """ this subroutine takes in a array of rate constants and
+        returns the subset of this array that is positive,
+        along with the corresponding Temperature array """
+
+    # Convert temps and rate constants to floats
+    temps = [float(temp) for temp in temps]
+    rate_constants = [float(rate_constant)
+                      if rate_constant != '***' else rate_constant
+                      for rate_constant in rate_constants]
+
+    # Set tmin and tmax
+    if tmin is None:
+        tmin = min(temps)
+    if tmax is None:
+        tmax = max(temps)
+    assert tmin in temps and tmax in temps
+
+    # Grab the temperature, rate constant pairs which correspond to
+    # temp > 0, temp within tmin and tmax, rate constant defined (not ***)
+    valid_t, valid_k = [], []
+    for temp, rate_constant in zip(temps, rate_constants):
+        if rate_constant == '***':
+            continue
+        else:
+            if float(rate_constant) > 0.0 and tmin <= temp <= tmax:
+                valid_t.append(temp)
+                valid_k.append(rate_constant)
+
+    # Convert the lists to numpy arrays
+    valid_t = np.array(valid_t, dtype=np.float64)
+    valid_k = np.array(valid_k, dtype=np.float64)
+
+    return valid_t, valid_k
+
+
+def single_arrhenius(a_par, n_par, ea_par,
+                     t_ref, temp):
+    """ calc value with single arrhenius function
+    """
+    rate_constants = a_par * ((temp / t_ref)**n_par) * np.exp(-ea_par/(R*temp))
+    return rate_constants
+
+
+def double_arrhenius(a_par1, n_par1, ea_par1,
+                     a_par2, n_par2, ea_par2,
+                     t_ref, temp):
+    """ calc value with single arrhenius function
+    """
+    rate_constants = (
+        a_par1 * ((temp / t_ref)**n_par1) * np.exp(-ea_par1/(R*temp)) +
+        a_par2 * ((temp / t_ref)**n_par2) * np.exp(-ea_par2/(R*temp))
+    )
+    return rate_constants
+
+
+def calc_sse_and_mae(calc_ks, fit_ks):
+    """ (1) get the sum of square error (SSE) useful when determining
+            which double plog routine will be used to initialize
+            the nonlinear solver
+        (2) also get the mean absolute error (MAE), which is written
+            to the plog file
+    """
+
+    # Only run if there are more than 2 rate constants
+    sse = 0.0
+    abs_err = []
+    if len(calc_ks) > 2:
+        for calc_k, fit_k in zip(calc_ks, fit_ks):
+            sse += (np.log(calc_k) - np.log(fit_k))**2.0
+            abs_err.append(np.abs((calc_k - fit_k) / calc_k))
+        abs_err = np.array(abs_err, dtype=np.float64)
+        mean_avg_err = np.mean(abs_err)*100.0
+        max_avg_err = np.max(abs_err)*100.0
+    else:
+        sse = None
+        mean_avg_err = None
+        max_avg_err = None
+
+    return sse, mean_avg_err, max_avg_err

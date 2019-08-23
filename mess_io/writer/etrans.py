@@ -11,10 +11,11 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 
-def write_energy_transfer(exp_factor, exp_power, exp_cutoff,
-                          eps1, eps2,
-                          sig1, sig2,
-                          mass1, mass2):
+
+def energy_transfer(exp_factor, exp_power, exp_cutoff,
+                    eps1, eps2,
+                    sig1, sig2,
+                    mass1, mass2):
     """ Writes the energy transfer section of the MESS input file
         :param float exp_factor: Exponent factor
         :param float exp_power: Exponent power
