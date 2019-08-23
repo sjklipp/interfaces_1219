@@ -83,18 +83,18 @@ def write_bimolecular(bimol_label,
         'ground_energy': ground_energy
     }
 
-    # Set template name and path for a bimolecular set 
+    # Set template name and path for a bimolecular set
     template_file_name = 'bimolecular.mako'
     template_file_path = os.path.join(RXNCHAN_PATH, template_file_name)
 
     # Build bimolecular section string
-    bimolecular_str = Template(filename=template_file_path).render(**bimol_keys)
+    bimol_str = Template(filename=template_file_path).render(**bimol_keys)
 
-    return bimolecular_str
+    return bimol_str
 
 
 def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
-    """ Writes a TS section containing only a saddle point 
+    """ Writes a TS section containing only a saddle point
     """
 
     # Indent the string containing all of data for the saddle point
@@ -114,9 +114,9 @@ def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
     template_file_path = os.path.join(RXNCHAN_PATH, template_file_name)
 
     # Build saddle point string
-    ts_sadpt_str = Template(filename=template_file_path).render(**ts_sadpt_keys)
+    sadpt_str = Template(filename=template_file_path).render(**ts_sadpt_keys)
 
-    return ts_sadpt_str
+    return sadpt_str
 
 
 def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
@@ -130,7 +130,7 @@ def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
     ts_data = util.indent(ts_data, 4)
 
     # Create dictionary to fill template
-    ts_irc_keys = {
+    irc_keys = {
         'ts_label': ts_label,
         'reac_label': reac_label,
         'prod_label': prod_label,
@@ -143,6 +143,6 @@ def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
     template_file_path = os.path.join(RXNCHAN_PATH, template_file_name)
 
     # Build transition state with IRC string
-    ts_irc_str = Template(filename=template_file_path).render(**ts_irc_keys)
+    irc_str = Template(filename=template_file_path).render(**irc_keys)
 
-    return ts_irc_str
+    return irc_str

@@ -12,6 +12,7 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 
+
 def write_atom(mass, elec_levels):
     """ Writes the atom section of a MESS input file
     """
@@ -58,9 +59,9 @@ def write_molecule(core, freqs, elec_levels,
 
     # Indent various strings string if needed
     if hind_rot != '':
-        hind_rot = util.indent(hind_rot, 2)        
+        hind_rot = util.indent(hind_rot, 2)
     if tunnel != '':
-        tunnel = util.indent(tunnel, 2)        
+        tunnel = util.indent(tunnel, 2)
 
     # Create dictionary to fill template
     molec_keys = {

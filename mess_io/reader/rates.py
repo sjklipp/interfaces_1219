@@ -3,63 +3,83 @@
 """
 
 
-def read_highp_ks(output_string, reaction, run_temps, run_pressures):
+def read_highp_ks(output_string, reactant, product):
     """ Read the high-pressure rate constants
     """
 
-    for i in range(len(RATE_LINES)):
-        if 'High Pressure Rate Coefficients (Temperature-Species Rate Tables):' in RATE_LINES[i]:
-            HIGH_PRESSURE_BLOCK_START = i
+    # Build the reaction string found in the MESS output
+    reaction = reactant + '->' + product
+
+    # Get the MESS output lines
+    mess_lines = output_string.splitlines()
+
+    # Find where the block of text where the high-pressure rates exist
+    block_str = ('High Pressure Rate Coefficients ' +
+                 '(Temperature-Species Rate Tables):')
+    for i, line in enumerate(mess_lines):
+        if block_str in line:
+            block_start = i
             break
 
     # Get the high-pressure rate constants
-    for i in range(HIGH_PRESSURE_BLOCK_START, len(RATE_LINES)):
-        if rxn in RATE_LINES[i]:
+    rate_constants = []
+    for i in range(block_start, len(mess_lines)):
+        if reaction in mess_lines[i]:
             rate_const_block_start = i
-            rate_constants.append(grab_rate_constants(rate_const_block_start, rxn))
+            rate_constants = grab_rate_constants(
+                mess_lines, rate_const_block_start, reaction)
             break
 
     return rate_constants
 
 
-def read_pdep_ks(output_string, reaction, run_temps, run_pressures):
+def read_pdep_ks(output_string, reactant, product, pressure, pressure_unit):
     """ Read the pressure-dependent rate constants
     """
-    
-    for i in range(len(RATE_LINES)):
-        if 'Temperature-Species Rate Tables:' in RATE_LINES[i]:
-            TEMP_PRESSURE_BLOCK_START = i
-            break
-    
-    # Get the rate constants at each listed pressure
-    for i in range(TEMP_PRESSURE_BLOCK_START, len(RATE_LINES)):
-        if 'Temperature-Pressure Rate Tables:' in RATE_LINES[i]:
-            break
-        elif rxn in RATE_LINES[i]:
-            rate_const_block_start = i
-            rate_constants.append(grab_rate_constants(rate_const_block_start, rxn))
+
+    # Build the reaction string found in the MESS output
+    reaction = reactant + '->' + product
+
+    # Get the MESS output lines
+    mess_lines = output_string.splitlines()
+
+    # Find where the block of text where the high-pressure rates exist
+    block_str = ('Temperature-Species Rate Tables:')
+    pressure_str = 'Pressure = ' + pressure + ' ' + pressure_unit
+
+    for i, line in enumerate(mess_lines):
+        if block_str in line:
+            for j in range(i, len(mess_lines)):
+                if 'Temperature-Pressure Rate Tables' in mess_lines[j]:
+                    break
+                if reaction in mess_lines[j]:
+                    if pressure_str in mess_lines[j-2]:
+                        rate_const_block_start = j
+                        rate_constants = grab_rate_constants(
+                            mess_lines, rate_const_block_start, reaction)
 
     return rate_constants
 
 
-def grab_rate_constants(block_start, rxn):
+def grab_rate_constants(mess_lines, block_start, rxn):
     """ Obtain the rate constants for each pressure """
 
     # Find the column corresponding to the reaction
     rxn_col = 0
-    rxn_headers = RATE_LINES[block_start].strip().split()
-    for i in range(len(rxn_headers)):
-        if rxn == rxn_headers[i]:
+    rxn_headers = mess_lines[block_start].strip().split()
+    for i, rxn_header in enumerate(rxn_headers):
+        if rxn == rxn_header:
             rxn_col = i
             break
 
     # Parse the following lines and store the constants in a list
     rate_constants = []
-    for i in range(block_start+1, len(RATE_LINES)):
-        if RATE_LINES[i].strip() == '':
+    for i in range(block_start+1, len(mess_lines)):
+        if mess_lines[i].strip() == '':
+            print(mess_lines[i])
             break
         else:
-            rate_constants.append(RATE_LINES[i].strip().split()[rxn_col])
+            rate_constants.append(mess_lines[i].strip().split()[rxn_col])
 
     return rate_constants
 
@@ -68,40 +88,56 @@ def get_temperatures(output_string):
     """ Determine the temperatures run in the reaction
     """
 
-    RATE_LINES = output_string.splitlines()
-    for i in range(len(RATE_LINES)):
-        READ_TEMP_PRESSURE_BLOCK_START = i
-    TEMPS = []
-    for i in range(READ_TEMP_PRESSURE_BLOCK_START, len(RATE_LINES)):
-        if 'Temperature =' in RATE_LINES[i]:
-            tmp = RATE_LINES[i].strip().split()
-            if tmp[2] not in TEMPS:
-                TEMPS.append(tmp[2])
+    # Get the MESS output lines
+    mess_lines = output_string.splitlines()
+
+    # Find the block of lines where the temperatures can be read
+    temp_str = 'Pressure-Species Rate Tables:'
+    for i, line in enumerate(mess_lines):
+        if temp_str in line:
+            block_start = i
+            break
+
+    # Read the temperatures
+    temps = []
+    for i in range(block_start, len(mess_lines)):
+        if 'Temperature =' in mess_lines[i]:
+            tmp = mess_lines[i].strip().split()
+            if tmp[2] not in temps:
+                temps.append(tmp[2])
             else:
-                TEMP_UNIT = tmp[3]
+                temp_unit = tmp[3]
                 break
 
-    return TEMPS, TEMP_UNIT
+    return temps, temp_unit
 
 
 def get_pressures(output_string):
     """ Determine the pressures run in the reaction
     """
 
-    RATE_LINES = output_string.splitlines()
-    for i in range(len(RATE_LINES)):
-        READ_TEMP_PRESSURE_BLOCK_START = i
-    PRESSURES = []
-    for i in range(READ_TEMP_PRESSURE_BLOCK_START, len(RATE_LINES)):
-        if 'P(' in RATE_LINES[i]:
-            PRESSURE_UNIT = RATE_LINES[i].strip().split('(')[1].split(')')[0]
-            press_start = i+1
-            for j in range(press_start, len(RATE_LINES)):
-                if 'O-O' in RATE_LINES[j]:
-                    break
-                else:
-                    tmp = RATE_LINES[j].strip().split()
-                    PRESSURES.append(tmp[0])
+    # Get the MESS output lines
+    mess_lines = output_string.splitlines()
+
+    # Find the block of lines where the pressures can be read
+    pressure_str = 'Pressure-Species Rate Tables:'
+    for i, line in enumerate(mess_lines):
+        if pressure_str in line:
+            block_start = i
             break
 
-    return PRESSURES, PRESSURE_UNIT
+    # Read the pressures
+    pressures = []
+    for i in range(block_start, len(mess_lines)):
+        if 'P(' in mess_lines[i]:
+            pressure_unit = mess_lines[i].strip().split('(')[1].split(')')[0]
+            pressure_start = i+1
+            for j in range(pressure_start, len(mess_lines)):
+                if 'O-O' in mess_lines[j]:
+                    break
+                else:
+                    tmp = mess_lines[j].strip().split()
+                    pressures.append(tmp[0])
+            break
+
+    return pressures, pressure_unit

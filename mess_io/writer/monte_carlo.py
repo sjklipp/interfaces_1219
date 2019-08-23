@@ -42,9 +42,9 @@ def write_monte_carlo(geom, formula,
     template_file_path = os.path.join(MONTE_CARLO_PATH, template_file_name)
 
     # Build monte carlo section string
-    monte_carlo_str = Template(filename=template_file_path).render(**monte_carlo_keys)
+    mc_str = Template(filename=template_file_path).render(**monte_carlo_keys)
 
-    return monte_carlo_str
+    return mc_str
 
 
 def write_fluxional_mode(atom_indices, span=360.0):
@@ -65,6 +65,6 @@ def write_fluxional_mode(atom_indices, span=360.0):
     template_file_path = os.path.join(MONTE_CARLO_PATH, template_file_name)
 
     # Build monte carlo section string
-    flux_mode_str = Template(filename=template_file_path).render(**flux_mode_keys)
+    flux_str = Template(filename=template_file_path).render(**flux_mode_keys)
 
-    return flux_mode_str
+    return flux_str

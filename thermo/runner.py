@@ -13,8 +13,8 @@ from . import util
 CUR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def write_thermp_input(formula, deltaH,
-                       enthalpyT=0.0, breakT=1000.0,
+def write_thermp_input(formula, delta_h,
+                       enthalpy_temp=0.0, break_temp=1000.0,
                        thermp_file_name='thermp.dat'):
     """ Writes the input file for thermp
     """
@@ -29,9 +29,9 @@ def write_thermp_input(formula, deltaH,
     # Create a fill value dictionary
     thermp_keys = {
         'formula': formula,
-        'deltaH': deltaH,
-        'enthalpyT': enthalpyT,
-        'breakT': breakT,
+        'deltaH': delta_h,
+        'enthalpyT': enthalpy_temp,
+        'breakT': break_temp,
         'composition_str': composition_str
     }
 
