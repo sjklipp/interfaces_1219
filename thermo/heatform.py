@@ -465,6 +465,20 @@ def cbhtwo(ich):
                 frags = _balance_frags(ich, frags)
     return frags
 
+def get_basis(ich):
+    formula  = util.inchi_formula(ich)
+    atom_dict = util.get_atom_counts_dict(formula)
+    return select_basis(atm_dict)
+
+def get_cbhzed(ich):
+    return list(cbhzed(ich).keys())
+
+def get_cbhone(ich):
+    return list(cbhone(ich).keys())
+
+def get_cbhtwo(ich):
+    return list(cbhtwo(ich).keys())
+
 
 def _add2dic(dic, key, val = 1):
     if key in dic:
