@@ -16,13 +16,13 @@ def test__tors():
     with open(MESS_LOG_FILE, 'r') as mess_file:
         output_string = mess_file.read()
 
-    # Read the freqs and zpes
-    freqs = mess_io.reader.tors.read_freqs(output_string)
-    zpes = mess_io.reader.tors.read_zpes(output_string)
+    # Read the freqs and zpves
+    freqs = mess_io.reader.tors.freqs(output_string)
+    zpves = mess_io.reader.tors.zpves(output_string)
 
-    # Print the freqs and zpes
-    for i, (freq, zpe) in enumerate(zip(freqs, zpes)):
-        print('{0:4d}{1:10.4f}{2:10.4f}'.format(i+1, freq, zpe))
+    # Print the freqs and zpves
+    for i, (freq, zpve) in enumerate(zip(freqs, zpves)):
+        print('{0:4d}{1:10.4f}{2:10.4f}'.format(i+1, freq, zpve))
 
 
 if __name__ == '__main__':

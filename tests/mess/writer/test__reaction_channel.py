@@ -42,7 +42,7 @@ def test__species_writer():
     species_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    species_section_str = mess_io.writer.write_species(
+    species_section_str = mess_io.writer.rxnchan.species(
         species_label, species_data, ZERO_ENERGY)
 
     # Print the well section string
@@ -60,7 +60,7 @@ def test__well_writer():
     well_data = MOLECULE_MESS_STRING
 
     # Use the writer to create a string for well section
-    well_section_str = mess_io.writer.write_well(
+    well_section_str = mess_io.writer.rxnchan.well(
         well_label, well_data, ZERO_ENERGY)
 
     # Print the well section string
@@ -86,7 +86,7 @@ def test__bimolecular_writer():
     ground_energy = 50.0
 
     # Use the writer to create a string for the molecule section
-    bimolecular_str = mess_io.writer.write_bimolecular(
+    bimolecular_str = mess_io.writer.rxnchan.bimolecular(
         bimol_label,
         species1_label, species1_data,
         species2_label, species2_data,
@@ -109,7 +109,7 @@ def test__ts_sadpt_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts sadpt section
-    ts_sadpt_str = mess_io.writer.write_ts_sadpt(
+    ts_sadpt_str = mess_io.writer.rxnchan.ts_sadpt(
         ts_label, reac_label, prod_label, ts_data, ZERO_ENERGY)
 
     # Print the ts sadpoint section
@@ -137,7 +137,7 @@ def test__ts_irc_writer():
     prod_label = 'P1'
 
     # Use the writer to create a string for the ts irc section
-    ts_irc_str = mess_io.writer.write_ts_irc(
+    ts_irc_str = mess_io.writer.rxnchan.ts_irc(
         ts_label, reac_label, prod_label, irc_pt_strings, ZERO_ENERGY)
 
     # Print the ts sadpoint section

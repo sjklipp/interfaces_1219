@@ -5,7 +5,7 @@
 import mess_io.reader
 
 
-def test__read_rates():
+def test__rates():
     """ Reads the rates from the output of a file.
     """
 
@@ -30,22 +30,22 @@ def test__read_rates():
     print(punit)
 
     # Read the high-pressure rate constants
-    highp_rates = mess_io.reader.read_highp_ks(
+    highp_rates = mess_io.reader.highp_ks(
         output_string, reactant, product)
     print('\nHigh-Pressure Rate-Constants:')
     print(highp_rates)
 
     # Read pressure-dependent rate constants at two pressures
-    p1_rates = mess_io.reader.read_pdep_ks(
+    p1_rates = mess_io.reader.pdep_ks(
         output_string, reactant, product, pressures[3], punit)
     print('\n{} Rate-Constants:'.format(pressures[3]))
     print(p1_rates)
 
-    p2_rates = mess_io.reader.read_pdep_ks(
+    p2_rates = mess_io.reader.pdep_ks(
         output_string, reactant, product, pressures[4], punit)
     print('\n{} Rate-Constants:'.format(pressures[4]))
     print(p2_rates)
 
 
 if __name__ == '__main__':
-    test__read_rates()
+    test__rates()

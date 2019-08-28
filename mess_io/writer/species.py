@@ -1,5 +1,9 @@
 """
-Writes MESS for an atom
+Writes a section for an atom or molecule for the MESS input file.
+Generally placed within a MESS "species", "well",
+"bimolecular", or "barrier" section.
+
+Takes in data from other MESS writer functions
 """
 
 import os
@@ -13,8 +17,13 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 
 
-def write_atom(mass, elec_levels):
-    """ Writes the atom section of a MESS input file
+def atom(mass, elec_levels):
+    """ Writes the atom section of a MESS input file.
+        :param int mass: mass of the atom (of desired isotope)
+        :param list float elec_levels: energy and degeneracy of
+                                       the atom's electronic states
+        :return atom_str: String for the atom section
+        :rtype: string
     """
 
     # Build a formatted elec levels string
@@ -32,15 +41,22 @@ def write_atom(mass, elec_levels):
     template_file_path = os.path.join(SPECIES_PATH, template_file_name)
 
     # Build atom string
-    atom_string = Template(filename=template_file_path).render(**atom_keys)
+    atom_str = Template(filename=template_file_path).render(**atom_keys)
 
-    return atom_string
+    return atom_str
 
 
-def write_molecule(core, freqs, elec_levels,
-                   hind_rot='', tunnel='',
-                   xmat=None, rovib_coups='', rot_dists=''):
-    """ Write molecular info section
+def molecule(core, freqs, elec_levels,
+             hind_rot='', tunnel='',
+             xmat=None, rovib_coups='', rot_dists=''):
+    """ Writes the molecule section of a MESS input file
+        :param str core: string for the "Core" section written
+                         by another mess_io function
+        :param list freqs: vibrational frequencies for the molecule
+        :param list float elec_levels: energy and degeneracy of
+                                       the molecule's electronic states
+        :return atom_str: String for the atom section
+        :rtype: string
     """
 
     # Build a formatted frequencies and elec levels string

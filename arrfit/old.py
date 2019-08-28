@@ -3,7 +3,7 @@
 
 # import sys
 import numpy as np
-from scipy.optimize import leastsq
+# import scipy.optimize.leastsq
 
 # put in QCEngine gas constant
 R = 8.314
@@ -18,6 +18,7 @@ def single_arrhenius_fit(temps, rate_constants, t_ref):
     # no k is positive, so return all zeros
     if len(rate_constants) == 0:
         a_fit, n_fit, ea_fit = 0.0, 0.0, 0.0
+        fit_range = [0, 0]
 
     # if num(k) > 0 is 1: set A = k
     elif len(rate_constants) == 1:
@@ -63,6 +64,35 @@ def double_arrhenius_fit_dsarrfit(temps, rate_constants, t_ref):
         (2) Based upon the curvature, one of two possible cycles are initiated
             to provide a good starting guess for the nonlinear solver."""
 
+    # obtain temperatures at which the rate constant is well defined
+    valid_t, valid_k = get_valid_temps_rate_constants(temps, rate_constants)
+
+    # obtain initial fitting coefficients from single fitting
+    s_a, s_n, s_ea, s_fit_range = fit_single_arrhenius(
+        temps, rate_constants, t_ref)
+
+    # build initial guess vector for the double fitting
+    first_guess = [(s_a / 2.0), s_n, s_ea,
+                   (s_a / 2.0), s_n, s_ea]
+
+    # obtain fitted rate constants
+    fit_ks = s_a * (valid_t / t_ref)**s_n * np.exp(-s_ea / (R * valid_t))
+
+    # calculate the sum-of-squares error
+    first_sse = 0.0
+
+    # write the input for ds arrfit and run the program
+    arrfit_inp_str = write_arrfit_inp(temps, ks, locat_T)
+    with open(arr_fit_inp, 'w') as input_file:
+        input_file.write(arrfit_inp_str)
+
+    # run the program
+    run_arrfit(path)
+
+    # parse the arrfit output
+    with open(path, 'r') as output_file:
+        out_str = output_file.read()
+    arrfit_guess = parse_arrfit(out_str)
 
     # Check if the fitting was successful
     if len(arrfit_guess) == 6:
@@ -73,45 +103,66 @@ def double_arrhenius_fit_dsarrfit(temps, rate_constants, t_ref):
     return best_guess
 
 
-def double_arrhenius_fit_scipy(sgl_a, sgl_n, sgl_ea,
-                               temps, rate_constants, t_ref):
+def double_arrhenius_fit_scipy(temps, rate_constants, t_ref):
     """ perform a double Arrhenius fit with python
     """
 
+    # obtain temperatures at which the rate constant is well defined
+    valid_t, valid_k = get_valid_temps_rate_constants(temps, rate_constants)
+
+    # obtain initial fitting coefficients from single fitting
+    s_a, s_n, s_ea, s_fit_range = single_arrhenius_fit(
+        temps, rate_constants, t_ref)
+
+    # rate constants using fitted parameters
+    sgl_fit_ks = single_arrhenius(s_a, s_n, s_ea,
+                                  t_ref, temps)
+
+    # Compute new SSE and assess if this is the best guess
+    sgl_fit_sse = calc_sse_and_mae(valid_k, sgl_fit_ks)
+
     # Build a guess vector
-    guess_params = [(sgl_a / 2.0), (sgl_n + 0.1), sgl_ea,
-                    (sgl_a / 2.0), (sgl_n - 0.1), sgl_ea]
+    init_guess = [(s_a / 2.0), (s_n + 0.1), s_ea,
+                  (s_a / 2.0), (s_n - 0.1), s_ea]
 
     # Perform a new least-squares fit
-    plsq = leastsq(mod_arr_residuals, guess_params,
-                   args=(rate_constants, temps, t_ref),
-                   ftol=1.0E-9, xtol=1.0E-9, maxfev=100000)
-    
-    # Assign parameters
+    plsq = scipy.optimize.leastsq(mod_arr_residuals, init_guess,
+                                  args=(valid_k, valid_t, data),
+                                  ftol=1.0E-9, xtol=1.0E-9, maxfev=100000)
+    [a_par1, n_par1, ea_par1, a_par2, n_par2, ea_par2] = plsq[0]
 
-    return plsq[0]
+    # compute new rate constants using fitted parameters
+    dbl_fit_ks = double_arrhenius(a_par1, n_par1, ea_par1,
+                                  a_par2, n_par2, ea_par2,
+                                  t_ref, temps)
+
+    # Compute new SSE and assess if this is the best guess
+    dbl_fit_sse = calc_sse_and_mae(valid_k, dbl_fit_ks)
+
+    # Assess if double fit is better
+    if dbl_fit_sse < sgl_fit_sse:
+        best_guess = [a_par1, n_par1, ea_par1, a_par2, n_par2, ea_par2]
+    else:
+        print("nonlinear solver was not better than single exponential!")
+        best_guess = init_guess
+            
+    return best_guess, fit_range
 
 
-def mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
+def mod_arr_residuals(p, target, temp, t_ref):
     """ this subroutine computes the residual used by the nonlinear solver
         in fit_double_arrhenius_python
     """
 
     # compute the fitted rate constant
     k_fit1 = np.exp(
-        np.log(guess_params[0]) +
-        guess_params[1] * np.log((temp/t_ref)) -
-        guess_params[2]/(R * temp)
-    )
+        np.log(p[0]) + p[1] * np.log((temp/t_ref)) - p[2]/(R * temp))
     k_fit2 = np.exp(
-        np.log(guess_params[3]) +
-        guess_params[4] * np.log((temp/t_ref)) -
-        guess_params[5]/(R * temp)
-    )
+        np.log(p[3]) + p[4] * np.log((temp/t_ref)) - p[5]/(R * temp))
     k_fit = k_fit1 + k_fit2
 
     # calculate error
-    err = np.log10(rate_constant) - np.log10(k_fit)
+    err = np.log10(target) - np.log10(k_fit)
 
     return err
 

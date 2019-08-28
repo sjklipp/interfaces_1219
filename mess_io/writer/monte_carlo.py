@@ -14,9 +14,9 @@ SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 MONTE_CARLO_PATH = os.path.join(SECTION_PATH, 'monte_carlo')
 
 
-def write_monte_carlo(geom, formula,
-                      flux_mode_str, data_file_name,
-                      ground_energy, reference_energy):
+def monte_carlo(geom, formula,
+                flux_mode_str, data_file_name,
+                ground_energy, reference_energy):
     """ Writes a monte carlo species section
     """
 
@@ -47,7 +47,7 @@ def write_monte_carlo(geom, formula,
     return mc_str
 
 
-def write_fluxional_mode(atom_indices, span=360.0):
+def fluxional_mode(atom_indices, span=360.0):
     """ Writes the string for each fluxional mode
     """
 
