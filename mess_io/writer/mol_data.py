@@ -14,7 +14,7 @@ SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 SPEC_INFO_PATH = os.path.join(SPECIES_PATH, 'info')
 
 
-def write_core_rigidrotor(geom1, sym_factor, interp_emax=''):
+def core_rigidrotor(geom1, sym_factor, interp_emax=''):
     """ Writes a rigid-rotor core section.
     """
 
@@ -39,8 +39,8 @@ def write_core_rigidrotor(geom1, sym_factor, interp_emax=''):
     return core_rigrot_str
 
 
-def write_core_multirotor(geom1, sym_factor, pot_surf, int_rot,
-                          interp_emax=100, quant_lvl_emax=9):
+def core_multirotor(geom1, sym_factor, pot_surf, int_rot,
+                    interp_emax=100, quant_lvl_emax=9):
     """ Writes a multi-rotor core section.
     """
 
@@ -68,8 +68,8 @@ def write_core_multirotor(geom1, sym_factor, pot_surf, int_rot,
     return core_multrot_str
 
 
-def write_core_phasespace(geom1, geom2, sym_factor, stoich,
-                          pot_prefactor=10, pot_power_exp=6):
+def core_phasespace(geom1, geom2, sym_factor, stoich,
+                    pot_prefactor=10, pot_power_exp=6):
     """ Writes a core section for phase space theory
     """
 
@@ -103,7 +103,7 @@ def write_core_phasespace(geom1, geom2, sym_factor, stoich,
     return core_phasespace_str
 
 
-def write_core_rotd(sym_factor, ne_file, stoich):
+def core_rotd(sym_factor, ne_file, stoich):
     """ Writes a core section which calls flux files from Rotd/VaReCoF
     """
 
@@ -124,7 +124,7 @@ def write_core_rotd(sym_factor, ne_file, stoich):
     return core_rotd_str
 
 
-def write_rotor_hindered(group, axis, symmetry, potential):
+def rotor_hindered(group, axis, symmetry, potential):
     """ Writes the section for a single hindered rotor.
     """
 
@@ -152,11 +152,11 @@ def write_rotor_hindered(group, axis, symmetry, potential):
     return rotor_hind_str
 
 
-def write_rotor_internal(group, axis, symmetry,
-                         rotor_id='',
-                         mass_exp_size=5, pot_exp_size=5,
-                         hmin=13, hmax=101,
-                         grid_size=100):
+def rotor_internal(group, axis, symmetry,
+                   rotor_id='',
+                   mass_exp_size=5, pot_exp_size=5,
+                   hmin=13, hmax=101,
+                   grid_size=100):
     """ Writes the section for a single internal rotor.
     """
 
@@ -187,7 +187,7 @@ def write_rotor_internal(group, axis, symmetry,
     return rotor_int_str
 
 
-def write_tunnel_eckart(imag_freq, well_depth1, well_depth2):
+def tunnel_eckart(imag_freq, well_depth1, well_depth2):
     """ Writes the tunneling section assuming an Eckart model
     """
 
@@ -208,7 +208,7 @@ def write_tunnel_eckart(imag_freq, well_depth1, well_depth2):
     return tunnel_eckart_str
 
 
-def write_tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
+def tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
     """ Writes the tunneling section accounting for small curvature tunneling
     """
 

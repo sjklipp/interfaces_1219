@@ -24,14 +24,14 @@ def test__monte_carlo_writer():
     """
 
     # Write the fluxional mode string
-    flux_mode_str = mess_io.writer.write_fluxional_mode(
+    flux_mode_str = mess_io.writer.fluxional_mode(
         FLUX_IDX, span=FLUX_SPAN)
 
     # Write the monte carlo species section with flux mode string
-    monte_carlo_str = mess_io.writer.write_monte_carlo(
-            GEOM, FORMULA,
-            flux_mode_str, DATA_FILE_NAME,
-            GROUND_ENERGY, REF_ENERGY)
+    monte_carlo_str = mess_io.writer.monte_carlo(
+        GEOM, FORMULA,
+        flux_mode_str, DATA_FILE_NAME,
+        GROUND_ENERGY, REF_ENERGY)
 
     # Print the monte carlo string
     print(monte_carlo_str)

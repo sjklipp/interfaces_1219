@@ -13,7 +13,8 @@ def test__atom_writer():
     atom_elec_levels = ((1, 0.00), (3, 150.0), (9, 450.0))
 
     # Use the writer to create a string for the atom section
-    atom_section_str = mess_io.writer.write_atom(atom_mass, atom_elec_levels)
+    atom_section_str = mess_io.writer.species.atom(
+        atom_mass, atom_elec_levels)
 
     # Print the atom section string
     print(atom_section_str)
@@ -32,27 +33,29 @@ def test__molecule_writer():
     mol_elec_levels = ((1, 0.0), (3, 50.0))
 
     # Get the string for the core using the geometry
-    mol_core = mess_io.writer.write_core_rigidrotor(mol_geom, mol_symfactor, interp_emax='')
+    mol_core = mess_io.writer.mol_data.core_rigidrotor(
+        mol_geom, mol_symfactor, interp_emax='')
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str1 = mess_io.writer.write_molecule(mol_core, mol_freqs,
-                                                          mol_elec_levels,
-                                                          hind_rot='', tunnel='',
-                                                          rovib_coups='', rot_dists='')
+    molecule_section_str1 = mess_io.writer.species.molecule(
+        mol_core, mol_freqs,
+        mol_elec_levels,
+        hind_rot='', tunnel='',
+        rovib_coups='', rot_dists='')
 
     ## Set the additional optional keywords for
     hind_rot = """Rotor  Hindered
-  Group                11  10  9   8   7   6   
-  Axis                 3   2   1   
+  Group                11  10  9   8   7   6
+  Axis                 3   2   1
   Symmetry             1
   Potential[kcal/mol]  12
-    0.00    2.91    9.06    12.63   9.97    3.51    
-    -0.03   3.49    9.96    12.63   9.08    2.93     
+    0.00    2.91    9.06    12.63   9.97    3.51
+    -0.03   3.49    9.96    12.63   9.08    2.93
 End"""
 
     tunnel = """Tunneling  Eckart
-  ImaginaryFrequency[1/cm]  2000 
-  WellDepth[kcal/mol]       10 
+  ImaginaryFrequency[1/cm]  2000
+  WellDepth[kcal/mol]       10
   WellDepth[kcal/mol]       20"""
     xmat = [[10000, 2000, 4000],
             [2000, 3000, 5000],
@@ -61,12 +64,13 @@ End"""
     rot_dists = [['aaaa', 1000], ['bbaa', 2000], ['bbbb', 3000]]
 
     # Use the writer to create a string for the molecule section
-    molecule_section_str2 = mess_io.writer.write_molecule(mol_core, mol_freqs,
-                                                          mol_elec_levels,
-                                                          hind_rot=hind_rot, tunnel=tunnel,
-                                                          xmat=xmat,
-                                                          rovib_coups=rovib_coups,
-                                                          rot_dists=rot_dists)
+    molecule_section_str2 = mess_io.writer.species.molecule(
+        mol_core, mol_freqs,
+        mol_elec_levels,
+        hind_rot=hind_rot, tunnel=tunnel,
+        xmat=xmat,
+        rovib_coups=rovib_coups,
+        rot_dists=rot_dists)
 
 
     # Print the molecule section string

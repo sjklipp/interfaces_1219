@@ -17,7 +17,7 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 SPECIES_PATH = os.path.join(TEMPLATE_PATH, 'species')
 
 
-def write_atom(mass, elec_levels):
+def atom(mass, elec_levels):
     """ Writes the atom section of a MESS input file.
         :param int mass: mass of the atom (of desired isotope)
         :param list float elec_levels: energy and degeneracy of
@@ -46,9 +46,9 @@ def write_atom(mass, elec_levels):
     return atom_str
 
 
-def write_molecule(core, freqs, elec_levels,
-                   hind_rot='', tunnel='',
-                   xmat=None, rovib_coups='', rot_dists=''):
+def molecule(core, freqs, elec_levels,
+             hind_rot='', tunnel='',
+             xmat=None, rovib_coups='', rot_dists=''):
     """ Writes the molecule section of a MESS input file
         :param str core: string for the "Core" section written
                          by another mess_io function

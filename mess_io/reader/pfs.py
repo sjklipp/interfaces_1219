@@ -20,7 +20,7 @@ def partition_fxn(output_string):
     # Read the partition function and derivatives
     temps, logq, dq_dt, dq2_dt2 = [], [], [], []
     for i, line in enumerate(output_string.splitlines()):
-        if i != 0:
+        if i not in (0, 1):
             tmp = line.strip().split()
             temps.append(tmp[0])
             logq.append(tmp[1])

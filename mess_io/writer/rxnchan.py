@@ -14,7 +14,7 @@ SECTION_PATH = os.path.join(TEMPLATE_PATH, 'sections')
 RXNCHAN_PATH = os.path.join(SECTION_PATH, 'reaction_channel')
 
 
-def write_species(species_label, species_data, zero_energy):
+def species(species_label, species_data, zero_energy):
     """ Writes a species section.
     """
 
@@ -38,7 +38,7 @@ def write_species(species_label, species_data, zero_energy):
     return species_str
 
 
-def write_well(well_label, well_data, zero_energy):
+def well(well_label, well_data, zero_energy):
     """ Writes a well section.
     """
 
@@ -62,7 +62,7 @@ def write_well(well_label, well_data, zero_energy):
     return well_str
 
 
-def write_bimolecular(bimol_label,
+def bimolecular(bimol_label,
                       species1_label, species1_data,
                       species2_label, species2_data,
                       ground_energy):
@@ -93,7 +93,7 @@ def write_bimolecular(bimol_label,
     return bimol_str
 
 
-def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
+def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
     """ Writes a TS section containing only a saddle point
     """
 
@@ -119,7 +119,7 @@ def write_ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
     return sadpt_str
 
 
-def write_ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
+def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
     """ Writes a TS section containing IRC information
     """
 

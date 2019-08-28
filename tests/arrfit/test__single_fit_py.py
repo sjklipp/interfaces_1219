@@ -56,8 +56,7 @@ def test__fit():
     tmin = 800
     tmax = 2800
     temps, calc_ks = arrfit.fit.get_valid_temps_rate_constants(
-        TEMPS, RATE_CONSTANTS,
-        tmin=tmin, tmax=tmax)
+        TEMPS, RATE_CONSTANTS, tmin=tmin, tmax=tmax)
     print('Fit Range =', [tmin, tmax])
 
     # Run a single Arrhenius fit
