@@ -191,3 +191,15 @@ def format_flux_mode_indices(atom_indices):
         flux_mode_idx_string += '{0:<4d}'.format(vals)
 
     return flux_mode_idx_string
+
+
+def is_atom_in_str(species_data_str):
+    """ searches for an atom in the str
+    """
+
+    if 'Atom' in species_data_str:
+        isatom = True
+    else:
+        isatom = False
+
+    return isatom
