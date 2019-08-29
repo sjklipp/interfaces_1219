@@ -86,7 +86,7 @@ def double_arrhenius_fit_scipy(sgl_a, sgl_n, sgl_ea,
     plsq = leastsq(mod_arr_residuals, guess_params,
                    args=(rate_constants, temps, t_ref),
                    ftol=1.0E-9, xtol=1.0E-9, maxfev=100000)
-    
+
     # Assign parameters
 
     return plsq[0]
@@ -97,15 +97,17 @@ def mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
         in fit_double_arrhenius_python
     """
 
+    print(guess_params)
+
     # compute the fitted rate constant
     k_fit1 = np.exp(
         np.log(guess_params[0]) +
-        guess_params[1] * np.log((temp/t_ref)) -
+        guess_params[1] * np.log(temp/t_ref) -
         guess_params[2]/(R * temp)
     )
     k_fit2 = np.exp(
         np.log(guess_params[3]) +
-        guess_params[4] * np.log((temp/t_ref)) -
+        guess_params[4] * np.log(temp/t_ref) -
         guess_params[5]/(R * temp)
     )
     k_fit = k_fit1 + k_fit2

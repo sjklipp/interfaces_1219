@@ -173,4 +173,7 @@ def get_pressures(output_string):
                     pressures.append(tmp[0])
             break
 
+    # append high pressure
+    pressures.append('high')
+
     return pressures, pressure_unit
