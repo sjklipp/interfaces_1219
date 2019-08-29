@@ -63,9 +63,9 @@ def well(well_label, well_data, zero_energy):
 
 
 def bimolecular(bimol_label,
-                      species1_label, species1_data,
-                      species2_label, species2_data,
-                      ground_energy):
+                species1_label, species1_data,
+                species2_label, species2_data,
+                ground_energy):
     """ Writes a Bimolecular section.
     """
 
@@ -73,13 +73,19 @@ def bimolecular(bimol_label,
     species1_data = util.indent(species1_data, 4)
     species2_data = util.indent(species2_data, 4)
 
+    # Determine if species is an atom
+    isatom1 = util.is_atom_in_str(species1_data)
+    isatom2 = util.is_atom_in_str(species2_data)
+
     # Create dictionary to fill template
     bimol_keys = {
         'bimolec_label': bimol_label,
         'species1_label': species1_label,
         'species1_data': species1_data,
+        'isatom1': isatom1,
         'species2_label': species2_label,
         'species2_data': species2_data,
+        'isatom2': isatom2,
         'ground_energy': ground_energy
     }
 
