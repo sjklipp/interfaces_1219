@@ -8,7 +8,7 @@ from chemkin_io import reaction
 from chemkin_io import thermo
 from chemkin_io import util
 from chemkin_io import pfit
-
+from chemkin_io import transport
 
 __all__ = [
     'species_block',
@@ -18,5 +18,6 @@ __all__ = [
     'reaction',
     'thermo',
     'util',
-    'pfit'
+    'pfit',
+    'lj'
 ]
