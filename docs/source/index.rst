@@ -7,11 +7,7 @@
 Kev Interfaces's Code
 =====================
 
-*Set of interfaces to external kinetics and thermochemistry codes
-
-**Installation**
-
-* :doc:`install`
+*Set of interfaces to external kinetics and thermochemistry codes*
 
 .. toctree::
    :maxdepth: 1
