@@ -3,9 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to kev-interfaces's documentation!
-==========================================
+=====================
+Kev Interfaces's Code
+=====================
 
+*Set of interfaces to external kinetics and thermochemistry codes
 
 **Installation**
 
