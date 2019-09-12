@@ -3,7 +3,7 @@
 """
 
 
-def read_rpht_output(file_name):
+def rpht_output(file_name):
     """ Read the projected frequencies
     """
 

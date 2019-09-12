@@ -16,9 +16,9 @@ BOHR2ANG = qcc.conversion_factor('bohr', 'angstrom')
 TEMPLATE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def write_rpht_input(geom, grad, hess,
-                     rotors_str='',
-                     coord_proj='cartesian'):
+def rpht_input(geom, grad, hess,
+               rotors_str='',
+               coord_proj='cartesian'):
     """ Write the ProjRot input file
     """
 
@@ -53,7 +53,7 @@ def write_rpht_input(geom, grad, hess,
     return rpht_string
 
 
-def write_rotors_str(axis, group):
+def rotors(axis, group):
     """ Write the sections that defines the rotors section
     """
 
@@ -133,7 +133,7 @@ def format_hessian_str(hess):
                 for j in range(5*cnt, ncols):
                     if i >= j:
                         if col_tracker <= 5:
-                            hess_str += '  {0:5.3f}'.format(hess[i][j])
+                            hess_str += '  {0:5.8f}'.format(hess[i][j])
                             col_tracker += 1
                             if col_tracker == 6:
                                 hess_str += '\n'
