@@ -1,6 +1,6 @@
 tmpr_grid       50      10       1.05     61     Kelvin  # temperature grid
-ener_grid       0       10       1.05    179     Kelvin  # energy grid
-amom_grid       0       4        1.1     40      au      # angular momentum grid
+${ener_grid}
+${amom_grid}
 
 pot_smp_max     ${nsamp_max} 
 pot_smp_min     ${nsamp_min} 

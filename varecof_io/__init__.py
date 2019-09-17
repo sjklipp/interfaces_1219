@@ -2,15 +2,21 @@
  VaReCoF libraries
 """
 
-from varecof_io.writer import write_tst_input
-from varecof_io.writer import write_divsur_input
-from varecof_io.writer import write_els_input
-from varecof_io.writer import write_structure_input
+from varecof_io.writer import tst_input
+from varecof_io.writer import divsur_input
+from varecof_io.writer import els_input
+from varecof_io.writer import structure_input
+from varecof_io.writer import tml_input
+from varecof_io.writer import mc_flux_input
+from varecof_io.writer import convert_input
 
 
 __all__ = [
-    'write_tst_input',
-    'write_divsur_input',
-    'write_els_input',
-    'write_structure_input'
+    'tst_input',
+    'divsur_input',
+    'els_input',
+    'structure_input',
+    'tml_input',
+    'mc_flux_input',
+    'convert_input'
 ]
