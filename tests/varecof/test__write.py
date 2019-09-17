@@ -1,12 +1,18 @@
 """
-  Test writing the various input file
+  Tests the varecof_io.writer functions
 """
 
 import varecof_io.writer
 
 
 def test__writer():
-    """ test writing
+    """ tests varecof_io.writer.tst_input
+              varecof_io.writer.divsur_input
+              varecof_io.writer.els_input
+              varecof_io.writer.structure_input
+              varecof_io.writer.tml_input
+              varecof_io.writer.mc_flux_input
+              varecof_io.writer.convert_input
     """
 
     # Write the tst input string
@@ -14,24 +20,75 @@ def test__writer():
     nsamp_min = 500
     flux_err = 5
     pes_size = 1
-    tst_inp_str = varecof_io.writer.write_tst_input(
+    ener_grid = [0, 20, 1.05, 179]
+    amom_grid = [0, 3, 1.10, 50]
+    tst_inp_str = varecof_io.writer.tst_input(
         nsamp_max, nsamp_min, flux_err, pes_size)
-    print('\ntst.inp:')
+    tst_inp_str2 = varecof_io.writer.tst_input(
+        nsamp_max, nsamp_min, flux_err, pes_size,
+        ener_grid=ener_grid, amom_grid=amom_grid)
+    print('\n\ntst.inp (default grid):')
     print(tst_inp_str)
+    print('\n\ntst.inp (user-defined grid):')
+    print(tst_inp_str2)
 
-    # Write the divsur input file string; distances in Angstrom
-    distances = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0]
-    divsur_inp_str = varecof_io.writer.write_divsur_input(
-        distances)
-    print('\ndivsur.inp:')
-    print(divsur_inp_str)
+    # Write the long range divsur input file
+    rdists = [10.5, 9.0, 8.0, 7.5, 7.0, 6.5, 6.0,
+                  5.5, 5.25, 5.0, 4.5, 4.25, 4.0]
+    xyz_pivot1 = [0.0, 0.0, 0.0]
+    xyz_pivot2 = [0.0, 0.0, 0.0]
+    npivot1 = 1
+    npivot2 = 1
+    lr_divsur_inp_str = varecof_io.writer.divsur_input(
+        rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2)
+    print('\n\ndivsur.inp (long-range):')
+    print(lr_divsur_inp_str)
+
+    # Write the short range divsur input files
+    rdists = [4.25, 4.0, 3.75, 3.5, 3.25, 3.0, 2.75]
+    d1dists = [0.05, 0.15, 0.25]
+    p1angs = [85.0]
+    t1angs = [140.0]
+    xyz_pivot1 = [1.0, 2.0, 3.0]
+    xyz_pivot2 = [0.0, 0.0, 0.0]
+    npivot1 = 2
+    npivot2 = 1
+    sr_divsur_inp_str1 = varecof_io.writer.divsur_input(
+        rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2,
+        d1dists=d1dists,
+        p1angs=p1angs,
+        t1angs=t1angs)
+    print('\n\ndivsur.inp (short-range; natoms(frag1) = 1):')
+    print(sr_divsur_inp_str1)
+
+    rdists = [4.25, 4.0, 3.75, 3.5, 3.25, 3.0, 2.75]
+    d1dists = [0.05, 0.15, 0.25]
+    d2dists = [0.05, 0.15, 0.25]
+    p1angs = [85.0]
+    p2angs = [120.0]
+    t1angs = [140.0]
+    t2angs = [165.0]
+    xyz_pivot1 = [1.0, 2.0, 3.0]
+    xyz_pivot2 = [4.0, 5.0, 6.0]
+    npivot1 = 2
+    npivot2 = 2
+    sr_divsur_inp_str2 = varecof_io.writer.divsur_input(
+        rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2,
+        d1dists=d1dists,
+        d2dists=d2dists,
+        p1angs=p1angs,
+        p2angs=p2angs,
+        t1angs=t1angs,
+        t2angs=t2angs)
+    print('\n\ndivsur.inp (short-range; natoms(frag1) >= 2?):')
+    print(sr_divsur_inp_str2)
 
     # Write the els input string
     exe_path = '/path/to/exe'
     base_name = 'mol'
-    els_inp_str = varecof_io.writer.write_els_input(
+    els_inp_str = varecof_io.writer.els_input(
         exe_path, base_name)
-    print('\nels.inp:')
+    print('\n\nels.inp:')
     print(els_inp_str)
 
     # Write the structure input string
@@ -40,9 +97,9 @@ def test__writer():
              ('H', (0.1997580074, 0.1613210912, -0.9300443271)),
              ('H', (0.6278380682, 0.2349826345, 0.8287405717)),
              ('H', (0.8417991162, -1.3107013202, -0.0916314599)))
-    struct_inp_str = varecof_io.writer.write_structure_input(
+    struct_inp_str = varecof_io.writer.structure_input(
         geom1, geom2)
-    print('\nstructure.inp:')
+    print('\n\nstructure.inp:')
     print(struct_inp_str)
 
     # Write the *.tml input string
@@ -53,10 +110,20 @@ def test__writer():
    {multi,maxit=40;closed,37;occ,40;wf,78,1,0;state,2;orbprint,3}"""
     method = '{rs2c, shift=0.25}'
     inf_sep_energy = -654.3210123456
-    tml_inp_str = varecof_io.writer.write_tml_input(
+    tml_inp_str = varecof_io.writer.tml_input(
         memory, basis, wfn, method, inf_sep_energy)
-    print('\nmol.tml:')
+    print('\n\nmol.tml:')
     print(tml_inp_str)
+
+    # Write the mc_flux.inp input string
+    mc_flux_inp_str = varecof_io.writer.mc_flux_input()
+    print('\n\nmc_flux.inp:')
+    print(mc_flux_inp_str)
+
+    # Write the convert.inp input string
+    conv_inp_str = varecof_io.writer.convert_input()
+    print('\n\nconvert.inp:')
+    print(conv_inp_str)
 
 
 if __name__ == '__main__':

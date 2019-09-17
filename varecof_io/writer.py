@@ -9,13 +9,15 @@ from varecof_io import util
 
 
 ANG2BOHR = qcc.conversion_factor('angstrom', 'bohr')
+RAD2DEG = qcc.conversion_factor('radian', 'degree')
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
-def write_tst_input(nsamp_max, nsamp_min, flux_err, pes_size):
+def tst_input(nsamp_max, nsamp_min, flux_err, pes_size,
+              ener_grid=[], amom_grid=[]):
     """ Writes the tst.inp file for VaReCoF
         :param int nsamp_max: maximum number of samples
         :param int nsamp_min: minimum number of samples
@@ -23,8 +25,28 @@ def write_tst_input(nsamp_max, nsamp_min, flux_err, pes_size):
         :rtype: string
     """
 
+    # Set the energy and angular momentum grids
+    if not ener_grid:
+        ener_grid = [0, 10, 1.05, 179]
+    else:
+        assert len(ener_grid) == 4
+    if not amom_grid:
+        amom_grid = [0, 4, 1.10, 40]
+    else:
+        assert len(amom_grid) == 4
+
+    ener_grid = 'ener_grid{0:>8d}{1:>9d}{2:>11.2f}{3:>7d}'.format(
+        ener_grid[0], ener_grid[1], ener_grid[2], ener_grid[3])
+    ener_grid += '     Kelvin  # energy grid'
+
+    amom_grid = 'amom_grid{0:>8d}{1:>9d}{2:>11.2f}{3:>7d}'.format(
+        amom_grid[0], amom_grid[1], amom_grid[2], amom_grid[3])
+    amom_grid += '     au      # angular momentum grid'
+
     # Create dictionary to fill template
     tst_keys = {
+        'ener_grid': ener_grid,
+        'amom_grid': amom_grid,
         'nsamp_max': nsamp_max,
         'nsamp_min': nsamp_min,
         'flux_err': flux_err,
@@ -41,7 +63,14 @@ def write_tst_input(nsamp_max, nsamp_min, flux_err, pes_size):
     return tst_str
 
 
-def write_divsur_input(distances):
+def divsur_input(rdists,
+                 npivot1,
+                 npivot2,
+                 xyz_pivot1,
+                 xyz_pivot2,
+                 d1dists=(), d2dists=(),
+                 t1angs=(), t2angs=(),
+                 p1angs=(), p2angs=()):
     """ Writes the divsur.inp file for VaReCoF
         that contains info on the dividing surfaces.
         Right now we assume only center-of-mass seperations.
@@ -50,14 +79,85 @@ def write_divsur_input(distances):
         :rtype: string
     """
 
-    # Format temperature and pressure lists
-    distance_vals_str = ', '.join('{0:.3f}'.format(val * ANG2BOHR)
-                                  for val in distances)
-    distance_str = '(' + distance_vals_str + ')'
+    # Format values strings for the coordinates
+    # Function returns the empty string if list is empty
+    r_string = util.format_values_string(
+        'r', rdists, conv_factor=ANG2BOHR)
+    d1_string = util.format_values_string(
+        'd1', d1dists, conv_factor=ANG2BOHR)
+    d2_string = util.format_values_string(
+        'd2', d2dists, conv_factor=ANG2BOHR)
+    t1_string = util.format_values_string(
+        't1', t1angs, conv_factor=1.0)
+    t2_string = util.format_values_string(
+        't2', t1angs, conv_factor=1.0)
+    t3_string = util.format_values_string(
+        't3', t2angs, conv_factor=1.0)
+    t4_string = util.format_values_string(
+        't4', t2angs, conv_factor=1.0)
+    p1_string = util.format_values_string(
+        'p1', p1angs, conv_factor=1.0)
+    p2_string = util.format_values_string(
+        'p2', p1angs, conv_factor=1.0)
+    p3_string = util.format_values_string(
+        'p3', p2angs, conv_factor=1.0)
+    p4_string = util.format_values_string(
+        'p4', p2angs, conv_factor=1.0)
+
+    # Write the pivot point coordinates
+    idx1 = 1
+    idx2 = 1 + npivot1
+    pivot_xyz_string1 = util.format_pivot_xyz_string(
+        idx1, npivot1, xyz_pivot1)
+    pivot_xyz_string2 = util.format_pivot_xyz_string(
+        idx2, npivot2, xyz_pivot2)
+
+    # Calculate the number of cycles
+    ncycles = 1
+    if d1dists:
+        ncycles += 1
+    if d2dists:
+        ncycles += 1
+    if p1angs:
+        ncycles += 2
+    if p2angs:
+        ncycles += 2
+    if t1angs:
+        ncycles += 2
+    if t2angs:
+        ncycles += 2
+
+    # Determine the string of distance cycles
+    if d1dists and d2dists:
+        dist_coords_string = 'r11 = r-d1-d2\n'
+        dist_coords_string += 'r21 = r-d1-d2\n'
+        dist_coords_string += 'r12 = r-d1-d2\n'
+        dist_coords_string += 'r22 = r-d1-d2'
+    elif d1dists and not d2dists:
+        dist_coords_string = 'r11 = r-d1\n'
+        dist_coords_string += 'r21 = r-d1'
+    else:
+        dist_coords_string = 'r11 = r'
 
     # Create dictionary to fill template
     divsur_keys = {
-        'distances': distance_str
+        'npivot1': npivot1,
+        'npivot2': npivot2,
+        'pivot_xyz_string1': pivot_xyz_string1,
+        'pivot_xyz_string2': pivot_xyz_string2,
+        'dist_coords_string': dist_coords_string,
+        'ncycles': ncycles,
+        'r_string': r_string,
+        'd1_string': d1_string,
+        'd2_string': d2_string,
+        't1_string': t1_string,
+        't2_string': t2_string,
+        't3_string': t3_string,
+        't4_string': t4_string,
+        'p1_string': p1_string,
+        'p2_string': p2_string,
+        'p3_string': p3_string,
+        'p4_string': p4_string
     }
 
     # Set template name and path for the global keywords section
@@ -70,7 +170,7 @@ def write_divsur_input(distances):
     return divsur_str
 
 
-def write_els_input(exe_path, base_name):
+def els_input(exe_path, base_name):
     """ Writes the electronic structure code input file for VaReCoF
         Currently code only runs with Molpro
         :rtype: string
@@ -92,7 +192,7 @@ def write_els_input(exe_path, base_name):
     return els_str
 
 
-def write_structure_input(geo1, geo2):
+def structure_input(geo1, geo2):
     """ Writes the structure input file for VaReCoF
         :rtype: string
     """
@@ -125,7 +225,7 @@ def write_structure_input(geo1, geo2):
     return struct_str
 
 
-def write_tml_input(memory, basis, method, wfn, inf_sep_energy):
+def tml_input(memory, basis, method, wfn, inf_sep_energy):
     """ writes the tml file used as the template for the electronic structure
         calculation
         currently, we assume the use of molpro
@@ -155,3 +255,24 @@ def write_tml_input(memory, basis, method, wfn, inf_sep_energy):
     tml_str = Template(filename=template_file_path).render(**tml_keys)
 
     return tml_str
+
+
+def mc_flux_input():
+    """ Writes the mc_flux.inp file
+        :return mc_flux_inp_str: String for input file
+        :rtype: string
+    """
+    mc_flux_inp_str = 'MultiInputFile          tst.inp\n'
+    mc_flux_inp_str += 'OutputFile              mc_flux.out\n'
+    mc_flux_inp_str += 'Face                    0\n'
+    mc_flux_inp_str += 'ElectronicSurface       0'
+    return mc_flux_inp_str
+
+
+def convert_input():
+    """ Writes the convert.inp file
+        :return convert_inp_str: String for input file
+        :rtype: string
+    """
+    convert_inp_str = 'MultiInputFile    tst.inp'
+    return convert_inp_str
