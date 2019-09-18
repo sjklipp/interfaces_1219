@@ -475,7 +475,7 @@ def cbhtwo(ich):
 
 def get_basis(ich):
     formula  = util.inchi_formula(ich)
-    atom_dict = util.get_atom_counts_dict(formula)
+    atm_dict = util.get_atom_counts_dict(formula)
     return select_basis(atm_dict)
 
 def get_cbhzed(ich):
