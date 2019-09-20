@@ -45,6 +45,8 @@ def test__thermo_block():
     """
     mech_str = NATGAS_MECH_STR
     block_str = chemkin_io.thermo_block(mech_str)
+    for x in block_str:
+        print(x)
     assert len(block_str.splitlines()) == 522
 
 
@@ -160,6 +162,8 @@ def test__thermo__data_strings():
     mech_str = NATGAS_MECH_STR
     block_str = chemkin_io.thermo_block(mech_str)
     thm_strs = chemkin_io.thermo.data_strings(block_str)
+    for x in thm_strs:
+        print(thm_strs)
     assert len(thm_strs) == 130
 
 
@@ -168,5 +172,5 @@ if __name__ == '__main__':
     # test__reaction_block()
     # test__thermo_block()
     # test__species__names()
-    test__reaction__data_strings()
-    # test__thermo__data_strings()
+    # test__reaction__data_strings()
+    test__thermo__data_strings()

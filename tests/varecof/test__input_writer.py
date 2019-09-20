@@ -5,14 +5,14 @@
 import varecof_io.writer
 
 
-def test__writer():
-    """ tests varecof_io.writer.tst_input
-              varecof_io.writer.divsur_input
-              varecof_io.writer.els_input
-              varecof_io.writer.structure_input
-              varecof_io.writer.tml_input
-              varecof_io.writer.mc_flux_input
-              varecof_io.writer.convert_input
+def test__input_writer():
+    """ tests varecof_io.writer.input_file.tst
+              varecof_io.writer.input_file.divsur
+              varecof_io.writer.input_file.elec_struct
+              varecof_io.writer.input_file.structure
+              varecof_io.writer.input_file.tml
+              varecof_io.writer.input_file.mc_flux
+              varecof_io.writer.input_file.convert
     """
 
     # Write the tst input string
@@ -22,9 +22,9 @@ def test__writer():
     pes_size = 1
     ener_grid = [0, 20, 1.05, 179]
     amom_grid = [0, 3, 1.10, 50]
-    tst_inp_str = varecof_io.writer.tst_input(
+    tst_inp_str = varecof_io.writer.input_file.tst(
         nsamp_max, nsamp_min, flux_err, pes_size)
-    tst_inp_str2 = varecof_io.writer.tst_input(
+    tst_inp_str2 = varecof_io.writer.input_file.tst(
         nsamp_max, nsamp_min, flux_err, pes_size,
         ener_grid=ener_grid, amom_grid=amom_grid)
     print('\n\ntst.inp (default grid):')
@@ -39,7 +39,7 @@ def test__writer():
     xyz_pivot2 = [0.0, 0.0, 0.0]
     npivot1 = 1
     npivot2 = 1
-    lr_divsur_inp_str = varecof_io.writer.divsur_input(
+    lr_divsur_inp_str = varecof_io.writer.input_file.divsur(
         rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2)
     print('\n\ndivsur.inp (long-range):')
     print(lr_divsur_inp_str)
@@ -53,7 +53,7 @@ def test__writer():
     xyz_pivot2 = [0.0, 0.0, 0.0]
     npivot1 = 2
     npivot2 = 1
-    sr_divsur_inp_str1 = varecof_io.writer.divsur_input(
+    sr_divsur_inp_str1 = varecof_io.writer.input_file.divsur(
         rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2,
         d1dists=d1dists,
         p1angs=p1angs,
@@ -72,7 +72,7 @@ def test__writer():
     xyz_pivot2 = [4.0, 5.0, 6.0]
     npivot1 = 2
     npivot2 = 2
-    sr_divsur_inp_str2 = varecof_io.writer.divsur_input(
+    sr_divsur_inp_str2 = varecof_io.writer.input_file.divsur(
         rdists, npivot1, npivot2, xyz_pivot1, xyz_pivot2,
         d1dists=d1dists,
         d2dists=d2dists,
@@ -86,7 +86,7 @@ def test__writer():
     # Write the els input string
     exe_path = '/path/to/exe'
     base_name = 'mol'
-    els_inp_str = varecof_io.writer.els_input(
+    els_inp_str = varecof_io.writer.input_file.elec_struct(
         exe_path, base_name)
     print('\n\nels.inp:')
     print(els_inp_str)
@@ -97,7 +97,7 @@ def test__writer():
              ('H', (0.1997580074, 0.1613210912, -0.9300443271)),
              ('H', (0.6278380682, 0.2349826345, 0.8287405717)),
              ('H', (0.8417991162, -1.3107013202, -0.0916314599)))
-    struct_inp_str = varecof_io.writer.structure_input(
+    struct_inp_str = varecof_io.writer.input_file.structure(
         geom1, geom2)
     print('\n\nstructure.inp:')
     print(struct_inp_str)
@@ -110,21 +110,21 @@ def test__writer():
    {multi,maxit=40;closed,37;occ,40;wf,78,1,0;state,2;orbprint,3}"""
     method = '{rs2c, shift=0.25}'
     inf_sep_energy = -654.3210123456
-    tml_inp_str = varecof_io.writer.tml_input(
+    tml_inp_str = varecof_io.writer.input_file.tml(
         memory, basis, wfn, method, inf_sep_energy)
     print('\n\nmol.tml:')
     print(tml_inp_str)
 
     # Write the mc_flux.inp input string
-    mc_flux_inp_str = varecof_io.writer.mc_flux_input()
+    mc_flux_inp_str = varecof_io.writer.input_file.mc_flux()
     print('\n\nmc_flux.inp:')
     print(mc_flux_inp_str)
 
     # Write the convert.inp input string
-    conv_inp_str = varecof_io.writer.convert_input()
+    conv_inp_str = varecof_io.writer.input_file.convert()
     print('\n\nconvert.inp:')
     print(conv_inp_str)
 
 
 if __name__ == '__main__':
-    test__writer()
+    test__input_writer()

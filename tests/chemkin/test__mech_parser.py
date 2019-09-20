@@ -1,4 +1,5 @@
-""" test the automechanic.parse.chemkin module
+""" test the automechanic.parse.chemkin module used to parse
+    CHEMKIN mechanism files
 """
 from __future__ import unicode_literals
 from builtins import open

@@ -9,7 +9,7 @@ from scipy.optimize import leastsq
 R = 8.314
 
 
-def single_arrhenius_fit(temps, rate_constants, t_ref):
+def to_single_arrhenius(temps, rate_constants, t_ref):
     """ this subroutine takes in a vector of rate constants and
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
@@ -56,7 +56,7 @@ def single_arrhenius_fit(temps, rate_constants, t_ref):
     return fit_params
 
 
-def double_arrhenius_fit_dsarrfit(temps, rate_constants, t_ref):
+def to_double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
     """ the main subroutine for obtaining the sum of two Arrhenius expressions.
         (1) Basically, the subroutine first determines whether the curve is
             bending up or down at high temperature.
@@ -73,8 +73,8 @@ def double_arrhenius_fit_dsarrfit(temps, rate_constants, t_ref):
     return best_guess
 
 
-def double_arrhenius_fit_scipy(sgl_a, sgl_n, sgl_ea,
-                               temps, rate_constants, t_ref):
+def to_double_arrhenius_scipy(sgl_a, sgl_n, sgl_ea,
+                              temps, rate_constants, t_ref):
     """ perform a double Arrhenius fit with python
     """
 
@@ -83,7 +83,7 @@ def double_arrhenius_fit_scipy(sgl_a, sgl_n, sgl_ea,
                     (sgl_a / 2.0), (sgl_n - 0.1), sgl_ea]
 
     # Perform a new least-squares fit
-    plsq = leastsq(mod_arr_residuals, guess_params,
+    plsq = leastsq(_mod_arr_residuals, guess_params,
                    args=(rate_constants, temps, t_ref),
                    ftol=1.0E-9, xtol=1.0E-9, maxfev=100000)
 
@@ -92,12 +92,10 @@ def double_arrhenius_fit_scipy(sgl_a, sgl_n, sgl_ea,
     return plsq[0]
 
 
-def mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
+def _mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
     """ this subroutine computes the residual used by the nonlinear solver
         in fit_double_arrhenius_python
     """
-
-    print(guess_params)
 
     # compute the fitted rate constant
     k_fit1 = np.exp(
@@ -116,63 +114,6 @@ def mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
     err = np.log10(rate_constant) - np.log10(k_fit)
 
     return err
-
-
-def get_valid_temps_rate_constants(temps, rate_constants,
-                                   tmin=None, tmax=None):
-    """ this subroutine takes in a array of rate constants and
-        returns the subset of this array that is positive,
-        along with the corresponding Temperature array """
-
-    # Convert temps and rate constants to floats
-    temps = [float(temp) for temp in temps]
-    rate_constants = [float(rate_constant)
-                      if rate_constant != '***' else rate_constant
-                      for rate_constant in rate_constants]
-
-    # Set tmin and tmax
-    if tmin is None:
-        tmin = min(temps)
-    if tmax is None:
-        tmax = max(temps)
-    assert tmin in temps and tmax in temps
-
-    # Grab the temperature, rate constant pairs which correspond to
-    # temp > 0, temp within tmin and tmax, rate constant defined (not ***)
-    valid_t, valid_k = [], []
-    for temp, rate_constant in zip(temps, rate_constants):
-        if rate_constant == '***':
-            continue
-        else:
-            if float(rate_constant) > 0.0 and tmin <= temp <= tmax:
-                valid_t.append(temp)
-                valid_k.append(rate_constant)
-
-    # Convert the lists to numpy arrays
-    valid_t = np.array(valid_t, dtype=np.float64)
-    valid_k = np.array(valid_k, dtype=np.float64)
-
-    return valid_t, valid_k
-
-
-def single_arrhenius(a_par, n_par, ea_par,
-                     t_ref, temp):
-    """ calc value with single arrhenius function
-    """
-    rate_constants = a_par * ((temp / t_ref)**n_par) * np.exp(-ea_par/(R*temp))
-    return rate_constants
-
-
-def double_arrhenius(a_par1, n_par1, ea_par1,
-                     a_par2, n_par2, ea_par2,
-                     t_ref, temp):
-    """ calc value with single arrhenius function
-    """
-    rate_constants = (
-        a_par1 * ((temp / t_ref)**n_par1) * np.exp(-ea_par1/(R*temp)) +
-        a_par2 * ((temp / t_ref)**n_par2) * np.exp(-ea_par2/(R*temp))
-    )
-    return rate_constants
 
 
 def calc_sse_and_mae(calc_ks, fit_ks):

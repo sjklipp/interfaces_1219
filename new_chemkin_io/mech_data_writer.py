@@ -1,8 +1,3 @@
-"""
-Write strings to describe the pressure dependence
-"""
-
-import numpy as np
 
 
 def write_params(reaction, params_dct):
