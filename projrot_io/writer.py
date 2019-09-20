@@ -13,7 +13,8 @@ from qcelemental import periodictable as ptab
 BOHR2ANG = qcc.conversion_factor('bohr', 'angstrom')
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
-TEMPLATE_PATH = os.path.dirname(os.path.realpath(__file__))
+SRC_PATH = os.path.dirname(os.path.realpath(__file__))
+TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
 def rpht_input(geom, grad, hess,

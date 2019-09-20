@@ -16,8 +16,8 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
-def tst_input(nsamp_max, nsamp_min, flux_err, pes_size,
-              ener_grid=[], amom_grid=[]):
+def tst(nsamp_max, nsamp_min, flux_err, pes_size,
+        ener_grid=[], amom_grid=[]):
     """ Writes the tst.inp file for VaReCoF
         :param int nsamp_max: maximum number of samples
         :param int nsamp_min: minimum number of samples
@@ -63,14 +63,14 @@ def tst_input(nsamp_max, nsamp_min, flux_err, pes_size,
     return tst_str
 
 
-def divsur_input(rdists,
-                 npivot1,
-                 npivot2,
-                 xyz_pivot1,
-                 xyz_pivot2,
-                 d1dists=(), d2dists=(),
-                 t1angs=(), t2angs=(),
-                 p1angs=(), p2angs=()):
+def divsur(rdists,
+           npivot1,
+           npivot2,
+           xyz_pivot1,
+           xyz_pivot2,
+           d1dists=(), d2dists=(),
+           t1angs=(), t2angs=(),
+           p1angs=(), p2angs=()):
     """ Writes the divsur.inp file for VaReCoF
         that contains info on the dividing surfaces.
         Right now we assume only center-of-mass seperations.
@@ -170,7 +170,7 @@ def divsur_input(rdists,
     return divsur_str
 
 
-def els_input(exe_path, base_name):
+def elec_struct(exe_path, base_name):
     """ Writes the electronic structure code input file for VaReCoF
         Currently code only runs with Molpro
         :rtype: string
@@ -192,7 +192,7 @@ def els_input(exe_path, base_name):
     return els_str
 
 
-def structure_input(geo1, geo2):
+def structure(geo1, geo2):
     """ Writes the structure input file for VaReCoF
         :rtype: string
     """
@@ -225,7 +225,7 @@ def structure_input(geo1, geo2):
     return struct_str
 
 
-def tml_input(memory, basis, method, wfn, inf_sep_energy):
+def tml(memory, basis, method, wfn, inf_sep_energy):
     """ writes the tml file used as the template for the electronic structure
         calculation
         currently, we assume the use of molpro
@@ -257,7 +257,7 @@ def tml_input(memory, basis, method, wfn, inf_sep_energy):
     return tml_str
 
 
-def mc_flux_input():
+def mc_flux():
     """ Writes the mc_flux.inp file
         :return mc_flux_inp_str: String for input file
         :rtype: string
@@ -269,7 +269,7 @@ def mc_flux_input():
     return mc_flux_inp_str
 
 
-def convert_input():
+def convert():
     """ Writes the convert.inp file
         :return convert_inp_str: String for input file
         :rtype: string
