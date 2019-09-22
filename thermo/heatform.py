@@ -94,91 +94,22 @@ def select_basis(atom_dct, att=0):
 
     # Create list of inchi keys corresponding to basis species
     basis = []
-    counter = 1
-    # N2
-    if 'N' in atoms and att < 2 and counter <= nbasis:
-        basis.append('InChI=1S/N2/c1-2')
-        counter += 1
+    # H2
+    basis.append('InChI=1S/H2/h1H')
     # NH3
-    if 'N' in atoms and 'H' in atoms and att > 1 and counter <= nbasis:
+    if 'N' in atoms:
         basis.append('InChI=1S/H3N/h1H3')
-        counter += 1
-    # SO2
-    if 'S' in atoms and counter <= nbasis:
-        basis.append('InChI=1S/O2S/c1-3-2')
-        counter += 1
-    # H2
-    if 'H' in atoms and att < 2 and counter <= nbasis:
-        basis.append('InChI=1S/H2/h1H')
-        counter += 1
-    # H2
-    elif 'H' in atoms and 'C' not in atoms and att < 3 and counter <= nbasis:
-        basis.append('InChI=1S/H2/h1H')
-        counter += 1
-    # O2
-    if 'O' in atoms and att < 3 and counter <= nbasis:
-        basis.append('InChI=1S/O2/c1-2')
-        counter += 1
     # CH4
-    if 'C' in atoms and att < 4 and counter <= nbasis:
+    if 'C' in atoms:
         basis.append('InChI=1S/CH4/h1H4')
-        counter += 1
     # H2O
-    if 'O' in atoms and 'H' in atoms and att < 4 and counter <= nbasis:
+    if 'O' in atoms:
         basis.append('InChI=1S/H2O/h1H2')
-        counter += 1
-    # CO2
-    if 'C' in atoms and 'O' in atoms and att < 5 and counter <= nbasis:
-        basis.append('InChI=1S/CO2/c2-1-3')
-        counter += 1
-    # CH2O
-    if 'C' in atoms and 'O' in atoms and att < 5 and counter <= nbasis:
-        basis.append('InChI=1S/CH2O/c1-2/h1H2')
-        counter += 1
-    # CH3OH
-    if 'C' in atoms and 'O' in atoms and counter <= nbasis:
-        basis.append('InChI=1S/CH4O/c1-2/h2H,1H3')
-        counter += 1
-    # CH3CH3
-    if 'C' in atoms and counter <= nbasis:
-        basis.append('InChI=1S/C2H6/c1-2/h1-2H3')
-        counter += 1
     # SO2
-    if 'S' in atoms and counter <= nbasis:
+    if 'S' in atoms:
         basis.append('InChI=1S/O2S/c1-3-2')
-        counter += 1
-    # H2
-    if 'H' in atoms and att < 1 and counter <= nbasis:
-        basis.append('InChI=1S/H2/h1H')
-        counter += 1
-    # H2
-    elif 'H' in atoms and 'C' not in atoms and att < 3 and counter <= nbasis:
-        basis.append('InChI=1S/H2/h1H')
-        counter += 1
-    # O2
-    if 'O' in atoms and att < 2 and counter <= nbasis:
-        basis.append('InChI=1S/O2/c1-2')
-        counter += 1
-    # CH4
-    if 'C' in atoms and att < 3 and counter <= nbasis:
-        basis.append('InChI=1S/CH4/h1H4')
-        counter += 1
-    # H2O
-    if 'O' in atoms and 'H' in atoms and att < 3 and counter <= nbasis:
-        basis.append('InChI=1S/H2O/h1H2')
-        counter += 1
-    # CO2
-    if 'C' in atoms and 'O' in atoms and att < 4 and counter <= nbasis:
-        basis.append('InChI=1S/CO2/c2-1-3')
-        counter += 1
-    # CH2O
-    if 'C' in atoms and 'O' in atoms and att < 4 and counter <= nbasis:
-        basis.append('InChI=1S/CH2O/c1-2/h1H2')
-        counter += 1
-    # CH3OH
-    if 'C' in atoms and 'O' in atoms and counter <= nbasis:
-        basis.append('InChI=1S/CH4O/c1-2/h2H,1H3')
-        counter += 1
+        if not 'O' in atoms:
+            basis.append('InChI=1S/H2O/h1H2')
 
     return basis
 
@@ -187,7 +118,7 @@ def get_reduced_basis(basis_ich, species_formula):
     """
     Form a matrix for a given basis and atomlist
     INPUT:
-    input_basis     - ich stringes for set of reference molecules
+    input_basis     - ich strings for set of reference molecules
     atomlist  - list of atoms (all atoms that appear
                 in basis should be in atomlist)
     OUTPUT:
@@ -224,13 +155,19 @@ def calc_coefficients(basis, mol_atom_dict):
                 (square if done right)
     """
 
+        
     # Initialize an natoms x natoms matrix
     nbasis = len(basis)
     basis_mat = np.zeros((nbasis, nbasis))
 
     # Get the basis formulae list
     basis_formulae = [util.inchi_formula(spc) for spc in basis]
-
+    #basis_atom_dict = [automol.geom.formula(automol.inchi.geom(spc) for spc in basis]
+    for spc in basis_formulae:
+        basis_atom_dict = util.get_atom_counts_dict(spc)
+        for atom in basis_atom_dict:
+            if not atom in mol_atom_dict:
+                mol_atom_dict[atom] = 0
     # Set the elements of the matrix
     for i, spc in enumerate(basis_formulae):
         basis_atom_dict = util.get_atom_counts_dict(spc)
@@ -473,16 +410,20 @@ def cbhtwo(ich):
 
     return frags
 
+
 def get_basis(ich):
     formula  = util.inchi_formula(ich)
     atm_dict = util.get_atom_counts_dict(formula)
     return select_basis(atm_dict)
 
+
 def get_cbhzed(ich):
     return list(cbhzed(ich).keys())
 
+
 def get_cbhone(ich):
     return list(cbhone(ich).keys())
+
 
 def get_cbhtwo(ich):
     return list(cbhtwo(ich).keys())
