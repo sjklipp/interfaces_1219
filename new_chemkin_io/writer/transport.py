@@ -30,7 +30,6 @@ def lj(names, geos,
 ! (5) Alpha, mean static polarizability, in Angstrom^3; and
 ! (6) Z_rot, rotational relaxation collision number at 298 K.\n"""
 
-
     # Find the length of the longest name string for formatting
     maxlen = 0
     for name in names:

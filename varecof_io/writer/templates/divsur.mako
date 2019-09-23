@@ -12,13 +12,13 @@
 
 # Pivot Points for Fragment 1
 PivotPoints     ${npivot1}
-Frame 0 0 0 0
+Frame ${frame1}
 
 ${pivot_xyz_string1}
 
 # Pivot Points for Fragment 2
 PivotPoints     ${npivot2}
-Frame 0 0 0 0
+Frame ${frame2}
 
 ${pivot_xyz_string2}
 

@@ -5,7 +5,7 @@ Writes the global keyword section of a MESS input file
 import os
 from mako.template import Template
 from qcelemental import constants as qcc
-from varecof_io import util
+from varecof_io.writer import util
 
 
 ANG2BOHR = qcc.conversion_factor('angstrom', 'bohr')
@@ -68,12 +68,14 @@ def divsur(rdists,
            npivot2,
            xyz_pivot1,
            xyz_pivot2,
+           frame1=[0, 0, 0, 0],
+           frame2=[0, 0, 0, 0],
            d1dists=(), d2dists=(),
            t1angs=(), t2angs=(),
-           p1angs=(), p2angs=()):
+           p1angs=(), p2angs=(),
+           phi_dependence=False):
     """ Writes the divsur.inp file for VaReCoF
         that contains info on the dividing surfaces.
-        Right now we assume only center-of-mass seperations.
         :param float distances: List of temperatures (in Angstrom)
         :return divsur_inp_str: String for input file
         :rtype: string
@@ -88,29 +90,35 @@ def divsur(rdists,
     d2_string = util.format_values_string(
         'd2', d2dists, conv_factor=ANG2BOHR)
     t1_string = util.format_values_string(
-        't1', t1angs, conv_factor=1.0)
+        't1', t1angs, conv_factor=RAD2DEG)
     t2_string = util.format_values_string(
-        't2', t1angs, conv_factor=1.0)
+        't2', t1angs, conv_factor=RAD2DEG)
     t3_string = util.format_values_string(
-        't3', t2angs, conv_factor=1.0)
+        't3', t2angs, conv_factor=RAD2DEG)
     t4_string = util.format_values_string(
-        't4', t2angs, conv_factor=1.0)
+        't4', t2angs, conv_factor=RAD2DEG)
     p1_string = util.format_values_string(
-        'p1', p1angs, conv_factor=1.0)
+        'p1', p1angs, conv_factor=RAD2DEG)
     p2_string = util.format_values_string(
-        'p2', p1angs, conv_factor=1.0)
+        'p2', p1angs, conv_factor=RAD2DEG)
     p3_string = util.format_values_string(
-        'p3', p2angs, conv_factor=1.0)
+        'p3', p2angs, conv_factor=RAD2DEG)
     p4_string = util.format_values_string(
-        'p4', p2angs, conv_factor=1.0)
+        'p4', p2angs, conv_factor=RAD2DEG)
+
+    # Fromat the frames
+    frame1 = ' '.join([str(val) for val in frame1])
+    frame2 = ' '.join([str(val) for val in frame2])
 
     # Write the pivot point coordinates
     idx1 = 1
     idx2 = 1 + npivot1
+    if p1angs:
+        phi_dependence = True
     pivot_xyz_string1 = util.format_pivot_xyz_string(
-        idx1, npivot1, xyz_pivot1)
+        idx1, npivot1, xyz_pivot1, phi_dependence=phi_dependence)
     pivot_xyz_string2 = util.format_pivot_xyz_string(
-        idx2, npivot2, xyz_pivot2)
+        idx2, npivot2, xyz_pivot2, phi_dependence=phi_dependence)
 
     # Calculate the number of cycles
     ncycles = 1
@@ -145,6 +153,8 @@ def divsur(rdists,
         'npivot2': npivot2,
         'pivot_xyz_string1': pivot_xyz_string1,
         'pivot_xyz_string2': pivot_xyz_string2,
+        'frame1': frame1,
+        'frame2': frame2,
         'dist_coords_string': dist_coords_string,
         'ncycles': ncycles,
         'r_string': r_string,

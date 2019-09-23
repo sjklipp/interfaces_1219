@@ -14,7 +14,11 @@ def determine_struct_type(geo):
     """ determines the linear string
     """
 
-    # Use automol to determine the type of structure
+    # Remove dummy atoms
+    geo = [coords for coords in geo
+           if coords[0] != 'X']
+
+    # Use automol to determin the type of structure
     if geom.is_atom(geo):
         struct_type = 'Monoatomic'
     else:
@@ -68,7 +72,7 @@ def format_values_string(coord, values, conv_factor=1.0):
     return values_string
 
 
-def format_pivot_xyz_string(idx, npivot, xyzP):
+def format_pivot_xyz_string(idx, npivot, xyzP, phi_dependence=False):
     """ format the pivot point xyz
     """
 
@@ -81,22 +85,38 @@ def format_pivot_xyz_string(idx, npivot, xyzP):
         d_idx = 2
 
     if npivot == 1:
-        x_val = 'x{0} = {1}'.format(atom_idx, xyzP[0])
-        y_val = '  y{0} = {1}'.format(atom_idx, xyzP[1])
-        z_val = '  z{0} = {1}'.format(atom_idx, xyzP[2])
+        x_val = 'x{0} = {1:.3f}'.format(atom_idx, xyzP[0])
+        y_val = '  y{0} = {1:.3f}'.format(atom_idx, xyzP[1])
+        z_val = '  z{0} = {1:.3f}'.format(atom_idx, xyzP[2])
         pivot_xyz_string = (x_val + y_val + z_val)
-    else:
-        x_val1 = 'x{0} = {1} + d{2}*sin(p{0})*cos(t{0})'.format(
+    elif npivot > 1 and not phi_dependence:
+        x_val1 = 'x{0} = {1:.3f} + d{2}*cos(t{0})'.format(
             atom_idx, xyzP[0], d_idx)
-        y_val1 = '  y{0} = {1} + d{2}*sin(p{0})*sin(t{0})'.format(
+        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(t{0})'.format(
             atom_idx, xyzP[1], d_idx)
-        z_val1 = '  z{0} = {1} + d{2}*cos(p{0})'.format(
-            atom_idx, xyzP[2], d_idx)
-        x_val2 = 'x{0} = {1} - d{2}*sin(p{0})*cos(t{0})'.format(
+        z_val1 = '  z{0} = 0.000'.format(
+            atom_idx)
+        x_val2 = 'x{0} = {1:.3f} - d{2}*cos(t{0})'.format(
             atom_idx+1, xyzP[0], d_idx)
-        y_val2 = '  y{0} = {1} - d{2}*sin(p{0})*sin(t{0})'.format(
+        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(t{0})'.format(
             atom_idx+1, xyzP[1], d_idx)
-        z_val2 = '  z{0} = {1} + d{2}*cos(p{0})'.format(
+        z_val2 = '  z{0} = 0.000'.format(
+            atom_idx+1)
+        pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
+                            x_val2 + y_val2 + z_val2)
+    else:
+        # Not sure if this implementation is any good
+        x_val1 = 'x{0} = {1:.3f} + d{2}*sin(p{0})*cos(t{0})'.format(
+            atom_idx, xyzP[0], d_idx)
+        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(p{0})*sin(t{0})'.format(
+            atom_idx, xyzP[1], d_idx)
+        z_val1 = '  z{0} = {1:.3f} + d{2}*cos(p{0})'.format(
+            atom_idx, xyzP[2], d_idx)
+        x_val2 = 'x{0} = {1:.3f} - d{2}*sin(p{0})*cos(t{0})'.format(
+            atom_idx+1, xyzP[0], d_idx)
+        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(p{0})*sin(t{0})'.format(
+            atom_idx+1, xyzP[1], d_idx)
+        z_val2 = '  z{0} = {1:.3f} + d{2}*cos(p{0})'.format(
             atom_idx+1, xyzP[2], d_idx)
         pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
                             x_val2 + y_val2 + z_val2)

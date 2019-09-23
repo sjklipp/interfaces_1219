@@ -1,6 +1,10 @@
+"""
+ Writes the CHEMKIN formatted strings for writing Arrhenius parameters
+ for rate constants
+"""
 
 
-def write_params(reaction, params_dct):
+def write_rate_params_str(reaction, params_dct):
     """ Write the string containing the fitting parameters
         formatted for CHEMKIN input files
     """

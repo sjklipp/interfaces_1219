@@ -1,14 +1,14 @@
-FC = ${fc}
+FC = gfortran
 FFLAGS = -O3 -fPIC
 
-FOR_SOURCES = pot_aux.f dummy_corr.f ${corr_potential_names} 
+FOR_SOURCES = pot_aux.f dummy_corr.f mol_corr.f  
 
-<%text>
+
 OBJECTS = $(FOR_SOURCES:.f=.o)
 
 libcorrpot.so : ${OBJECTS} 
 	${FC} -shared -o $@ ${OBJECTS}  
-</%text>
+
 
 clean:
 	rm -f *.o
