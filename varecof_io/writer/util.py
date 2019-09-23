@@ -18,7 +18,6 @@ def determine_struct_type(geo):
     geo = [coords for coords in geo
            if coords[0] != 'X']
 
-    # Use automol to determin the type of structure
     if geom.is_atom(geo):
         struct_type = 'Monoatomic'
     else:

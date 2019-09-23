@@ -78,4 +78,3 @@ def test__compile_correction_potential():
 
 if __name__ == '__main__':
     test__corr_potentials_writer()
-    test__compile_correction_potential()
