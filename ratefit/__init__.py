@@ -11,7 +11,7 @@ from ratefit.fxns import double_arrhenius
 from ratefit.fxns import lindemann
 from ratefit.fxns import troe
 from ratefit.err import calc_sse_and_mae
-from ratefit import fit_arrhenius
+from ratefit import fit
 
 
 __all__ = [
@@ -20,5 +20,5 @@ __all__ = [
     'lindemann',
     'troe',
     'calc_sse_and_mae',
-    'fit_arrhenius'
+    'fit'
 ]
