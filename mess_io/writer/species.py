@@ -47,7 +47,7 @@ def atom(mass, elec_levels):
 
 
 def molecule(core, freqs, elec_levels,
-             hind_rot='', tunnel='',
+             hind_rot='',
              xmat=None, rovib_coups='', rot_dists=''):
     """ Writes the molecule section of a MESS input file
         :param str core: string for the "Core" section written
@@ -76,8 +76,6 @@ def molecule(core, freqs, elec_levels,
     # Indent various strings string if needed
     if hind_rot != '':
         hind_rot = util.indent(hind_rot, 2)
-    if tunnel != '':
-        tunnel = util.indent(tunnel, 2)
 
     # Create dictionary to fill template
     molec_keys = {
@@ -88,7 +86,6 @@ def molecule(core, freqs, elec_levels,
         'levels': levels,
         'hind_rot': hind_rot,
         'anharm': anharm,
-        'tunnel': tunnel,
         'rovib_coups': rovib_coups,
         'rot_dists': rot_dists
     }

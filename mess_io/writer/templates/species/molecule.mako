@@ -27,7 +27,3 @@ ${rovib_coups}
 ${rot_dists}
   End
 % endif
-## Tunnel Section
-% if tunnel != '':
-${tunnel}\
-% endif

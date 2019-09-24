@@ -40,7 +40,7 @@ def test__molecule_writer():
     molecule_section_str1 = mess_io.writer.species.molecule(
         mol_core, mol_freqs,
         mol_elec_levels,
-        hind_rot='', tunnel='',
+        hind_rot='',
         rovib_coups='', rot_dists='')
 
     ## Set the additional optional keywords for
@@ -53,10 +53,6 @@ def test__molecule_writer():
     -0.03   3.49    9.96    12.63   9.08    2.93
 End"""
 
-    tunnel = """Tunneling  Eckart
-  ImaginaryFrequency[1/cm]  2000
-  WellDepth[kcal/mol]       10
-  WellDepth[kcal/mol]       20"""
     xmat = [[10000, 2000, 4000],
             [2000, 3000, 5000],
             [4000, 5000, 6000]]
@@ -67,7 +63,7 @@ End"""
     molecule_section_str2 = mess_io.writer.species.molecule(
         mol_core, mol_freqs,
         mol_elec_levels,
-        hind_rot=hind_rot, tunnel=tunnel,
+        hind_rot=hind_rot,
         xmat=xmat,
         rovib_coups=rovib_coups,
         rot_dists=rot_dists)
