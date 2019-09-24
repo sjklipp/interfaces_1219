@@ -11,7 +11,7 @@ from mako.template import Template
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def write_arrfit_inp(temps, rate_constants):
+def write_input(temps, rate_constants):
     """ write the arrfit input file
     """
 
@@ -49,7 +49,7 @@ def run_dsarrfit(path):
     subprocess.check_call([exe_path])
 
 
-def parse_dsarrfit(output_string, fit, conv_factor=1.000):
+def read_params(output_string, fit, conv_factor=1.000):
     """ obtain information from the arrfit output
     """
 

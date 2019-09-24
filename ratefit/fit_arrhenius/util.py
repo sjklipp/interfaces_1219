@@ -5,8 +5,8 @@ utility functions used for the fitting functions
 import numpy as np
 
 
-def get_valid_temps_rate_constants(temps, rate_constants,
-                                   tmin=None, tmax=None):
+def get_valid_tk(temps, rate_constants,
+                 tmin=None, tmax=None):
     """ this subroutine takes in a array of rate constants and
         returns the subset of this array that is positive,
         along with the corresponding Temperature array """
@@ -39,4 +39,4 @@ def get_valid_temps_rate_constants(temps, rate_constants,
     valid_t = np.array(valid_t, dtype=np.float64)
     valid_k = np.array(valid_k, dtype=np.float64)
 
-
+    return valid_t, valid_k

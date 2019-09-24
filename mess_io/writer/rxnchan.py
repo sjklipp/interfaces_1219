@@ -99,12 +99,15 @@ def bimolecular(bimol_label,
     return bimol_str
 
 
-def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
+def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy,
+             tunnel=''):
     """ Writes a TS section containing only a saddle point
     """
 
     # Indent the string containing all of data for the saddle point
     ts_data = util.indent(ts_data, 2)
+    if tunnel != '':
+        tunnel = util.indent(tunnel, 4)
 
     # Create dictionary to fill template
     ts_sadpt_keys = {
@@ -112,7 +115,8 @@ def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
         'reac_label': reac_label,
         'prod_label': prod_label,
         'ts_data': ts_data,
-        'zero_energy': zero_energy
+        'zero_energy': zero_energy,
+        'tunnel': tunnel
     }
 
     # Set template name and path for a TS with only a single saddle point
@@ -125,7 +129,8 @@ def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy):
     return sadpt_str
 
 
-def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
+def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy,
+           tunnel=''):
     """ Writes a TS section containing IRC information
     """
 
@@ -134,6 +139,8 @@ def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
 
     # Indent the TS IRC string
     ts_data = util.indent(ts_data, 4)
+    if tunnel != '':
+        tunnel = util.indent(tunnel, 4)
 
     # Create dictionary to fill template
     irc_keys = {
@@ -141,7 +148,8 @@ def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy):
         'reac_label': reac_label,
         'prod_label': prod_label,
         'ts_data': ts_data,
-        'zero_energy': zero_energy
+        'zero_energy': zero_energy,
+        'tunnel': tunnel
     }
 
     # Set template name and path for a TS with an IRC

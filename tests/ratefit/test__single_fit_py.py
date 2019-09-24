@@ -3,7 +3,7 @@ Test an Arrhenius fit of T, k(T,P) rates to a single Arrhenius function
 where the fits are performed using Python
 """
 
-import arrfit
+import ratefit
 
 
 # Obtain list of temperatures and rate constants from initial pair list
@@ -55,12 +55,12 @@ def test__fit():
     # k > 0 and k != *** and tmin <= T <= tmax
     tmin = 800
     tmax = 2800
-    temps, calc_ks = arrfit.fit.get_valid_temps_rate_constants(
+    temps, calc_ks = ratefit.fit_arrhenius.util.get_valid_tk(
         TEMPS, RATE_CONSTANTS, tmin=tmin, tmax=tmax)
     print('Fit Range =', [tmin, tmax])
 
     # Run a single Arrhenius fit
-    fit_params = arrfit.fit.single_arrhenius_fit(
+    fit_params = ratefit.fit_arrhenius.fit.single_arrhenius(
         temps, calc_ks, T_REF)
     print('\nFit Parameters:')
     print('A =', fit_params[0])
@@ -68,7 +68,7 @@ def test__fit():
     print('Ea =', fit_params[2])
 
     # Calculate fitted rate constants using the fitted parameters
-    fit_ks = arrfit.fit.single_arrhenius(
+    fit_ks = ratefit.fxns.single_arrhenius(
         fit_params[0], fit_params[1], fit_params[2],
         T_REF, temps)
 
@@ -80,7 +80,7 @@ def test__fit():
             temps[i], calc_ks[i], fit_ks[i]))
 
     # Calculate the sum-of-square errors and mean-average-errors
-    sse, mean_avg_err, max_avg_err = arrfit.fit.calc_sse_and_mae(
+    sse, mean_avg_err, max_avg_err = ratefit.err.calc_sse_and_mae(
         calc_ks, fit_ks)
     print('\nSSE =', sse)
     print('Mean Avg. Err = ', mean_avg_err)

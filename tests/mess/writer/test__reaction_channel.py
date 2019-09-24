@@ -108,9 +108,15 @@ def test__ts_sadpt_writer():
     reac_label = 'R1'
     prod_label = 'P1'
 
+    tunnel_string = """Tunneling  Eckart
+  ImaginaryFrequency[1/cm]  2000
+  WellDepth[kcal/mol]       10
+  WellDepth[kcal/mol]       20"""
+
     # Use the writer to create a string for the ts sadpt section
     ts_sadpt_str = mess_io.writer.rxnchan.ts_sadpt(
-        ts_label, reac_label, prod_label, ts_data, ZERO_ENERGY)
+        ts_label, reac_label, prod_label, ts_data, ZERO_ENERGY,
+        tunnel=tunnel_string)
 
     # Print the ts sadpoint section
     print('\n'+ts_sadpt_str)

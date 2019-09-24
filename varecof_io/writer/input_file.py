@@ -137,10 +137,10 @@ def divsur(rdists,
 
     # Determine the string of distance cycles
     if d1dists and d2dists:
-        dist_coords_string = 'r11 = r-d1-d2\n'
-        dist_coords_string += 'r21 = r-d1-d2\n'
-        dist_coords_string += 'r12 = r-d1-d2\n'
-        dist_coords_string += 'r22 = r-d1-d2'
+        dist_coords_string = 'r11 = r-(d1+d2)/2\n'
+        dist_coords_string += 'r21 = r-(d1+d2)/2\n'
+        dist_coords_string += 'r12 = r-(d1+d2)/2\n'
+        dist_coords_string += 'r22 = r-(d1+d2)/2'
     elif d1dists and not d2dists:
         dist_coords_string = 'r11 = r-d1\n'
         dist_coords_string += 'r21 = r-d1'

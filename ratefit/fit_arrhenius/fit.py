@@ -9,7 +9,7 @@ from scipy.optimize import leastsq
 R = 8.314
 
 
-def to_single_arrhenius(temps, rate_constants, t_ref):
+def single_arrhenius(temps, rate_constants, t_ref):
     """ this subroutine takes in a vector of rate constants and
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
@@ -56,12 +56,13 @@ def to_single_arrhenius(temps, rate_constants, t_ref):
     return fit_params
 
 
-def to_double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
-    """ the main subroutine for obtaining the sum of two Arrhenius expressions.
-        (1) Basically, the subroutine first determines whether the curve is
-            bending up or down at high temperature.
-        (2) Based upon the curvature, one of two possible cycles are initiated
-            to provide a good starting guess for the nonlinear solver."""
+def double_arrhenius(sgl_a, sgl_n, sgl_ea,
+                     temps, rate_constants, t_ref, method):
+
+
+def _double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
+    """ call the dsarrfit code for a double fit
+    """
 
 
     # Check if the fitting was successful
@@ -73,8 +74,8 @@ def to_double_arrhenius_dsarrfit(temps, rate_constants, t_ref):
     return best_guess
 
 
-def to_double_arrhenius_scipy(sgl_a, sgl_n, sgl_ea,
-                              temps, rate_constants, t_ref):
+def _double_arrhenius_scipy(sgl_a, sgl_n, sgl_ea,
+                           temps, rate_constants, t_ref):
     """ perform a double Arrhenius fit with python
     """
 
@@ -114,29 +115,3 @@ def _mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
     err = np.log10(rate_constant) - np.log10(k_fit)
 
     return err
-
-
-def calc_sse_and_mae(calc_ks, fit_ks):
-    """ (1) get the sum of square error (SSE) useful when determining
-            which double plog routine will be used to initialize
-            the nonlinear solver
-        (2) also get the mean absolute error (MAE), which is written
-            to the plog file
-    """
-
-    # Only run if there are more than 2 rate constants
-    sse = 0.0
-    abs_err = []
-    if len(calc_ks) > 2:
-        for calc_k, fit_k in zip(calc_ks, fit_ks):
-            sse += (np.log(calc_k) - np.log(fit_k))**2.0
-            abs_err.append(np.abs((calc_k - fit_k) / calc_k))
-        abs_err = np.array(abs_err, dtype=np.float64)
-        mean_avg_err = np.mean(abs_err)*100.0
-        max_avg_err = np.max(abs_err)*100.0
-    else:
-        sse = None
-        mean_avg_err = None
-        max_avg_err = None
-
-    return sse, mean_avg_err, max_avg_err

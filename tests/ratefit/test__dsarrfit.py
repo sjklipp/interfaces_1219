@@ -4,7 +4,7 @@ single and double Arrhenius function
 where the fits are performed using the SJK dsarrfit code
 """
 
-import arrfit
+import ratefit
 
 
 # Obtain list of temperatures and rate constants from initial pair list
@@ -45,11 +45,11 @@ RATE_CONSTANTS = [pair[1] for pair in PAIRS]
 T_REF = 1.0
 
 # Set the path to the dsarrfit executable
-EXE_PATH = '../../arrfit/external/dsarrfit'
+EXE_PATH = '../../ratefit/fit_arrhenius/external/dsarrfit'
 
 
 def test__fit():
-    """ fit test
+    """ fit test ratefit.fit_arrhenius.dsarrfit_io
     """
 
     # Print header
@@ -59,30 +59,30 @@ def test__fit():
     # k > 0 and k != *** and tmin <= T <= tmax
     tmin = 600
     tmax = 3000
-    temps, calc_ks = arrfit.fit.get_valid_temps_rate_constants(
+    temps, calc_ks = ratefit.fit_arrhenius.util.get_valid_tk(
         TEMPS, RATE_CONSTANTS,
         tmin=None, tmax=None)
     print('Fit Range =', [tmin, tmax])
 
-    # Write the input file for the arrfit code
-    arrfit_inp_str = arrfit.dsarrfit_io.write_arrfit_inp(
+    # Write the input file for the ratefit code
+    ratefit_inp_str = ratefit.fit_arrhenius.dsarrfit_io.write_input(
         temps, calc_ks)
-    with open('arrfit.dat', 'w') as arrfit_infile:
-        arrfit_infile.write(arrfit_inp_str)
+    with open('arrfit.dat', 'w') as ratefit_infile:
+        ratefit_infile.write(ratefit_inp_str)
 
-    # Run the arrfit program
-    arrfit.dsarrfit_io.run_dsarrfit(EXE_PATH)
+    # Run the ratefit program
+    ratefit.fit_arrhenius.dsarrfit_io.run_dsarrfit(EXE_PATH)
 
     # Read the output of the single and double fit
-    with open('arrfit.out', 'r') as s_arrfit_outfile:
-        sfit_out_str = s_arrfit_outfile.read()
-    with open('darrfit.out', 'r') as d_arrfit_outfile:
-        dfit_out_str = d_arrfit_outfile.read()
+    with open('arrfit.out', 'r') as s_ratefit_outfile:
+        sfit_out_str = s_ratefit_outfile.read()
+    with open('darrfit.out', 'r') as d_ratefit_outfile:
+        dfit_out_str = d_ratefit_outfile.read()
 
-    # Parse the arrfit files for the Arrhenius fit parameters
-    sfit_params = arrfit.dsarrfit_io.parse_dsarrfit(
+    # Parse the ratefit files for the Arrhenius fit parameters
+    sfit_params = ratefit.fit_arrhenius.dsarrfit_io.read_params(
         sfit_out_str, 'single', 1.00)
-    dfit_params = arrfit.dsarrfit_io.parse_dsarrfit(
+    dfit_params = ratefit.fit_arrhenius.dsarrfit_io.read_params(
         dfit_out_str, 'double', 1.00)
 
     # Print the single Arrhenius fit parameters
@@ -93,7 +93,7 @@ def test__fit():
     print('Ea =', sfit_params[0][2])
 
     # Calculate fitted rate constants using the fitted parameters
-    fit_ks1 = arrfit.fit.single_arrhenius(
+    fit_ks1 = ratefit.fxns.single_arrhenius(
         sfit_params[0][0], sfit_params[0][1], sfit_params[0][2],
         T_REF, temps)
 
@@ -105,11 +105,11 @@ def test__fit():
             temps[i], calc_ks[i], fit_ks1[i]))
 
     # Calculate the sum-of-square errors and mean-average-errors
-    sse1, mean_avg_err1, max_avg_err1 = arrfit.fit.calc_sse_and_mae(
+    sse1, mean_err1, max_err1 = ratefit.err.calc_sse_and_mae(
         calc_ks, fit_ks1)
     print('\nSSE =', sse1)
-    print('Mean Avg. Err = ', mean_avg_err1)
-    print('Max Avg. Err = ', max_avg_err1)
+    print('Mean Avg. Err = ', mean_err1)
+    print('Max Avg. Err = ', max_err1)
 
     # Print the double Arrhenius fit parameters
     print('\n\nDouble Arrhenius Fit Results:')
@@ -122,7 +122,7 @@ def test__fit():
     print('Ea2 =', dfit_params[1][2])
 
     # Calculate fitted rate constants using the fitted parameters
-    fit_ks2 = arrfit.fit.double_arrhenius(
+    fit_ks2 = ratefit.fxns.double_arrhenius(
         dfit_params[0][0], dfit_params[0][1], dfit_params[0][2],
         dfit_params[1][0], dfit_params[1][1], dfit_params[1][2],
         T_REF, temps)
@@ -135,11 +135,11 @@ def test__fit():
             temps[i], calc_ks[i], fit_ks2[i]))
 
     # Calculate the sum-of-square errors and mean-average-errors
-    sse2, mean_avg_err2, max_avg_err2 = arrfit.fit.calc_sse_and_mae(
+    sse2, mean_err2, max_err2 = ratefit.err.calc_sse_and_mae(
         calc_ks, fit_ks2)
     print('\nSSE =', sse2)
-    print('Mean Avg. Err = ', mean_avg_err2)
-    print('Max Avg. Err = ', max_avg_err2)
+    print('Mean Avg. Err = ', mean_err2)
+    print('Max Avg. Err = ', max_err2)
 
 
 if __name__ == '__main__':
