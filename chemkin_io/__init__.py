@@ -7,6 +7,8 @@ from chemkin_io import species
 from chemkin_io import reaction
 from chemkin_io import thermo
 from chemkin_io import util
+from chemkin_io.rates import write_plog
+
 
 __all__ = [
     'species_block',
@@ -16,5 +18,5 @@ __all__ = [
     'reaction',
     'thermo',
     'util',
-    'lj'
+    'write_plog',
 ]
