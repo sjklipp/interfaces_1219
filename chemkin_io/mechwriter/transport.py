@@ -8,10 +8,10 @@ import automol
 CM2K = 1.438776877
 
 
-def lj(names, geos,
-       epsilons, sigmas,
-       dipole_moments, polarizabilities,
-       z_rots=[]):
+def lennard_jones(names, geos,
+                  epsilons, sigmas,
+                  dipole_moments, polarizabilities,
+                  z_rots=None):
     """ writes the string for the transport
     """
 
@@ -54,7 +54,7 @@ def lj(names, geos,
     epsilons = [epsilon * CM2K for epsilon in epsilons]
 
     # if zrot empty make list of 1s as a defaults
-    if not z_rots:
+    if z_rots is None:
         z_rots = [1.0 for i in range(data_length)]
 
     # Add the headers for each of the columns

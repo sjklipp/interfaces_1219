@@ -27,9 +27,9 @@ def test__transport_writer():
     dipole_moments = [0.000, 0.000, 0.593, 0.000]
     polarizabilities = [0.204, 1.756, 2.137, 2.454]
 
-    transport_str = chemkin_io.mechwriter.transport.lj(
+    transport_str = chemkin_io.mechwriter.transport.lennard_jones(
         names, geoms, epsilons, sigmas,
-        dipole_moments, polarizabilities, z_rots=[])
+        dipole_moments, polarizabilities, z_rots=None)
     print('\ntransport_str')
     print(transport_str)
 
