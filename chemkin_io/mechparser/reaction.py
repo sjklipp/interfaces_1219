@@ -63,6 +63,19 @@ def data_strings(block_str):
     return rxn_strs
 
 
+def dct_name_idx(block_str):
+    """ build a dictionary with the name dictionary
+    """
+    rxn_dstr_lst = data_strings(block_str)
+    rxn_dct = {}
+    for string in rxn_dstr_lst:
+        rct_name = reactant_names(string)
+        prd_name = product_names(string)
+        rxn_dct[(rct_name, prd_name)] = string
+
+    return rxn_dct
+
+
 # Functions which act on a single reaction #
 def reactant_names(rxn_dstr):
     """ reactant species names
@@ -148,6 +161,45 @@ def troe_parameters(rxn_dstr):
     )
     params = apf.first_capture(pattern, rxn_dstr)
     return params
+
+
+def chebyshev_parameters(rxn_dstr):
+    """ chebyshev parameters
+    """
+    temp_pattern = (
+        'TCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        app.SPACES + app.capturing(app.FLOAT) +
+        app.SPACES + app.capturing(app.FLOAT) +
+        app.SPACES + app.escape('/')
+    )
+    pressure_pattern = (
+        'PCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        app.SPACES + app.capturing(app.FLOAT) +
+        app.SPACES + app.capturing(app.FLOAT) +
+         app.SPACES + app.escape('/')
+    )
+    alpha_dimension_pattern = (
+        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        app.SPACES + app.capturing(app.INTEGER) +
+        app.SPACES + app.capturing(app.INTEGER) +
+        app.zero_or_more(app.SPACE) + app.escape('/')
+    )
+    alpha_elements_pattern = (
+        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        app.capturing(
+            app.series(
+                app.SPACES + app.capturing(app.EXPONENT_E) 
+            )
+        ) +
+        app.zero_or_more(app.SPACE) + app.escape('/')
+    )
+
+    cheb_temps = apf.first_capture(temp_pattern, rxn_dstr)
+    cheb_pressures = apf.first_capture(pressure_pattern, rxn_dstr)
+    alpha_dims = apf.first_capture(alpha_dimension_pattern, rxn_dstr)
+    alpha_elms = apf.all_captures(alpha_elements_pattern, rxn_dstr)
+
+    return cheb_temps, cheb_pressures, alpha_dims, alpha_elms
 
 
 # def low_p_buffer_enhance_factors(rxn_dstr):

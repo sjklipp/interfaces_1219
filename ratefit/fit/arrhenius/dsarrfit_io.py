@@ -11,7 +11,10 @@ from mako.template import Template
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def write_input(temps, rate_constants, a_guess, n_guess, ea_guess):
+def write_input(temps, rate_constants,
+                a_guess=8.1e-11,
+                n_guess=-0.01,
+                ea_guess=1000.0):
     """ write the dsarrfit input file
     """
 
@@ -58,15 +61,19 @@ def read_params(output_string, fit, conv_factor=1.000):
 
     assert fit in ('single', 'double')
 
-    # Get the lines in reverse order
+    # Loop over the lines and find the resulting fit params line
     lines = output_string.splitlines()
     lines.reverse()
-
-    # Loop over the lines and find the resulting fit params line
-    for line in lines:
-        if line.startswith(' params'):
-            params_str = lines[lines.index(line)-1]
-            break
+    if fit == 'single':
+        for line in lines:
+            if line.startswith(' results for iteration'):
+                params_str = lines[lines.index(line)-3]
+                break
+    elif fit == 'double':
+        for line in lines:
+            if line.startswith(' results from sum of two modified arrhenius'):
+                params_str = lines[lines.index(line)-3]
+                break
 
     # Format params string for double fit if necessary since printing is weird
     if fit == 'double':
@@ -90,13 +97,11 @@ def read_params(output_string, fit, conv_factor=1.000):
 
     # Grab the fitting parameters; multiply Ea param by given conversion factor
     if fit == 'single':
-        params = [float(param) for param in params_str.split()]
-        fit_params = [params, []]
-        fit_params[0][2] *= conv_factor
+        fit_params = [float(param) for param in params_str.split()]
+        fit_params[2] *= conv_factor
     elif fit == 'double':
-        params = [float(param) for param in params_str3.split()]
-        fit_params = [params[:3], params[3:]]
-        fit_params[0][2] *= conv_factor
-        fit_params[1][2] *= conv_factor
+        fit_params = [float(param) for param in params_str3.split()]
+        fit_params[2] *= conv_factor
+        fit_params[5] *= conv_factor
 
     return fit_params

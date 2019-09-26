@@ -8,5 +8,5 @@ from chemkin_io import mechparser
 
 __all__ = [
     'mechwriter',
-    'mechreader',
+    'mechparser',
 ]

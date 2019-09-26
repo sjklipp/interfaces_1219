@@ -39,6 +39,18 @@ def data_strings(block_str):
     return thm_strs
 
 
+def dct_name_idx(block_str):
+    """ build a dictionary with the name dictionary
+    """
+    thm_dstr_lst = data_strings(block_str)
+    thm_dct = {}
+    for string in thm_dstr_lst:
+        name = species_name(string)
+        thm_dct[name] = string
+
+    return thm_dct
+
+
 def temp_common_default(block_str):
     """ temperature defaults from the thermo block
     """

@@ -57,15 +57,15 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
 
     # consider several cases depending on the number of valid rate constants
     # no k is positive, so return all zeros
-    if len(rate_constants) == 0:
+    if rate_constants.size == 0:
         a_fit, n_fit, ea_fit = 0.0, 0.0, 0.0
 
     # if num(k) > 0 is 1: set A = k
-    elif len(rate_constants) == 1:
+    elif rate_constants.size == 1:
         a_fit, n_fit, ea_fit = rate_constants[0], 0.0, 0.0
 
     # if num(k) > 0 is 2,3: fit A and Ea
-    elif (len(rate_constants) == 2) or (len(rate_constants) == 3):
+    elif rate_constants.size in (2, 3):
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(temps))
         ea_vec = (-1.0 / R) * (1.0 / temps)
@@ -78,7 +78,7 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
         a_fit, n_fit, ea_fit = np.exp(theta[0]), 0.0, theta[1]
 
     # if num(k) > 0 is more than 3: fit A, n, and Ea
-    elif len(rate_constants) > 3:
+    elif rate_constants.size > 3:
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(temps))
         n_vec = np.log(temps / t_ref)
@@ -144,11 +144,6 @@ def _dsarrfit(temps, rate_constants, t_ref,
     """ call the dsarrfit code for either a single or double fit
     """
 
-    if fit_type == 'single':
-        output_name = 'arrfit.out'
-    elif fit_type == 'double':
-        output_name = 'arrfit.out'
-
     # Write the input file for the ratefit code
     ratefit_inp_str = dsarrfit_io.write_input(
         temps, rate_constants, a_guess, n_guess, ea_guess)
@@ -160,7 +155,7 @@ def _dsarrfit(temps, rate_constants, t_ref,
     dsarrfit_io.run_dsarrfit()
 
     # Read the output of the single and double fit
-    dsarrfit_out_file = os.path.join(dsarrfit_path, output_name)
+    dsarrfit_out_file = os.path.join(dsarrfit_path, 'arrfit.out')
     with open(dsarrfit_out_file, 'r') as arrfit_outfile:
         arrfit_out_str = arrfit_outfile.read()
 
