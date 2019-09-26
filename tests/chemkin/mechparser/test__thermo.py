@@ -92,6 +92,19 @@ def test__data_strings():
     assert len(thm_strs) == 130
 
 
+def test__dct_name_idx():
+    """ test chemkin_io.mechparser.thermo.dct_name_idx
+    """
+    thm_dct = chemkin_io.mechparser.thermo.dct_name_idx(
+        NATGAS_THERMO_BLOCK)
+    for i, (key, val) in enumerate(thm_dct.items()):
+        print('\n')
+        print(key)
+        print(val)
+        if i == 20:
+            break
+
+
 def test__temp_common_default():
     """ test chemkin_io.mechparser.thermo.temp_common_default
     """
@@ -141,12 +154,13 @@ def test__calculate_gibbs():
 
 
 if __name__ == '__main__':
-    test__species_name()
-    test__temperatures()
-    test__low_coefficients()
-    test__high_coefficients()
-    test__data_block()
-    test__temp_common_default()
-    test__calculate_enthalpy()
-    test__calculate_entropy()
-    test__calculate_gibbs()
+    # test__species_name()
+    # test__temperatures()
+    # test__low_coefficients()
+    # test__high_coefficients()
+    # test__data_block()
+    test__dct_name_idx()
+    # test__temp_common_default()
+    # test__calculate_enthalpy()
+    # test__calculate_entropy()
+    # test__calculate_gibbs()

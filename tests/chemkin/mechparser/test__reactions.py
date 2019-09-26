@@ -77,9 +77,23 @@ def test__data_strings():
     assert len(rxn_strs) == 1678
 
 
+def test__dct_name_idx():
+    """ test chemkin_io.mechparser.reaction.dct_name_idx
+    """
+    rxn_dct = chemkin_io.mechparser.reaction.dct_name_idx(
+        NATGAS_REACTION_BLOCK)
+    for i, (key, val) in enumerate(rxn_dct.items()):
+        print('\n')
+        print(key)
+        print(val)
+        if i == 20:
+            break
+
+
 if __name__ == '__main__':
-    test__reactant_names()
-    test__product_names()
-    test__high_p_parameters()
-    test__reactant_and_product_names()
-    test__data_strings()
+    # test__reactant_names()
+    # test__product_names()
+    # test__high_p_parameters()
+    # test__reactant_and_product_names()
+    # test__data_strings()
+    test__dct_name_idx()
