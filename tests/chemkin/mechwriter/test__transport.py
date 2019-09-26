@@ -2,21 +2,11 @@
  tests writers
 """
 
-import chemkin_io
+import new_chemkin_io
 
 
-def test__species_nasa_polynomial_writer():
-    """ test chemkin_io.
-    """
-
-
-def test__species_plog_rate_params_writer():
-    """ test chemkin_io.
-    """
-
-
-def test__transport_section_writer():
-    """ test chemkin_io.lj.transport
+def test__transport_writer():
+    """ test new_chemkin_io.mechwriter.transport.lj
     """
 
     geoms = [
@@ -37,13 +27,12 @@ def test__transport_section_writer():
     dipole_moments = [0.000, 0.000, 0.593, 0.000]
     polarizabilities = [0.204, 1.756, 2.137, 2.454]
 
-    transport_str = chemkin_io.transport.lj(
+    transport_str = new_chemkin_io.mechwriter.transport.lj(
         names, geoms, epsilons, sigmas,
         dipole_moments, polarizabilities, z_rots=[])
+    print('\ntransport_str')
     print(transport_str)
 
 
 if __name__ == '__main__':
-    test__species_nasa_polynomial_writer()
-    test__species_plog_rate_params_writer()
-    test__transport_section_writer()
+    test__transport_writer()

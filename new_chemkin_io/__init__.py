@@ -2,11 +2,11 @@
 Interface to CHEMKIN
 """
 
-from chemkin_io import writer
-from chemkin_io import reader
+from new_chemkin_io import mechwriter
+from new_chemkin_io import mechparser
 
 
 __all__ = [
-    'writer',
-    'reader',
+    'mechwriter',
+    'mechreader',
 ]
