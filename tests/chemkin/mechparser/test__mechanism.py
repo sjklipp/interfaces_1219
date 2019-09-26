@@ -6,7 +6,7 @@ from builtins import open
 import os
 import pandas
 import automol
-import new_chemkin_io
+import chemkin_io
 
 
 def _read_file(file_name):
@@ -26,29 +26,29 @@ HEPTANE_TAB['inchi'] = list(map(automol.smiles.inchi, HEPTANE_TAB['smiles']))
 
 
 def test__species_block():
-    """ test new_chemkin_io.mechparser.mechanism.species_block
+    """ test chemkin_io.mechparser.mechanism.species_block
     """
 
     mech_str = NATGAS_MECH_STR
-    block_str = new_chemkin_io.mechparser.mechanism.species_block(mech_str)
+    block_str = chemkin_io.mechparser.mechanism.species_block(mech_str)
     assert len(block_str.splitlines()) == 131
 
 
 def test__reaction_block():
-    """ test new_chemkin_io.mechparser.mechanism.reaction_block
+    """ test chemkin_io.mechparser.mechanism.reaction_block
     """
 
     mech_str = NATGAS_MECH_STR
-    block_str = new_chemkin_io.mechparser.mechanism.reaction_block(mech_str)
+    block_str = chemkin_io.mechparser.mechanism.reaction_block(mech_str)
     assert len(block_str.splitlines()) == 1834
 
 
 def test__thermo_block():
-    """ test new_chemkin_io.mechparser.mechanism.thermo_block
+    """ test chemkin_io.mechparser.mechanism.thermo_block
     """
 
     mech_str = NATGAS_MECH_STR
-    block_str = new_chemkin_io.mechparser.mechanism.thermo_block(mech_str)
+    block_str = chemkin_io.mechparser.mechanism.thermo_block(mech_str)
     assert len(block_str.splitlines()) == 522
 
 

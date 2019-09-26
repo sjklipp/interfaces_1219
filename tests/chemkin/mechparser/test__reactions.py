@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 from builtins import open
 import os
-import new_chemkin_io
+import chemkin_io
 
 
 def _read_file(file_name):
@@ -18,9 +18,9 @@ NATGAS_PATH = os.path.join(PATH, 'data/natgas')
 HEPTANE_PATH = os.path.join(PATH, 'data/heptane')
 NATGAS_MECH_STR = _read_file(os.path.join(NATGAS_PATH, 'mechanism.txt'))
 
-NATGAS_REACTION_BLOCK = new_chemkin_io.mechparser.util.clean_up_whitespace(
-    new_chemkin_io.mechparser.mechanism.reaction_block(NATGAS_MECH_STR))
-NATGAS_REACTION_STRS = new_chemkin_io.mechparser.reaction.data_strings(
+NATGAS_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
+    chemkin_io.mechparser.mechanism.reaction_block(NATGAS_MECH_STR))
+NATGAS_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
     NATGAS_REACTION_BLOCK)
 REACTION = NATGAS_REACTION_STRS[20]
 
@@ -29,36 +29,36 @@ print(REACTION)
 
 
 def test__reactant_names():
-    """ test new_chemkin_io.mechparser.reaction.reactant_names
+    """ test chemkin_io.mechparser.reaction.reactant_names
     """
-    names = new_chemkin_io.mechparser.reaction.reactant_names(
+    names = chemkin_io.mechparser.reaction.reactant_names(
         REACTION)
     print('\nreactants')
     print(names)
 
 
 def test__product_names():
-    """ test new_chemkin_io.mechparser.reaction.product_names
+    """ test chemkin_io.mechparser.reaction.product_names
     """
-    names = new_chemkin_io.mechparser.reaction.product_names(
+    names = chemkin_io.mechparser.reaction.product_names(
         REACTION)
     print('\nproducts')
     print(names)
 
 
 def test__high_p_parameters():
-    """ test new_chemkin_io.mechparser.reaction.high_p_parameters
+    """ test chemkin_io.mechparser.reaction.high_p_parameters
     """
-    params = new_chemkin_io.mechparser.reaction.high_p_parameters(
+    params = chemkin_io.mechparser.reaction.high_p_parameters(
         REACTION)
     print('\nhigh-pressure parameters')
     print(params)
 
 
 def test__reactant_and_product_names():
-    """ test new_chemkin_io.mechparser.reaction.reactant_and_product_names
+    """ test chemkin_io.mechparser.reaction.reactant_and_product_names
     """
-    names = new_chemkin_io.mechparser.reaction.reactant_and_product_names(
+    names = chemkin_io.mechparser.reaction.reactant_and_product_names(
         NATGAS_REACTION_BLOCK)
     print('\nreactant and product names')
     for name in names:
@@ -66,10 +66,10 @@ def test__reactant_and_product_names():
 
 
 def test__data_strings():
-    """ test new_chemkin_io.mechparser.reaction.data_strings
+    """ test chemkin_io.mechparser.reaction.data_strings
     """
 
-    rxn_strs = new_chemkin_io.mechparser.reaction.data_strings(
+    rxn_strs = chemkin_io.mechparser.reaction.data_strings(
         NATGAS_REACTION_BLOCK)
     print('\ndata strings')
     for string in rxn_strs:

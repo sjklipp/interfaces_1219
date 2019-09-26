@@ -4,7 +4,7 @@ import itertools
 import autoparse.pattern as app
 import autoparse.find as apf
 from autoparse import cast as ap_cast
-from new_chemkin_io.mechparser import util
+from chemkin_io.mechparser import util
 
 # Various strings needed to parse the data sections of the Reaction block
 CHEMKIN_ARROW = (app.maybe(app.escape('<')) + app.escape('=') +

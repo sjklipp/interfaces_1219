@@ -5,7 +5,7 @@
 import numpy as np
 import autoparse.pattern as app
 import autoparse.find as apf
-from new_chemkin_io.mechparser import util
+from chemkin_io.mechparser import util
 
 RCONST = 1.98720425864083e-3  # in kcal/mol.K
 
