@@ -6,7 +6,7 @@ from builtins import open
 import os
 import pandas
 import automol
-import new_chemkin_io
+import chemkin_io
 
 
 def _read_file(file_name):

@@ -2,11 +2,11 @@
  tests writers
 """
 
-import new_chemkin_io
+import chemkin_io
 
 
 def test__plog_writer():
-    """ test new_chemkin_io.mechwriter.reaction.plog
+    """ test chemkin_io.mechwriter.reaction.plog
     """
 
     reaction1 = 'CH2+H=CH3'
@@ -30,9 +30,9 @@ def test__plog_writer():
         'high': [4.44, 44.444]
     }
 
-    plog_str1 = new_chemkin_io.mechwriter.reaction.plog(
+    plog_str1 = chemkin_io.mechwriter.reaction.plog(
         reaction1, rate_params_dct1, err_dct)
-    plog_str2 = new_chemkin_io.mechwriter.reaction.plog(
+    plog_str2 = chemkin_io.mechwriter.reaction.plog(
         reaction2, rate_params_dct2, err_dct)
     print('\nplog_str1')
     print(plog_str1)
