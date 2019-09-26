@@ -1,7 +1,7 @@
 """ functions operating on the mechanism string
 """
 import autoparse.pattern as app
-from chemkin_io import util
+from new_chemkin_io.mechparser import util
 
 
 def species_block(mech_str):

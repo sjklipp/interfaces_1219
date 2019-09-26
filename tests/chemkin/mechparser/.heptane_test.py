@@ -1,11 +1,12 @@
-""" test chemkion_io.mech
+""" test chemkin_io.mechparser.mechanism
 """
+
 from __future__ import unicode_literals
 from builtins import open
 import os
 import pandas
 import automol
-import chemkin_io
+import new_chemkin_io
 
 
 def _read_file(file_name):
@@ -15,78 +16,27 @@ def _read_file(file_name):
 
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-NATGAS_PATH = os.path.join(PATH, 'data/natgas')
 HEPTANE_PATH = os.path.join(PATH, 'data/heptane')
-NATGAS_MECH_STR = _read_file(os.path.join(NATGAS_PATH, 'mechanism.txt'))
 
 HEPTANE_MECH_STR = _read_file(os.path.join(HEPTANE_PATH, 'mechanism.txt'))
-HEPTANE_TAB = pandas.read_csv(os.path.join(HEPTANE_PATH, 'smiles.csv'))
+HEPTANE_TAB = pandas.read_csv(os.path.join(HEPTANE_PATH, 'species_smiles.csv'))
 HEPTANE_TAB['inchi'] = list(map(automol.smiles.inchi, HEPTANE_TAB['smiles']))
 
 
-def test__species_block():
-    """ test chemkin_io.species_block
+def test__heptane():
+    """ old test for heptane sorting
     """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.species_block(mech_str)
-    assert len(block_str.splitlines()) == 131
-
-
-def test__reaction_block():
-    """ test chemkin_io.reaction_block
-    """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.reaction_block(mech_str)
-    assert len(block_str.splitlines()) == 1834
-
-
-def test__thermo_block():
-    """ test chemkin_io.thermo_block
-    """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.thermo_block(mech_str)
-    for x in block_str:
-        print(x)
-    assert len(block_str.splitlines()) == 522
-
-
-def test__species__names():
-    """ test mech.species.names
-    """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.species_block(mech_str)
-    spc_names = chemkin_io.species.names(block_str)
-    assert len(spc_names) == 130
-
-
-def test__reaction__data_strings():
-    """ test mech.reaction.data_strings
-    """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.reaction_block(mech_str)
-    rxn_strs = chemkin_io.reaction.data_strings(block_str)
-    assert len(rxn_strs) == 1678
-
-    rct_names_lst = list(
-        map(chemkin_io.reaction.DataString.reactant_names, rxn_strs))
-    prd_names_lst = list(
-        map(chemkin_io.reaction.DataString.product_names, rxn_strs))
-    coeffs_lst = list(
-        map(chemkin_io.reaction.DataString.high_p_coefficients, rxn_strs))
-
-    # make sure we don't have any None's
-    assert all(rct_names_lst)
-    assert all(prd_names_lst)
-    assert all(coeffs_lst)
 
     # generating inchis for testing elsewhere
     mech_str = HEPTANE_MECH_STR
-    block_str = chemkin_io.reaction_block(mech_str)
-    rxn_strs = chemkin_io.reaction.data_strings(block_str)
+    block_str = new_chemkin_io.mechparser.mechanism.reaction_block(mech_str)
+    rxn_strs = new_chemkin_io.mechparser.reaction.data_strings(block_str)
     rct_names_lst = list(
-        map(chemkin_io.reaction.DataString.reactant_names, rxn_strs))
+        map(new_chemkin_io.mechparser.reaction.DataString.reactant_names,
+            rxn_strs))
     prd_names_lst = list(
-        map(chemkin_io.reaction.DataString.product_names, rxn_strs))
+        map(new_chemkin_io.mechparser.reaction.DataString.product_names,
+            rxn_strs))
 
     ich_dct = dict(zip(HEPTANE_TAB['name'], HEPTANE_TAB['inchi']))
     mult_dct = dict(zip(HEPTANE_TAB['name'], HEPTANE_TAB['mult']))
@@ -138,39 +88,23 @@ def test__reaction__data_strings():
             r_mlt = '_'.join(map(str, r_mults))
             p_mlt = '_'.join(map(str, p_mults))
 
-            print(r_ich, p_ich)
-            print(r_mlt, p_mlt)
+            # print(r_ich, p_ich)
+            # print(r_mlt, p_mlt)
 
             r_ich_lst.append(r_ich)
             p_ich_lst.append(p_ich)
             r_mlt_lst.append(r_mlt)
             p_mlt_lst.append(p_mlt)
 
-    df = pandas.DataFrame.from_dict({
+    dataframe = pandas.DataFrame.from_dict({
         'prod_inchi': p_ich_lst,
         'prod_mults': p_mlt_lst,
         'reac_inchi': r_ich_lst,
         'reac_mults': r_mlt_lst,
     })
 
-    df.to_csv('x.csv', index=False)
-
-
-def test__thermo__data_strings():
-    """ test mech.thermo.data_strings
-    """
-    mech_str = NATGAS_MECH_STR
-    block_str = chemkin_io.thermo_block(mech_str)
-    thm_strs = chemkin_io.thermo.data_strings(block_str)
-    for x in thm_strs:
-        print(thm_strs)
-    assert len(thm_strs) == 130
+    dataframe.to_csv('block_out/x.csv', index=False)
 
 
 if __name__ == '__main__':
-    # test__species_block()
-    # test__reaction_block()
-    # test__thermo_block()
-    # test__species__names()
-    # test__reaction__data_strings()
-    test__thermo__data_strings()
+    test__heptane()
