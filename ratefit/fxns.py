@@ -57,7 +57,7 @@ def troe(highp_rateks, lowp_rateks, pressure, temp,
     return rate_constants
 
 
-def plog(ra, temps, pressure, p1, p2)
+def plog(ra, temps, pressure, p1, p2):
     """ calculate the rate constant at intermediate pressure
     """
     pres = (
@@ -70,28 +70,28 @@ def plog(ra, temps, pressure, p1, p2)
     return rate_constants
 
 
-def chebyshev(temps, pressures, alpha, tmin, tmax):
-    """ computes the rate constants using the chebyshev polynomials
-    """
-
-    logk = 0.0
-    for i, temp in enumerate(temps):
-        for j, pressure in enumerate(pressures):
-            ctemp = (
-                ((2.0 * temp**(-1)) - tmin**(-1) - tmax**(-1)) /
-                (tmax**(-1) - tin**(-1)) 
-            )
-            cpress = (
-                ((2.0 * np.log10(pressure)) - np.log10(pmin) - np.log10(pmax)) /
-                (np.log10(pmax) - np.log10(pmin))
-            )
-            logk += (
-                alpha[i][j] * 
-                eval_chebyt(i, ctemp) * 
-                eval_chebyt(j, cpress) * 
-            )
-
-    rate_constants = 10**(logk)
+# def chebyshev(temps, pressures, alpha, tmin, tmax):
+#     """ computes the rate constants using the chebyshev polynomials
+#     """
+# 
+#     logk = 0.0
+#     for i, temp in enumerate(temps):
+#         for j, pressure in enumerate(pressures):
+#             ctemp = (
+#                 ((2.0 * temp**(-1)) - tmin**(-1) - tmax**(-1)) /
+#                 (tmax**(-1) - tin**(-1))
+#             )
+#             cpress = (
+#                 ((2.0 * np.log10(pressure)) - np.log10(pmin) - np.log10(pmax)) /
+#                 (np.log10(pmax) - np.log10(pmin))
+#             )
+#             logk += (
+#                 alpha[i][j] * 
+#                 eval_chebyt(i, ctemp) * 
+#                 eval_chebyt(j, cpress) * 
+#             )
+# 
+#     rate_constants = 10**(logk)
 
     return rate_constants
 
