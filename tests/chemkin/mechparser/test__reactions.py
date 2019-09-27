@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 from builtins import open
 import os
+import numpy as np
 import chemkin_io
 
 
@@ -26,6 +27,7 @@ REACTION = SYNGAS_REACTION_STRS[20]
 TROE_REACTION = SYNGAS_REACTION_STRS[0]
 LINDEMANN_REACTION = SYNGAS_REACTION_STRS[2]
 CHEBYSHEV_REACTION = SYNGAS_REACTION_STRS[12]
+HIGHP_REACTION = 'CO(1)+O(5)(+M)=CO2(12)(+M)     1.880e+11 0.000     2.430'
 PLOG_REACTION = """HOCO<=>CO+OH         6.300E+032    -5.960   32470.0
 PLOG/      0.0010     1.550E-008     2.930      8768.0/
 PLOG/      0.0030     1.770E+003     0.340     18076.0/
@@ -36,12 +38,21 @@ PLOG/      0.9869     4.540E+026    -5.120     27572.0/"""
 # print('\n\nRate Data for a Reaction')
 # print(REACTION)
 
+T_REF = 1.0
+TEMPS = np.array([500.0, 1000.0, 1500.0, 2000.0])
+PRESSURES = np.array([1, 5, 10])
+PRESSURES2 = np.array([0.0100, 0.0700, 0.987])
+
+print('\nhigh p')
+print(HIGHP_REACTION)
 print('\nlindemann')
 print(LINDEMANN_REACTION)
 print('\ntroe')
 print(TROE_REACTION)
 print('\nchebyshev')
 print(CHEBYSHEV_REACTION)
+print('\nplog')
+print(PLOG_REACTION)
 
 
 def test__reactant_names():
@@ -107,6 +118,92 @@ def test__plog_parameters():
     print(params)
 
 
+def test__buffer_enhance_factors():
+    """ test chemkin_io.mechparser.reaction.buffer_enhance_factors
+    """
+    fct_dct = chemkin_io.mechparser.reaction.buffer_enhance_factors(
+        LINDEMANN_REACTION)
+    print('\nLow Pressure Buffer Enhhancement Factors')
+    print(fct_dct)
+
+
+def test__units():
+    """ test chemkin_io.mechparser.reaction.data_strings
+    """
+    units = chemkin_io.mechparser.reaction.units(
+        SYNGAS_REACTION_BLOCK)
+    assert units == ('kcal/mole', 'moles')
+
+
+def test__high_p_rate_constants():
+    """ test chemkin_io.mechparser.reaction.calculate_rate_constants
+        for a reaction with only high-pressure params
+    """
+    units = chemkin_io.mechparser.reaction.units(
+        SYNGAS_REACTION_BLOCK)
+    ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
+        HIGHP_REACTION, T_REF, units, TEMPS, pressures=None)
+    print('\nhigh-pressure rate_constants')
+    for key, val in ktp_dct.items():
+        print(key)
+        print(val)
+
+
+def test__lindemann_rate_constants():
+    """ test chemkin_io.mechparser.reaction.calculate_rate_constants
+        for a reaction with high-pressure and low-pressure params
+    """
+    units = chemkin_io.mechparser.reaction.units(
+        SYNGAS_REACTION_BLOCK)
+    ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
+        LINDEMANN_REACTION, T_REF, units, TEMPS, pressures=PRESSURES)
+    print('\nLindemann rate_constants')
+    for key, val in ktp_dct.items():
+        print(key)
+        print(val)
+
+
+def test__troe_rate_constants():
+    """ test chemkin_io.mechparser.reaction.calculate_rate_constants
+        for a reaction with only high-pressure, low-pressure, and Troe params
+    """
+    units = chemkin_io.mechparser.reaction.units(
+        SYNGAS_REACTION_BLOCK)
+    ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
+        TROE_REACTION, T_REF, units, TEMPS, pressures=PRESSURES)
+    print('\nTroe rate_constants')
+    for key, val in ktp_dct.items():
+        print(key)
+        print(val)
+
+
+def test__chebyshev_rate_constants():
+    """ test chemkin_io.mechparser.reaction.calculate_rate_constants
+        for a reaction with only high-pressure and Chebyshev params
+    """
+    units = chemkin_io.mechparser.reaction.units(
+        SYNGAS_REACTION_BLOCK)
+    ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
+        CHEBYSHEV_REACTION, T_REF, units, TEMPS, pressures=PRESSURES)
+    print('\nChebyshev rate_constants')
+    for key, val in ktp_dct.items():
+        print(key)
+        print(val)
+
+
+def test__plog_rate_constants():
+    """ test chemkin_io.mechparser.reaction.calculate_rate_constants
+        for a reaction with only high-pressure and PLog params
+    """
+    units = ('cal/moles', 'moles')
+    ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
+        PLOG_REACTION, T_REF, units, TEMPS, pressures=PRESSURES2)
+    print('\nPLog rate_constants')
+    for key, val in ktp_dct.items():
+        print(key)
+        print(val)
+
+
 def test__reactant_and_product_names():
     """ test chemkin_io.mechparser.reaction.reactant_and_product_names
     """
@@ -124,8 +221,6 @@ def test__data_strings():
     rxn_strs = chemkin_io.mechparser.reaction.data_strings(
         SYNGAS_REACTION_BLOCK)
     print('\ndata strings')
-    for string in rxn_strs:
-        print(string)
     assert len(rxn_strs) == 1678
 
 
@@ -145,11 +240,18 @@ def test__dct_name_idx():
 if __name__ == '__main__':
     # test__reactant_names()
     # test__product_names()
-    test__high_p_parameters()
-    test__low_p_parameters()
-    test__troe_parameters()
-    test__chebyshev_parameters()
-    test__plog_parameters()
+    # test__high_p_parameters()
+    # test__low_p_parameters()
+    # test__troe_parameters()
+    # test__chebyshev_parameters()
+    # test__plog_parameters()
+    # test__buffer_enhance_factors()
+    # test__units()
+    test__high_p_rate_constants()
+    test__lindemann_rate_constants()
+    test__troe_rate_constants()
+    test__chebyshev_rate_constants()
+    test__plog_rate_constants()
     # test__reactant_and_product_names()
     # test__data_strings()
     # test__dct_name_idx()

@@ -1,7 +1,9 @@
 """ functions operating on the reactions block string
 """
-import numpy as np
+
+
 import itertools
+import numpy as np
 import autoparse.pattern as app
 import autoparse.find as apf
 from autoparse import cast as ap_cast
@@ -28,6 +30,9 @@ REACTION_PATTERN = (SPECIES_NAMES_PATTERN + app.padded(CHEMKIN_ARROW) +
 COEFF_PATTERN = (app.NUMBER + app.LINESPACES + app.NUMBER +
                  app.LINESPACES + app.NUMBER)
 
+# Constants
+NAVO = 6.02214076e23
+
 
 # Functions which act on the entire thermo block of mechanism file #
 #                               exclude_names=('OHV', 'CHV', 'CH(6)')):
@@ -53,6 +58,21 @@ def all_rate_constants(block_str):
     highp_k_lst = list(map(high_p_parameters, rxn_strs))
 
     return highp_k_lst
+
+
+def units(block_str):
+    """ get the units for the rate parameters
+    """
+    units_str = block_str.strip().splitlines()[0]
+    units_lst = units_str.split()
+    if units_lst:
+        ea_units = units_lst[0].lower()
+        a_units = units_lst[1].lower()
+    else:
+        ea_units = 'cal/mole'
+        a_units = 'moles'
+
+    return ea_units, a_units
 
 
 def data_strings(block_str):
@@ -136,7 +156,8 @@ def low_p_parameters(rxn_dstr):
         app.zero_or_more(app.SPACE) + app.escape('/')
     )
     params = apf.first_capture(pattern, rxn_dstr)
-    params = [float(val) for val in params]
+    if params is not None:
+        params = [float(val) for val in params]
     return params
 
 
@@ -153,7 +174,8 @@ def troe_parameters(rxn_dstr):
         app.zero_or_more(app.SPACE) + app.escape('/')
     )
     params = apf.first_capture(pattern, rxn_dstr)
-    params = [float(val) for val in params]
+    if params is not None:
+        params = [float(val) for val in params]
     return params
 
 
@@ -191,13 +213,20 @@ def chebyshev_parameters(rxn_dstr):
     cheb_pressures = apf.first_capture(pressure_pattern, rxn_dstr)
     alpha_dims = apf.first_capture(alpha_dimension_pattern, rxn_dstr)
     alpha_elms = apf.all_captures(alpha_elements_pattern, rxn_dstr)
+    if not alpha_elms:
+        alpha_elms = None
 
-    cheb_temps = [float(val) for val in cheb_temps]
-    cheb_pressures = [float(val) for val in cheb_pressures]
-    alpha_dims = [int(val) for val in alpha_dims]
-    alpha_elms = [list(map(float, row)) for row in alpha_elms]
+    if all(vals is not None
+           for vals in (cheb_temps, cheb_pressures, alpha_dims, alpha_elms)):
+        cheb_temps = [float(val) for val in cheb_temps]
+        cheb_pressures = [float(val) for val in cheb_pressures]
+        alpha_dims = [int(val) for val in alpha_dims]
+        alpha_elms = [list(map(float, row)) for row in alpha_elms]
+        cheb_params = cheb_temps, cheb_pressures, alpha_dims, alpha_elms
+    else:
+        cheb_params = None
 
-    return cheb_temps, cheb_pressures, alpha_dims, alpha_elms
+    return cheb_params
 
 
 def plog_parameters(rxn_dstr):
@@ -213,34 +242,53 @@ def plog_parameters(rxn_dstr):
         app.zero_or_more(app.SPACE) + app.escape('/')
     )
     params = apf.all_captures(pattern, rxn_dstr)
-    params = [list(map(float, row)) for row in params]
+    if params:
+        params = [list(map(float, row)) for row in params]
+    else:
+        params = None
 
     return params
 
 
-def low_p_buffer_enhance_factors(rxn_dstr):
+def buffer_enhance_factors(rxn_dstr):
     """ get the factors of speed-up from bath gas
     """
-    pattern = (
+    species_char = app.one_of_these([
+        app.LETTER, app.DIGIT,
+        app.escape('('), app.escape(')'),
+        app.UNDERSCORE])
+    species_name = app.one_or_more(species_char)
+
+    # Get the line that could have the bath gas buffer enhancements
+    bath_line_pattern = (
         _first_line_pattern(
             rct_ptt=SPECIES_NAMES_PATTERN,
             prd_ptt=SPECIES_NAMES_PATTERN,
-            coeff_ptt=COEFF_PATTERN) +
-        app.series(
-            app.capturing(
-                app.NONNEWLINE +
-                app.escape('/') +
-                app.capturing(app.NUMBER) +
-                app.escape('/') +
-                app.SPACES),
-            app.SPACES)
+            coeff_ptt=COEFF_PATTERN) + '\n' +
+        app.capturing(app.LINE)
     )
-    all_factors = apf.first_capture(pattern, rxn_dstr)
-    factor_lst = []
-    for factor in all_factors.strip().split():
-        tmp = factor.split('/')
-        factor_lst.append([tmp[0], tmp[1]])
-    return factor_lst
+    bath_string = apf.first_capture(bath_line_pattern, rxn_dstr)
+
+    # Check if this line has bath gas factors or is for something else
+    # If factors in string, get factors
+    bad_strings = ('DUPLICATE', 'LOW', 'TROE', 'CHEB', 'PLOG')
+    if (any(string in bath_string for string in bad_strings)
+            and bath_string.strip() != ''):
+        factors = None
+    else:
+        bath_string = '\n'.join(bath_string.strip().split())
+        factor_pattern = (
+            app.capturing(species_name) +
+            app.escape('/') +
+            app.capturing(app.NUMBER) +
+            app.escape('/')
+        )
+        baths = apf.all_captures(factor_pattern, bath_string)
+        factors = {}
+        for bath in baths:
+            factors[bath[0]] = float(bath[1])
+
+    return factors
 
 
 # helper functions #
@@ -271,11 +319,9 @@ def _split_reagent_string(rgt_str):
 
 
 # calculator functions
-def calculate_rate_constants(rxn_str, t_ref, temps, pressures=None):
+def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     """ calculate the rate constant using the rxn_string
     """
-    assert pressures is not None
-
     rate_constants = {}
 
     # Read the parameters from the reactions string
@@ -284,30 +330,77 @@ def calculate_rate_constants(rxn_str, t_ref, temps, pressures=None):
     troe_params = troe_parameters(rxn_str)
     chebyshev_params = chebyshev_parameters(rxn_str)
     plog_params = plog_parameters(rxn_str)
+    print('\nlocated params')
+    print(highp_params)
+    print(lowp_params)
+    print(troe_params)
+    print(chebyshev_params)
+    print(plog_params)
 
     # Calculate high_pressure rates
+    highp_params = _update_params(highp_params, rxn_units)
     highp_ks = ratefit.fxns.arrhenius(highp_params, t_ref, temps)
     rate_constants['high'] = highp_ks
 
     # Calculate pressure-dependent rate constants based on discovered params
     # Either (1) Plog, (2) Chebyshev, (3) Lindemann, or (4) Troe
+    # Update units if necessary
+    if any(params is not None
+           for params in (plog_params, chebyshev_params, lowp_params)):
+        assert pressures is not None
+
     pdep_dct = {}
-    if plog_params:
-        pdep_dct = _plog(plog_params, pressures, temps, t_ref)
-    elif chebyshev_params:
+    if plog_params is not None:
+        updated_plog_params = []
+        for params in plog_params:
+            updated_plog_params.append(_update_params(params, rxn_units))
+        pdep_dct = _plog(updated_plog_params, pressures, temps, t_ref)
+
+    elif chebyshev_params is not None:
         pdep_dct = _chebyshev(chebyshev_params, pressures, temps)
-    elif lowp_params:
+
+    elif lowp_params is not None:
+        lowp_params = _update_params(lowp_params, rxn_units)
         lowp_ks = ratefit.fxns.arrhenius(lowp_params, t_ref, temps)
-        if not troe_params:
+        if troe_params is not None:
+            pdep_dct = _troe(troe_params, highp_ks, lowp_ks, pressures, temps)
+        else:
             pdep_dct = ratefit.fxns.lindemann(
                 highp_ks, lowp_ks, pressures, temps)
-        else:
-            pdep_dct = _troe(troe_params, highp_ks, lowp_ks, pressures, temps)
+
     if pdep_dct:
         for key, val in pdep_dct.items():
             rate_constants[key] = val
 
     return rate_constants
+
+
+def _update_params(params, rxn_units):
+    """ change the units if necessary
+        only needed for highp, lowp, and plog
+    """
+    # Figure out converstion factors
+    if rxn_units[0] == 'cal/mole':
+        ea_conv_factor = 1000.0
+    else:
+        ea_conv_factor = 1.0
+
+    if rxn_units[1] == 'molecules':
+        a_conv_factor = NAVO
+    else:
+        a_conv_factor = 1.0
+
+    # update units of params
+    if params is not None:
+        params[2] *= ea_conv_factor
+        if len(params) == 6:
+            params[5] *= ea_conv_factor
+
+        params[0] *= a_conv_factor
+        if len(params) == 6:
+            params[3] *= a_conv_factor
+
+    return params
 
 
 def _plog(plog_params, pressures, temps, t_ref):
@@ -316,7 +409,7 @@ def _plog(plog_params, pressures, temps, t_ref):
     plog_dct = {}
     for params in plog_params:
         plog_dct[params[0]] = params[1:]
-    pdep_dct = ratefit.fxns.plog(plog_dct, pressures, temps, t_ref)
+    pdep_dct = ratefit.fxns.plog(plog_dct, t_ref, pressures, temps)
     return pdep_dct
 
 
