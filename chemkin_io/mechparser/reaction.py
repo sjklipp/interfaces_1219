@@ -1,10 +1,12 @@
 """ functions operating on the reactions block string
 """
+import numpy as np
 import itertools
 import autoparse.pattern as app
 import autoparse.find as apf
 from autoparse import cast as ap_cast
 from chemkin_io.mechparser import util
+import ratefit
 
 # Various strings needed to parse the data sections of the Reaction block
 CHEMKIN_ARROW = (app.maybe(app.escape('<')) + app.escape('=') +
@@ -71,7 +73,11 @@ def dct_name_idx(block_str):
     for string in rxn_dstr_lst:
         rct_name = reactant_names(string)
         prd_name = product_names(string)
-        rxn_dct[(rct_name, prd_name)] = string
+        key = (rct_name, prd_name)
+        if key not in rxn_dct.keys():
+            rxn_dct[key] = string
+        else:
+            rxn_dct[key] += '\n'+string
 
     return rxn_dct
 
@@ -111,25 +117,11 @@ def high_p_parameters(rxn_dstr):
         prd_ptt=SPECIES_NAMES_PATTERN,
         coeff_ptt=app.capturing(COEFF_PATTERN)
     )
-    string = apf.first_capture(pattern, rxn_dstr)
-    vals = ap_cast(string.split())
+    string_lst = apf.all_captures(pattern, rxn_dstr)
+    vals = []
+    for string in string_lst:
+        vals += ap_cast(string.split())
     return vals
-
-
-def plog_parameters(rxn_dstr):
-    """ gets parameters associated with plog strings
-    """
-    pattern = (
-        'PLOG' +
-        app.SPACES + app.escape('/') +
-        app.SPACES + app.capturing(app.NUMBER) +
-        app.SPACES + app.capturing(app.NUMBER) +
-        app.SPACES + app.capturing(app.NUMBER) +
-        app.SPACES + app.capturing(app.NUMBER) +
-        app.SPACES + app.escape('/')
-    )
-    params = apf.all_captures(pattern, rxn_dstr)
-    return params
 
 
 def low_p_parameters(rxn_dstr):
@@ -137,13 +129,14 @@ def low_p_parameters(rxn_dstr):
     """
     pattern = (
         'LOW' +
-        app.SPACES + app.escape('/') +
+        app.zero_or_more(app.SPACE) + app.escape('/') +
         app.SPACES + app.capturing(app.NUMBER) +
         app.SPACES + app.capturing(app.NUMBER) +
         app.SPACES + app.capturing(app.NUMBER) +
-        app.SPACES + app.escape('/')
+        app.zero_or_more(app.SPACE) + app.escape('/')
     )
     params = apf.first_capture(pattern, rxn_dstr)
+    params = [float(val) for val in params]
     return params
 
 
@@ -152,14 +145,15 @@ def troe_parameters(rxn_dstr):
     """
     pattern = (
         'TROE' +
-        app.SPACES + app.escape('/') +
+        app.zero_or_more(app.SPACE) + app.escape('/') +
         app.SPACES + app.capturing(app.NUMBER) +
         app.SPACES + app.capturing(app.NUMBER) +
         app.SPACES + app.capturing(app.NUMBER) +
         app.SPACES + app.maybe(app.capturing(app.NUMBER)) +
-        app.SPACES + app.escape('/')
+        app.zero_or_more(app.SPACE) + app.escape('/')
     )
     params = apf.first_capture(pattern, rxn_dstr)
+    params = [float(val) for val in params]
     return params
 
 
@@ -167,29 +161,28 @@ def chebyshev_parameters(rxn_dstr):
     """ chebyshev parameters
     """
     temp_pattern = (
-        'TCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        'TCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') +
         app.SPACES + app.capturing(app.FLOAT) +
         app.SPACES + app.capturing(app.FLOAT) +
-        app.SPACES + app.escape('/')
+        app.zero_or_more(app.SPACE) + app.escape('/')
     )
     pressure_pattern = (
-        'PCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        'PCHEB' + app.zero_or_more(app.SPACE) + app.escape('/') +
         app.SPACES + app.capturing(app.FLOAT) +
         app.SPACES + app.capturing(app.FLOAT) +
-         app.SPACES + app.escape('/')
+        app.zero_or_more(app.SPACE) + app.escape('/')
     )
     alpha_dimension_pattern = (
-        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
+        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') +
         app.SPACES + app.capturing(app.INTEGER) +
         app.SPACES + app.capturing(app.INTEGER) +
         app.zero_or_more(app.SPACE) + app.escape('/')
     )
     alpha_elements_pattern = (
-        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') + 
-        app.capturing(
-            app.series(
-                app.SPACES + app.capturing(app.EXPONENT_E) 
-            )
+        'CHEB' + app.zero_or_more(app.SPACE) + app.escape('/') +
+        app.series(
+            app.capturing(app.SPACES + app.capturing(app.EXPONENTIAL_FLOAT)),
+            app.SPACES
         ) +
         app.zero_or_more(app.SPACE) + app.escape('/')
     )
@@ -199,32 +192,55 @@ def chebyshev_parameters(rxn_dstr):
     alpha_dims = apf.first_capture(alpha_dimension_pattern, rxn_dstr)
     alpha_elms = apf.all_captures(alpha_elements_pattern, rxn_dstr)
 
+    cheb_temps = [float(val) for val in cheb_temps]
+    cheb_pressures = [float(val) for val in cheb_pressures]
+    alpha_dims = [int(val) for val in alpha_dims]
+    alpha_elms = [list(map(float, row)) for row in alpha_elms]
+
     return cheb_temps, cheb_pressures, alpha_dims, alpha_elms
 
 
-# def low_p_buffer_enhance_factors(rxn_dstr):
-#     """ get the factors of speed-up from bath gas
-#     """
-#     pattern = (
-#         _first_line_pattern(
-#             rct_ptt=SPECIES_NAMES_PATTERN,
-#             prd_ptt=SPECIES_NAMES_PATTERN,
-#             coeff_ptt=COEFF_PATTERN) +
-#         app.capturing(
-#             app.series(
-#                app.STUFF +
-#                app.escape('/') +
-#                app.FLOAT +
-#                app.escape('/')
-#             )
-#         )
-#     )
-#     all_factors = apf.first_capture(pattern, rxn_dstr)
-#     factor_lst = []
-#     for factor in all_factors.strip().split():
-#         tmp = factor.split('/')
-#         factor_lst.append([tmp[0], tmp[1]])
-#     return factor_lst
+def plog_parameters(rxn_dstr):
+    """ gets parameters associated with plog strings
+    """
+    pattern = (
+        'PLOG' +
+        app.zero_or_more(app.SPACE) + app.escape('/') +
+        app.SPACES + app.capturing(app.NUMBER) +
+        app.SPACES + app.capturing(app.NUMBER) +
+        app.SPACES + app.capturing(app.NUMBER) +
+        app.SPACES + app.capturing(app.NUMBER) +
+        app.zero_or_more(app.SPACE) + app.escape('/')
+    )
+    params = apf.all_captures(pattern, rxn_dstr)
+    params = [list(map(float, row)) for row in params]
+
+    return params
+
+
+def low_p_buffer_enhance_factors(rxn_dstr):
+    """ get the factors of speed-up from bath gas
+    """
+    pattern = (
+        _first_line_pattern(
+            rct_ptt=SPECIES_NAMES_PATTERN,
+            prd_ptt=SPECIES_NAMES_PATTERN,
+            coeff_ptt=COEFF_PATTERN) +
+        app.series(
+            app.capturing(
+                app.NONNEWLINE +
+                app.escape('/') +
+                app.capturing(app.NUMBER) +
+                app.escape('/') +
+                app.SPACES),
+            app.SPACES)
+    )
+    all_factors = apf.first_capture(pattern, rxn_dstr)
+    factor_lst = []
+    for factor in all_factors.strip().split():
+        tmp = factor.split('/')
+        factor_lst.append([tmp[0], tmp[1]])
+    return factor_lst
 
 
 # helper functions #
@@ -252,3 +268,79 @@ def _split_reagent_string(rgt_str):
     rgts = tuple(itertools.chain(*map(_interpret_reagent_count, rgt_cnt_strs)))
 
     return rgts
+
+
+# calculator functions
+def calculate_rate_constants(rxn_str, t_ref, temps, pressures=None):
+    """ calculate the rate constant using the rxn_string
+    """
+    assert pressures is not None
+
+    rate_constants = {}
+
+    # Read the parameters from the reactions string
+    highp_params = high_p_parameters(rxn_str)
+    lowp_params = low_p_parameters(rxn_str)
+    troe_params = troe_parameters(rxn_str)
+    chebyshev_params = chebyshev_parameters(rxn_str)
+    plog_params = plog_parameters(rxn_str)
+
+    # Calculate high_pressure rates
+    highp_ks = ratefit.fxns.arrhenius(highp_params, t_ref, temps)
+    rate_constants['high'] = highp_ks
+
+    # Calculate pressure-dependent rate constants based on discovered params
+    # Either (1) Plog, (2) Chebyshev, (3) Lindemann, or (4) Troe
+    pdep_dct = {}
+    if plog_params:
+        pdep_dct = _plog(plog_params, pressures, temps, t_ref)
+    elif chebyshev_params:
+        pdep_dct = _chebyshev(chebyshev_params, pressures, temps)
+    elif lowp_params:
+        lowp_ks = ratefit.fxns.arrhenius(lowp_params, t_ref, temps)
+        if not troe_params:
+            pdep_dct = ratefit.fxns.lindemann(
+                highp_ks, lowp_ks, pressures, temps)
+        else:
+            pdep_dct = _troe(troe_params, highp_ks, lowp_ks, pressures, temps)
+    if pdep_dct:
+        for key, val in pdep_dct.items():
+            rate_constants[key] = val
+
+    return rate_constants
+
+
+def _plog(plog_params, pressures, temps, t_ref):
+    """ calc plog
+    """
+    plog_dct = {}
+    for params in plog_params:
+        plog_dct[params[0]] = params[1:]
+    pdep_dct = ratefit.fxns.plog(plog_dct, pressures, temps, t_ref)
+    return pdep_dct
+
+
+def _chebyshev(chebyshev_params, pressures, temps):
+    """ calc chebyshev
+    """
+    tmin = chebyshev_params[0][0]
+    tmax = chebyshev_params[0][1]
+    pmin = chebyshev_params[1][0]
+    pmax = chebyshev_params[1][1]
+    alpha = np.array(chebyshev_params[3])
+    pdep_dct = ratefit.fxns.chebyshev(
+        alpha, tmin, tmax, pmin, pmax, pressures, temps)
+    return pdep_dct
+
+
+def _troe(troe_params, highp_ks, lowp_ks, pressures, temps):
+    """ calc troe
+    """
+    if len(troe_params) == 3:
+        ts2 = None
+    elif len(troe_params) == 4:
+        ts2 = troe_params[3]
+    pdep_dct = ratefit.fxns.troe(
+        highp_ks, lowp_ks, pressures, temps,
+        troe_params[0], troe_params[1], troe_params[2], ts2=ts2)
+    return pdep_dct
