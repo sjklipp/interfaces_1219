@@ -16,6 +16,7 @@ def calculate_rate_constants(rxn_str, t_ref, temps, pressures=None):
     highp_cfts = highp_coefficients(rxn_str) 
     lowp_cfts = lowp_coefficients(rxn_str) 
     troe_cfts = troe_coefficients(rxn_str) 
+    chebyshev_cfts = chebyshev_coefficients(rxn_str)
     plog_cfts = plog_coefficients(rxn_str) 
 
     # Calculate the high_pressure rates
