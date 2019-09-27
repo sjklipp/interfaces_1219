@@ -6,21 +6,21 @@ import numpy as np
 from scipy.optimize import leastsq
 from ratefit.fit.arrhenius import dsarrfit_io
 
-# put in QCEngine gas constant
-R = 8.314
+
+RC = 1.98720425864083e-3  # Gas Constant in kcal/mol.K
 
 
 def single(temps, rate_constants, t_ref, method,
            a_guess=8.1e-11, n_guess=-0.01, ea_guess=2000.0,
-           dsarrfit_path=None):
+           dsarrfit_path=None, a_conv_factor=1.00):
     """ call the single arrhenius fitter
     """
 
     if method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
-            temps, rate_constants, t_ref, a_guess, n_guess, ea_guess,
-            'single', dsarrfit_path)
+            temps, rate_constants, a_guess, n_guess, ea_guess,
+            'single', dsarrfit_path, a_conv_factor)
     elif method == 'python':
         fit_params = _single_arrhenius_numpy(
             temps, rate_constants, t_ref)
@@ -32,15 +32,15 @@ def single(temps, rate_constants, t_ref, method,
 
 def double(temps, rate_constants, t_ref, method,
            a_guess=8.1e-11, n_guess=-0.01, ea_guess=2000.0,
-           dsarrfit_path=None):
+           dsarrfit_path=None, a_conv_factor=1.00):
     """ call the double arrhenius fitter
     """
 
     if method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
-            temps, rate_constants, t_ref, a_guess, n_guess, ea_guess,
-            'double', dsarrfit_path)
+            temps, rate_constants, a_guess, n_guess, ea_guess,
+            'double', dsarrfit_path, a_conv_factor)
     elif method == 'python':
         fit_params = _double_arrhenius_scipy(
             temps, rate_constants, t_ref, a_guess, n_guess, ea_guess)
@@ -68,7 +68,7 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
     elif rate_constants.size in (2, 3):
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(temps))
-        ea_vec = (-1.0 / R) * (1.0 / temps)
+        ea_vec = (-1.0 / RC) * (1.0 / temps)
         coeff_mat = np.array([a_vec, ea_vec], dtype=np.float64)
         coeff_mat = coeff_mat.transpose()
         k_vec = np.log(rate_constants)
@@ -82,7 +82,7 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
         # Build vectors and matrices used for the fitting
         a_vec = np.ones(len(temps))
         n_vec = np.log(temps / t_ref)
-        ea_vec = (-1.0 / R) * (1.0 / temps)
+        ea_vec = (-1.0 / RC) * (1.0 / temps)
         coeff_mat = np.array([a_vec, n_vec, ea_vec], dtype=np.float64)
         coeff_mat = coeff_mat.transpose()
         k_vec = np.log(rate_constants)
@@ -123,12 +123,12 @@ def _mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
     k_fit1 = np.exp(
         np.log(guess_params[0]) +
         guess_params[1] * np.log(temp/t_ref) -
-        guess_params[2]/(R * temp)
+        guess_params[2]/(RC * temp)
     )
     k_fit2 = np.exp(
         np.log(guess_params[3]) +
         guess_params[4] * np.log(temp/t_ref) -
-        guess_params[5]/(R * temp)
+        guess_params[5]/(RC * temp)
     )
     k_fit = k_fit1 + k_fit2
 
@@ -138,9 +138,9 @@ def _mod_arr_residuals(guess_params, rate_constant, temp, t_ref):
     return err
 
 
-def _dsarrfit(temps, rate_constants, t_ref,
+def _dsarrfit(temps, rate_constants,
               a_guess, n_guess, ea_guess,
-              fit_type, dsarrfit_path):
+              fit_type, dsarrfit_path, a_conv_factor):
     """ call the dsarrfit code for either a single or double fit
     """
 
@@ -161,6 +161,6 @@ def _dsarrfit(temps, rate_constants, t_ref,
 
     # Parse the ratefit files for the Arrhenius fit parameters
     fit_params = dsarrfit_io.read_params(
-        arrfit_out_str, fit_type, 1.00)
+        arrfit_out_str, fit_type, a_conv_factor)
 
     return fit_params

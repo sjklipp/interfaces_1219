@@ -5,6 +5,8 @@ where the fits are performed using Python
 
 import ratefit
 
+NA = 6.0221409e23
+NA_INV = (1.0 / NA)
 
 # Obtain list of temperatures and rate constants from initial pair list
 PAIRS = [
@@ -91,7 +93,8 @@ def test__single_arrhenius_fit():
 
     # Run a single Arrhenius fit
     fit_params2 = ratefit.fit.arrhenius.single(
-        temps, calc_ks, T_REF, 'dsarrfit', dsarrfit_path='.')
+        temps, calc_ks, T_REF, 'dsarrfit', dsarrfit_path='.',
+        a_conv_factor=1.0)
     print('\nFit Parameters:')
     print('A =', fit_params2[0])
     print('n =', fit_params2[1])
