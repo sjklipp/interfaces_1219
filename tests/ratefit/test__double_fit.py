@@ -107,9 +107,7 @@ def test__double_arrhenius_fit():
     # Run a double Arrhenius fit
     fit_params = ratefit.fit.arrhenius.double(
         temps, calc_ks, T_REF, 'dsarrfit', dsarrfit_path='.',
-        a_guess=sgl_fit[0],
-        n_guess=sgl_fit[1],
-        ea_guess=sgl_fit[2])
+        a_conv_factor=1.0)
     print('\nDouble Arrhenius Fit Parameters:')
     print('A1 =', fit_params[0])
     print('n1 =', fit_params[1])
