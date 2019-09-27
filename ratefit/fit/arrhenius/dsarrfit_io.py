@@ -7,6 +7,8 @@ import subprocess
 from mako.template import Template
 
 
+RC = 1.98720425864083e-3  # Gas Constant in kcal/mol.K
+
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -96,12 +98,17 @@ def read_params(output_string, fit, conv_factor=1.000):
             params_str3 = params_str
 
     # Grab the fitting parameters; multiply Ea param by given conversion factor
+    # Multiple A by given conversion factor
+    # Multiply Ea/R term by R to get Ea
     if fit == 'single':
         fit_params = [float(param) for param in params_str.split()]
-        fit_params[2] *= conv_factor
+        fit_params[0] *= conv_factor
+        fit_params[2] *= RC
     elif fit == 'double':
         fit_params = [float(param) for param in params_str3.split()]
-        fit_params[2] *= conv_factor
-        fit_params[5] *= conv_factor
+        fit_params[0] *= conv_factor
+        fit_params[3] *= conv_factor
+        fit_params[2] *= RC
+        fit_params[5] *= RC
 
     return fit_params
