@@ -25,6 +25,12 @@ NATGAS_BLOCK_STRS = chemkin_io.mechparser.thermo.data_strings(
 SPECIES_IDX = 100
 SPECIES_POLYNOMIAL = NATGAS_BLOCK_STRS[SPECIES_IDX]
 
+SYNGAS_PATH = os.path.join(PATH, 'data/syngas')
+SYNGAS_MECH_STR = _read_file(os.path.join(SYNGAS_PATH, 'mechanism.txt'))
+SYNGAS_THERMO_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
+    chemkin_io.mechparser.mechanism.thermo_block(SYNGAS_MECH_STR))
+SYNGAS_CSV_STR = _read_file(os.path.join(SYNGAS_PATH, 'smiles.csv'))
+
 TEMP1 = 500.0
 TEMP2 = 1000.0
 
@@ -105,6 +111,21 @@ def test__dct_name_idx():
             break
 
 
+def test__dct_inchi_idx():
+    """ test chemkin_io.mechparser.thermo.dct_inchi_idx
+    """
+    name_inchi_dct = chemkin_io.mechparser.mechanism.species_name_inchi_dct(
+        SYNGAS_CSV_STR)
+    thm_dct = chemkin_io.mechparser.thermo.dct_inchi_idx(
+        SYNGAS_THERMO_BLOCK, name_inchi_dct)
+    for i, (key, val) in enumerate(thm_dct.items()):
+        print('\n')
+        print(key)
+        print(val)
+        if i == 20:
+            break
+
+
 def test__temp_common_default():
     """ test chemkin_io.mechparser.thermo.temp_common_default
     """
@@ -160,6 +181,7 @@ if __name__ == '__main__':
     # test__high_coefficients()
     # test__data_block()
     test__dct_name_idx()
+    test__dct_inchi_idx()
     # test__temp_common_default()
     # test__calculate_enthalpy()
     # test__calculate_entropy()

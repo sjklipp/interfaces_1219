@@ -16,6 +16,8 @@ def _read_file(file_name):
 PATH = os.path.dirname(os.path.realpath(__file__))
 NATGAS_PATH = os.path.join(PATH, 'data/natgas')
 NATGAS_MECH_STR = _read_file(os.path.join(NATGAS_PATH, 'mechanism.txt'))
+NATGAS_CSV_STR = _read_file(os.path.join(NATGAS_PATH, 'smiles.csv'))
+
 
 NATGAS_SPECIES_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
     chemkin_io.mechparser.mechanism.species_block(NATGAS_MECH_STR))
@@ -24,15 +26,13 @@ NATGAS_SPECIES_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
 # print(NATGAS_SPECIES_BLOCK)
 
 
-def test__species__names():
-    """ test chemkin_io.mechparser.mechanism.species_block
-        test chemkin_io.mechparser.species.names
+def test__names():
+    """ test chemkin_io.mechparser.species.names
     """
-
     spc_names = chemkin_io.mechparser.species.names(
         NATGAS_SPECIES_BLOCK)
     assert len(spc_names) == 130
 
 
 if __name__ == '__main__':
-    test__species__names()
+    test__names()

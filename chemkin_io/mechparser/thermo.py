@@ -40,15 +40,27 @@ def data_strings(block_str):
 
 
 def dct_name_idx(block_str):
-    """ build a dictionary with the name dictionary
+    """ build a dictionary indexes by the species' CHEMKIN mechanism name
     """
     thm_dstr_lst = data_strings(block_str)
-    thm_dct = {}
+    thm_name_dct = {}
     for string in thm_dstr_lst:
         name = species_name(string)
-        thm_dct[name] = string
+        thm_name_dct[name] = string
 
-    return thm_dct
+    return thm_name_dct
+
+
+def dct_inchi_idx(block_str, name_inchi_dct):
+    """ build a dictionary indexed by the species' InCHI string
+    """
+    thm_name_dct = dct_name_idx(block_str)
+
+    thm_inchi_dct = {}
+    for name, thm_dstr in thm_name_dct.items():
+        thm_inchi_dct[name_inchi_dct[name]] = thm_dstr
+
+    return thm_inchi_dct
 
 
 def temp_common_default(block_str):
