@@ -26,6 +26,7 @@ SPECIES
 H              H2             O             O2             OH  
 H2O            N2             HO2           H2O2           AR  
 CO             CO2            HE            HCO            OHEX  
+HV
 END
 
 THERMO ALL     300.000  1000.000  5000.000  

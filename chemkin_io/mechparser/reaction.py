@@ -102,6 +102,26 @@ def dct_name_idx(block_str):
     return rxn_dct
 
 
+def dct_inchi_idx(block_str, name_inchi_dct):
+    """ build a dictionary indexed by rct and prd InCHI strings
+    """
+    rxn_names_dct = dct_name_idx(block_str)
+
+    rxn_inchi_dct = {}
+    for rxn_names, rxn_dstr in rxn_names_dct.items():
+
+        [rct_names, prd_names] = rxn_names
+        rct_ichs, prd_ichs = (), ()
+        for rct in rct_names:
+            rct_ichs += ((name_inchi_dct[rct]),)
+        for prd in prd_names:
+            prd_ichs += ((name_inchi_dct[prd]),)
+
+        rxn_inchi_dct[(rct_ichs, prd_ichs)] = rxn_dstr
+
+    return rxn_inchi_dct
+
+
 # Functions which act on a single reaction #
 def reactant_names(rxn_dstr):
     """ reactant species names

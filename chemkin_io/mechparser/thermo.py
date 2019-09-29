@@ -7,7 +7,7 @@ import autoparse.pattern as app
 import autoparse.find as apf
 from chemkin_io.mechparser import util
 
-RCONST = 1.98720425864083e-3  # in kcal/mol.K
+RC = 1.98720425864083e-3  # in kcal/mol.K
 
 
 # Functions which act on the entire thermo block of mechanism file #
@@ -127,7 +127,8 @@ def _coefficients_for_specific_temperature(thm_dstr, temp):
     elif temps[1] < temp < temps[2]:
         cfts = high_coefficients(thm_dstr)
     else:
-        raise ValueError('Temperature outside range of NASA polynomial')
+        cfts = None
+        # raise ValueError('Temperature outside range of NASA polynomial')
 
     return cfts
 
@@ -140,15 +141,18 @@ def calculate_enthalpy(thm_dstr, temp):
 
     cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
 
-    enthalpy = (
-        cfts[0] +
-        ((cfts[1] * temp) / 2.0) +
-        ((cfts[2] * temp**2) / 3.0) +
-        ((cfts[3] * temp**3) / 4.0) +
-        ((cfts[4] * temp**4) / 5.0) +
-        (cfts[5] / temp)
-    )
-    enthalpy *= (RCONST * temp)
+    if cfts is not None:
+        enthalpy = (
+            cfts[0] +
+            ((cfts[1] * temp) / 2.0) +
+            ((cfts[2] * temp**2) / 3.0) +
+            ((cfts[3] * temp**3) / 4.0) +
+            ((cfts[4] * temp**4) / 5.0) +
+            (cfts[5] / temp)
+        )
+        enthalpy *= (RC * temp)
+    else:
+        enthalpy = 0.0
 
     return enthalpy
 
@@ -159,15 +163,18 @@ def calculate_entropy(thm_dstr, temp):
     """
     cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
 
-    entropy = (
-        (cfts[0] * np.log(temp)) +
-        (cfts[1] * temp) +
-        ((cfts[2] * temp**2) / 2.0) +
-        ((cfts[3] * temp**3) / 3.0) +
-        ((cfts[4] * temp**4) / 4.0) +
-        (cfts[6])
-    )
-    entropy *= RCONST
+    if cfts is not None:
+        entropy = (
+            (cfts[0] * np.log(temp)) +
+            (cfts[1] * temp) +
+            ((cfts[2] * temp**2) / 2.0) +
+            ((cfts[3] * temp**3) / 3.0) +
+            ((cfts[4] * temp**4) / 4.0) +
+            (cfts[6])
+        )
+        entropy *= RC
+    else:
+        entropy = 0.0
 
     return entropy
 
@@ -179,28 +186,30 @@ def calculate_gibbs(thm_dstr, temp):
 
     enthalpy = calculate_enthalpy(thm_dstr, temp)
     entropy = calculate_entropy(thm_dstr, temp)
-    if enthalpy and entropy:
+    if enthalpy is not None and entropy is not None:
         gibbs = enthalpy - (entropy * temp)
     else:
         gibbs = None
 
     return gibbs
-# def nasa_to_equilibrium_constant(reacs_coefs, prds_coefs, temp):
-#     """ Calculate the equilibrium constant for a reaction using the
-#         coefficients of the reactant and product NASA polynomials
-#     """
-#
-#     # Calculation deltagibbs
-#     gibbs_reacs = 0.0
-#     for coefs in reacs_coefs:
-#         gibbs_reacs += nasa_to_gibbs(coefs, temp)
-#     gibbs_prds = 0.0
-#     for coefs in prds_coefs:
-#         gibbs_prds += nasa_to_gibbs(coefs, temp)
-#
-#     delta_gibbs = gibbs_prds - gibbs_reacs
-#
-#    # Calculate the Equilibrium Constant
-#    equil_const = np.exp(-delta_gibbs / (R * temp))
-#
-#    return equil_const
+
+
+def calculate_heat_capacity(thm_dstr, temp):
+    """ Calculate the Heat Capacity [Cp(T)] of a species using the
+        coefficients of its NASA polynomial
+    """
+    cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
+
+    if cfts is not None:
+        heat_capacity = (
+            cfts[0] +
+            (cfts[1] * temp) +
+            (cfts[2] * temp**2) +
+            (cfts[3] * temp**3) +
+            (cfts[4] * temp**4)
+        )
+        heat_capacity *= RC
+    else:
+        heat_capacity = 0.0
+
+    return heat_capacity

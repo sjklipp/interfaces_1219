@@ -3,7 +3,11 @@ compare thermo
 """
 
 import os
+import numpy as np
 import chemkin_io
+
+
+RC = 1.98720425864083e-3  # Gas Constant in kcal/mol.K
 
 
 # Get mechanism information
@@ -30,6 +34,7 @@ MECH2_CSV_STR = _read_file(os.path.join(
 INDEX = 'inchi'
 
 # Temperatures to run
+#TEMPS = [500.0, 1000.0, 1500.0]
 TEMPS = [300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
          1300.0, 1400.0, 1500.0, 1600.0, 1700.0, 1800.0, 1900.0, 2000.0,
          2300.0, 2400.0, 2500.0, 2600.0, 2700.0, 2800.0, 2900.0, 3000.0]
@@ -75,6 +80,27 @@ def build_inchi_dcts(mech1_str, mech2_str,
     return mech1_thermo_dct, mech2_thermo_dct
 
 
+def get_mech_name_for_species(mech1_csv_str, mech2_csv_str, ich):
+    """ build dictionaries to get the name for a given InCHI string
+    """
+
+    mech1_inchi_dct = chemkin_io.mechparser.mechanism.species_inchi_name_dct(
+        mech1_csv_str)
+    mech2_inchi_dct = chemkin_io.mechparser.mechanism.species_inchi_name_dct(
+        mech2_csv_str)
+
+    if ich in mech1_inchi_dct:
+        mech1_name = mech1_inchi_dct[ich]
+    else:
+        mech1_name = 'Not in Mechanism'
+    if ich in mech2_inchi_dct:
+        mech2_name = mech2_inchi_dct[ich]
+    else:
+        mech2_name = 'Not in Mechanism'
+
+    return mech1_name, mech2_name
+
+
 def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
     """ Loop over the the Mech1 thermo entries
     """
@@ -85,7 +111,7 @@ def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
     for m1_name, m1_thermo_dstr in m1_thermo_dct.items():
 
         # Calculate the thermo values for mech1
-        m1_enthalpy, m1_entropy, m1_gibbs = [], [], []
+        m1_enthalpy, m1_entropy, m1_gibbs, m1_cp = [], [], [], []
         for temp in temps:
             m1_enthalpy.append(
                 chemkin_io.mechparser.thermo.calculate_enthalpy(
@@ -96,9 +122,12 @@ def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
             m1_gibbs.append(
                 chemkin_io.mechparser.thermo.calculate_gibbs(
                     m1_thermo_dstr, temp))
+            m1_cp.append(
+                chemkin_io.mechparser.thermo.calculate_heat_capacity(
+                    m1_thermo_dstr, temp))
 
         # Calculate the thermo values for mech2
-        m2_enthalpy, m2_entropy, m2_gibbs = [], [], []
+        m2_enthalpy, m2_entropy, m2_gibbs, m2_cp = [], [], [], []
         if m1_name in m2_thermo_dct:
             m2_thermo_dstr = m2_thermo_dct[m1_name]
             for temp in temps:
@@ -111,13 +140,16 @@ def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
                 m2_gibbs.append(
                     chemkin_io.mechparser.thermo.calculate_gibbs(
                         m2_thermo_dstr, temp))
+                m2_cp.append(
+                    chemkin_io.mechparser.thermo.calculate_heat_capacity(
+                        m2_thermo_dstr, temp))
         else:
-            m2_enthalpy, m2_entropy, m2_gibbs = None, None, None
+            m2_enthalpy, m2_entropy, m2_gibbs, m2_cp = None, None, None, None
 
         # Add entry to overal thermo dictionary
         thermo_dct[m1_name] = {
-            'm1': [m1_enthalpy, m1_entropy, m1_gibbs],
-            'm2': [m2_enthalpy, m2_entropy, m2_gibbs],
+            'm1': [m1_enthalpy, m1_entropy, m1_gibbs, m1_cp],
+            'm2': [m2_enthalpy, m2_entropy, m2_gibbs, m2_cp],
         }
 
     # Now add the entries where m2 exists, but m1 does not
@@ -127,10 +159,10 @@ def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
     for name in uni_m2_names:
 
         # Set values for mech1
-        m1_enthalpy, m1_entropy, m1_gibbs = None, None, None
+        m1_enthalpy, m1_entropy, m1_gibbs, m1_cp = None, None, None, None
 
         # Calculate values for mech2
-        m2_enthalpy, m2_entropy, m2_gibbs = [], [], []
+        m2_enthalpy, m2_entropy, m2_gibbs, m2_cp = [], [], [], []
         for temp in temps:
             m2_enthalpy.append(
                 chemkin_io.mechparser.thermo.calculate_enthalpy(
@@ -141,30 +173,58 @@ def calculate_mech_thermo(m1_thermo_dct, m2_thermo_dct, temps):
             m2_gibbs.append(
                 chemkin_io.mechparser.thermo.calculate_gibbs(
                     m2_thermo_dct[name], temp))
+            m2_cp.append(
+                chemkin_io.mechparser.thermo.calculate_heat_capacity(
+                    m2_thermo_dct[name], temp))
 
         # Add entry to overal thermo dictionary
         thermo_dct[name] = {
-            'm1': [m1_enthalpy, m1_entropy, m1_gibbs],
-            'm2': [m2_enthalpy, m2_entropy, m2_gibbs],
+            'm1': [m1_enthalpy, m1_entropy, m1_gibbs, m1_cp],
+            'm2': [m2_enthalpy, m2_entropy, m2_gibbs, m2_cp],
         }
+
+    return thermo_dct
 
 
 if __name__ == '__main__':
 
     if INDEX == 'name':
-        M1_THERMO_DCT, M2_THERMO_DCT = build_name_dcts(
+        M1_THM_DCT, M2_THM_DCT = build_name_dcts(
             MECH1_STR, MECH2_STR)
     elif INDEX == 'inchi':
-        M1_THERMO_DCT, M2_THERMO_DCT = build_inchi_dcts(
+        M1_THM_DCT, M2_THM_DCT = build_inchi_dcts(
             MECH1_STR, MECH2_STR, MECH1_CSV_STR, MECH2_CSV_STR)
 
     print('\nMech1 thermo dct')
-    for key, val in M1_THERMO_DCT.items():
+    for key, val in M1_THM_DCT.items():
         print(key)
         print(val)
     print('\n\nMech2 thermo dct')
-    for key, val in M2_THERMO_DCT.items():
+    for key, val in M2_THM_DCT.items():
         print(key)
         print(val)
 
-    # calculate_mech_thermo(M1_THERMO_DCT, M2_THERMO_DCT, TEMPS)
+    THM_VALS_DCT = calculate_mech_thermo(
+        M1_THM_DCT, M2_THM_DCT, TEMPS)
+
+    print('\n\n\nCombined thermo vals')
+    for idx in THM_VALS_DCT:
+        if INDEX == 'name':
+            m1_name = idx
+            m2_name = idx
+        elif INDEX == 'inchi':
+            print('\n\nInCHI: ', idx)
+            m1_name, m2_name = get_mech_name_for_species(
+                MECH1_CSV_STR, MECH2_CSV_STR, idx)
+        print('M1 Name: ', m1_name)
+        print('M2 Name: ', m2_name)
+        m1_vals = THM_VALS_DCT[idx]['m1']
+        m2_vals = THM_VALS_DCT[idx]['m2']
+        print('\nM1 Enthalpy', m1_vals[0])
+        print('M2 Enthalpy', m2_vals[0])
+        print('M1 Entropy', m1_vals[1])
+        print('M2 Entropy', m2_vals[1])
+        print('M1 Gibbs', m1_vals[2])
+        print('M2 Gibbs', m2_vals[2])
+        print('M1 Heat Capacity', m1_vals[3])
+        print('M2 Heat Capacity', m2_vals[3])

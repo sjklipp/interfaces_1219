@@ -174,15 +174,29 @@ def test__calculate_gibbs():
     assert np.isclose(ref_gt2, gt2)
 
 
+def test__calculate_heat_capacity():
+    """ test chemkin_io.mechparser.thermo.calculate_heat_capacity
+    """
+    ref_cp1 = 0.038811581024503064
+    ref_cp2 = 0.05285850615746261
+    cp1 = chemkin_io.mechparser.thermo.calculate_heat_capacity(
+        SPECIES_POLYNOMIAL, TEMP1)
+    cp2 = chemkin_io.mechparser.thermo.calculate_heat_capacity(
+        SPECIES_POLYNOMIAL, TEMP2)
+    assert np.isclose(ref_cp1, cp1)
+    assert np.isclose(ref_cp2, cp2)
+
+
 if __name__ == '__main__':
     # test__species_name()
     # test__temperatures()
     # test__low_coefficients()
     # test__high_coefficients()
     # test__data_block()
-    test__dct_name_idx()
-    test__dct_inchi_idx()
+    # test__dct_name_idx()
+    # test__dct_inchi_idx()
     # test__temp_common_default()
     # test__calculate_enthalpy()
     # test__calculate_entropy()
     # test__calculate_gibbs()
+    test__calculate_heat_capacity()

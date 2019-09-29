@@ -55,6 +55,19 @@ def species_name_inchi_dct(csv_str):
     return spc_dct
 
 
+def species_inchi_name_dct(csv_str):
+    """ build a dictionary of inchi idx and name entry
+    """
+    csv_file = StringIO(csv_str)
+    data = pandas.read_csv(csv_file)
+
+    spc_dct = {}
+    ichs = [inchi(smiles) for smiles in data.smiles]
+    spc_dct = dict(zip(ichs, data.name))
+
+    return spc_dct
+
+
 def _clean_up(mech_str):
     mech_str = util.remove_line_comments(
         mech_str, delim_pattern=app.escape('!'))

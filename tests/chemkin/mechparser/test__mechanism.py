@@ -67,8 +67,19 @@ def test__name_inchi_dct():
         print(val)
 
 
+def test__inchi_name_dct():
+    """ test chemkin_io.mechparser.species.inchi_name_dct
+    """
+    inchi_name_dct = chemkin_io.mechparser.mechanism.species_inchi_name_dct(
+        SYNGAS_CSV_STR)
+    for key, val in inchi_name_dct.items():
+        print(key)
+        print(val)
+
+
 if __name__ == '__main__':
     # test__species_block()
     # test__reaction_block()
     # test__thermo_block()
     test__name_inchi_dct()
+    test__inchi_name_dct()
