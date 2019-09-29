@@ -329,8 +329,6 @@ def _split_reagent_string(rgt_str):
         rgts = (rgt,) * cnt
         return rgts
 
-    print('split reagent')
-    print(rgt_str)
     rgt_str = apf.remove(app.LINESPACES, rgt_str)
     rgt_str = apf.remove(CHEMKIN_PAREN_PLUS_EM, rgt_str)
     rgt_str = apf.remove(CHEMKIN_PLUS_EM, rgt_str)
