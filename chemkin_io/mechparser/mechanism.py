@@ -1,6 +1,10 @@
 """ functions operating on the mechanism string
 """
+
+from io import StringIO
+import pandas
 import autoparse.pattern as app
+from automol.smiles import inchi
 from chemkin_io.mechparser import util
 
 
@@ -36,6 +40,32 @@ def thermo_block(mech_str):
         end_pattern='END'
     )
     return block_str
+
+
+def species_name_inchi_dct(csv_str):
+    """ build a dictionary of name idx and inchi entry
+    """
+    csv_file = StringIO(csv_str)
+    data = pandas.read_csv(csv_file)
+
+    spc_dct = {}
+    ichs = [inchi(smiles) for smiles in data.smiles]
+    spc_dct = dict(zip(data.name, ichs))
+
+    return spc_dct
+
+
+def species_inchi_name_dct(csv_str):
+    """ build a dictionary of inchi idx and name entry
+    """
+    csv_file = StringIO(csv_str)
+    data = pandas.read_csv(csv_file)
+
+    spc_dct = {}
+    ichs = [inchi(smiles) for smiles in data.smiles]
+    spc_dct = dict(zip(ichs, data.name))
+
+    return spc_dct
 
 
 def _clean_up(mech_str):

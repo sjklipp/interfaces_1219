@@ -25,6 +25,12 @@ NATGAS_BLOCK_STRS = chemkin_io.mechparser.thermo.data_strings(
 SPECIES_IDX = 100
 SPECIES_POLYNOMIAL = NATGAS_BLOCK_STRS[SPECIES_IDX]
 
+SYNGAS_PATH = os.path.join(PATH, 'data/syngas')
+SYNGAS_MECH_STR = _read_file(os.path.join(SYNGAS_PATH, 'mechanism.txt'))
+SYNGAS_THERMO_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
+    chemkin_io.mechparser.mechanism.thermo_block(SYNGAS_MECH_STR))
+SYNGAS_CSV_STR = _read_file(os.path.join(SYNGAS_PATH, 'smiles.csv'))
+
 TEMP1 = 500.0
 TEMP2 = 1000.0
 
@@ -105,6 +111,21 @@ def test__dct_name_idx():
             break
 
 
+def test__dct_inchi_idx():
+    """ test chemkin_io.mechparser.thermo.dct_inchi_idx
+    """
+    name_inchi_dct = chemkin_io.mechparser.mechanism.species_name_inchi_dct(
+        SYNGAS_CSV_STR)
+    thm_dct = chemkin_io.mechparser.thermo.dct_inchi_idx(
+        SYNGAS_THERMO_BLOCK, name_inchi_dct)
+    for i, (key, val) in enumerate(thm_dct.items()):
+        print('\n')
+        print(key)
+        print(val)
+        if i == 20:
+            break
+
+
 def test__temp_common_default():
     """ test chemkin_io.mechparser.thermo.temp_common_default
     """
@@ -153,14 +174,29 @@ def test__calculate_gibbs():
     assert np.isclose(ref_gt2, gt2)
 
 
+def test__calculate_heat_capacity():
+    """ test chemkin_io.mechparser.thermo.calculate_heat_capacity
+    """
+    ref_cp1 = 0.038811581024503064
+    ref_cp2 = 0.05285850615746261
+    cp1 = chemkin_io.mechparser.thermo.calculate_heat_capacity(
+        SPECIES_POLYNOMIAL, TEMP1)
+    cp2 = chemkin_io.mechparser.thermo.calculate_heat_capacity(
+        SPECIES_POLYNOMIAL, TEMP2)
+    assert np.isclose(ref_cp1, cp1)
+    assert np.isclose(ref_cp2, cp2)
+
+
 if __name__ == '__main__':
     # test__species_name()
     # test__temperatures()
     # test__low_coefficients()
     # test__high_coefficients()
     # test__data_block()
-    test__dct_name_idx()
+    # test__dct_name_idx()
+    # test__dct_inchi_idx()
     # test__temp_common_default()
     # test__calculate_enthalpy()
     # test__calculate_entropy()
     # test__calculate_gibbs()
+    test__calculate_heat_capacity()

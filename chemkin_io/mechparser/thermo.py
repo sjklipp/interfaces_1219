@@ -7,7 +7,7 @@ import autoparse.pattern as app
 import autoparse.find as apf
 from chemkin_io.mechparser import util
 
-RCONST = 1.98720425864083e-3  # in kcal/mol.K
+RC = 1.98720425864083e-3  # in kcal/mol.K
 
 
 # Functions which act on the entire thermo block of mechanism file #
@@ -40,15 +40,27 @@ def data_strings(block_str):
 
 
 def dct_name_idx(block_str):
-    """ build a dictionary with the name dictionary
+    """ build a dictionary indexes by the species' CHEMKIN mechanism name
     """
     thm_dstr_lst = data_strings(block_str)
-    thm_dct = {}
+    thm_name_dct = {}
     for string in thm_dstr_lst:
         name = species_name(string)
-        thm_dct[name] = string
+        thm_name_dct[name] = string
 
-    return thm_dct
+    return thm_name_dct
+
+
+def dct_inchi_idx(block_str, name_inchi_dct):
+    """ build a dictionary indexed by the species' InCHI string
+    """
+    thm_name_dct = dct_name_idx(block_str)
+
+    thm_inchi_dct = {}
+    for name, thm_dstr in thm_name_dct.items():
+        thm_inchi_dct[name_inchi_dct[name]] = thm_dstr
+
+    return thm_inchi_dct
 
 
 def temp_common_default(block_str):
@@ -115,7 +127,8 @@ def _coefficients_for_specific_temperature(thm_dstr, temp):
     elif temps[1] < temp < temps[2]:
         cfts = high_coefficients(thm_dstr)
     else:
-        raise ValueError('Temperature outside range of NASA polynomial')
+        cfts = None
+        # raise ValueError('Temperature outside range of NASA polynomial')
 
     return cfts
 
@@ -128,15 +141,18 @@ def calculate_enthalpy(thm_dstr, temp):
 
     cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
 
-    enthalpy = (
-        cfts[0] +
-        ((cfts[1] * temp) / 2.0) +
-        ((cfts[2] * temp**2) / 3.0) +
-        ((cfts[3] * temp**3) / 4.0) +
-        ((cfts[4] * temp**4) / 5.0) +
-        (cfts[5] / temp)
-    )
-    enthalpy *= (RCONST * temp)
+    if cfts is not None:
+        enthalpy = (
+            cfts[0] +
+            ((cfts[1] * temp) / 2.0) +
+            ((cfts[2] * temp**2) / 3.0) +
+            ((cfts[3] * temp**3) / 4.0) +
+            ((cfts[4] * temp**4) / 5.0) +
+            (cfts[5] / temp)
+        )
+        enthalpy *= (RC * temp)
+    else:
+        enthalpy = 0.0
 
     return enthalpy
 
@@ -147,15 +163,18 @@ def calculate_entropy(thm_dstr, temp):
     """
     cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
 
-    entropy = (
-        (cfts[0] * np.log(temp)) +
-        (cfts[1] * temp) +
-        ((cfts[2] * temp**2) / 2.0) +
-        ((cfts[3] * temp**3) / 3.0) +
-        ((cfts[4] * temp**4) / 4.0) +
-        (cfts[6])
-    )
-    entropy *= RCONST
+    if cfts is not None:
+        entropy = (
+            (cfts[0] * np.log(temp)) +
+            (cfts[1] * temp) +
+            ((cfts[2] * temp**2) / 2.0) +
+            ((cfts[3] * temp**3) / 3.0) +
+            ((cfts[4] * temp**4) / 4.0) +
+            (cfts[6])
+        )
+        entropy *= RC
+    else:
+        entropy = 0.0
 
     return entropy
 
@@ -167,28 +186,30 @@ def calculate_gibbs(thm_dstr, temp):
 
     enthalpy = calculate_enthalpy(thm_dstr, temp)
     entropy = calculate_entropy(thm_dstr, temp)
-    if enthalpy and entropy:
+    if enthalpy is not None and entropy is not None:
         gibbs = enthalpy - (entropy * temp)
     else:
         gibbs = None
 
     return gibbs
-# def nasa_to_equilibrium_constant(reacs_coefs, prds_coefs, temp):
-#     """ Calculate the equilibrium constant for a reaction using the
-#         coefficients of the reactant and product NASA polynomials
-#     """
-#
-#     # Calculation deltagibbs
-#     gibbs_reacs = 0.0
-#     for coefs in reacs_coefs:
-#         gibbs_reacs += nasa_to_gibbs(coefs, temp)
-#     gibbs_prds = 0.0
-#     for coefs in prds_coefs:
-#         gibbs_prds += nasa_to_gibbs(coefs, temp)
-#
-#     delta_gibbs = gibbs_prds - gibbs_reacs
-#
-#    # Calculate the Equilibrium Constant
-#    equil_const = np.exp(-delta_gibbs / (R * temp))
-#
-#    return equil_const
+
+
+def calculate_heat_capacity(thm_dstr, temp):
+    """ Calculate the Heat Capacity [Cp(T)] of a species using the
+        coefficients of its NASA polynomial
+    """
+    cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
+
+    if cfts is not None:
+        heat_capacity = (
+            cfts[0] +
+            (cfts[1] * temp) +
+            (cfts[2] * temp**2) +
+            (cfts[3] * temp**3) +
+            (cfts[4] * temp**4)
+        )
+        heat_capacity *= RC
+    else:
+        heat_capacity = 0.0
+
+    return heat_capacity

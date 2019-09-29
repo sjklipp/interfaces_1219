@@ -118,8 +118,11 @@ def plog(plog_dct, t_ref, pressures, temps):
 def plog_rate_constants(plog_dct, t_ref, pressure, temps):
     """ calculate the rate constant using a dictionary of plog params
     """
-    plog_pressures = plog_dct.keys()
-    plog_pressures.remove('high')
+    plog_pressures = [key for key in plog_dct.keys()]
+    print('plog_pressures')
+    print(plog_pressures)
+    print('pressure')
+    print(pressure)
 
     # Check if pressure is in plog dct; use plog pressure for numerical stab
     pressure_defined = False
@@ -130,12 +133,13 @@ def plog_rate_constants(plog_dct, t_ref, pressure, temps):
 
     # If pressure equals value use, arrhenius expression
     if pressure_defined:
-        rate_constants = arrhenius(plog_params, t_ref, temps)
+        ktps = arrhenius(plog_params, t_ref, temps)
     # Find which two PLOG pressures our pressure of interest sits between
     else:
         for i, _ in enumerate(plog_pressures):
-            if i != len(plog_pressures):
+            if i != len(plog_pressures)-1:
                 if plog_pressures[i] < pressure < plog_pressures[i+1]:
+                    print('yay')
                     plow = plog_pressures[i]
                     phigh = plog_pressures[i+1]
                     plow_params = plog_dct[plow]
