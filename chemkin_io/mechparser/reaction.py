@@ -19,7 +19,8 @@ CHEMKIN_PAREN_PLUS_EM = app.escape('(') + app.PLUS + 'M' + app.escape(')')
 SPECIES_NAME_PATTERN = (
     r'[^\s=+\-]' +
     app.zero_or_more(app.one_of_these(
-        [app.LETTER, app.DIGIT, app.escape('(+)'), r'[#,()\-]'])) +
+        [app.LETTER, app.DIGIT, app.escape('(+)'), r'[#,()\-]',
+         app.escape('['), app.escape(']')])) +
     app.zero_or_more(app.PLUS)
 )
 SPECIES_NAMES_PATTERN = app.series(
@@ -328,6 +329,8 @@ def _split_reagent_string(rgt_str):
         rgts = (rgt,) * cnt
         return rgts
 
+    print('split reagent')
+    print(rgt_str)
     rgt_str = apf.remove(app.LINESPACES, rgt_str)
     rgt_str = apf.remove(CHEMKIN_PAREN_PLUS_EM, rgt_str)
     rgt_str = apf.remove(CHEMKIN_PLUS_EM, rgt_str)

@@ -15,7 +15,7 @@ def _read_file(file_name):
 
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-SYNGAS_PATH = os.path.join(PATH, 'data/syngas')
+SYNGAS_PATH = os.path.join(PATH, '../data/syngas')
 SYNGAS_MECH_STR = _read_file(os.path.join(SYNGAS_PATH, 'mechanism.txt'))
 
 SYNGAS_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
@@ -23,6 +23,15 @@ SYNGAS_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
 SYNGAS_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
     SYNGAS_REACTION_BLOCK)
 REACTION = SYNGAS_REACTION_STRS[20]
+
+TEST_PATH = os.path.join(PATH, '../data')
+TEST_MECH_STR = _read_file(os.path.join(TEST_PATH, 'test.txt'))
+
+TEST_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
+    chemkin_io.mechparser.mechanism.reaction_block(TEST_MECH_STR))
+TEST_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
+    TEST_REACTION_BLOCK)
+TEST_REACTION = TEST_REACTION_STRS[0]
 
 TROE_REACTION = SYNGAS_REACTION_STRS[0]
 LINDEMANN_REACTION = SYNGAS_REACTION_STRS[2]
@@ -43,23 +52,23 @@ TEMPS = np.array([500.0, 1000.0, 1500.0, 2000.0])
 PRESSURES = np.array([1, 5, 10])
 PRESSURES2 = np.array([0.0100, 0.0700, 0.987])
 
-print('\nhigh p')
-print(HIGHP_REACTION)
-print('\nlindemann')
-print(LINDEMANN_REACTION)
-print('\ntroe')
-print(TROE_REACTION)
-print('\nchebyshev')
-print(CHEBYSHEV_REACTION)
-print('\nplog')
-print(PLOG_REACTION)
+# print('\nhigh p')
+# print(HIGHP_REACTION)
+# print('\nlindemann')
+# print(LINDEMANN_REACTION)
+# print('\ntroe')
+# print(TROE_REACTION)
+# print('\nchebyshev')
+# print(CHEBYSHEV_REACTION)
+# print('\nplog')
+# print(PLOG_REACTION)
 
 
 def test__reactant_names():
     """ test chemkin_io.mechparser.reaction.reactant_names
     """
     names = chemkin_io.mechparser.reaction.reactant_names(
-        REACTION)
+        TEST_REACTION)
     print('\nreactants')
     print(names)
 
@@ -68,7 +77,7 @@ def test__product_names():
     """ test chemkin_io.mechparser.reaction.product_names
     """
     names = chemkin_io.mechparser.reaction.product_names(
-        REACTION)
+        TEST_REACTION)
     print('\nproducts')
     print(names)
 
@@ -219,9 +228,11 @@ def test__data_strings():
     """
 
     rxn_strs = chemkin_io.mechparser.reaction.data_strings(
-        SYNGAS_REACTION_BLOCK)
+        TEST_REACTION_BLOCK)
     print('\ndata strings')
-    assert len(rxn_strs) == 1678
+    for string in rxn_strs:
+        print(string)
+    # assert len(rxn_strs) == 1678
 
 
 def test__dct_name_idx():
@@ -238,7 +249,7 @@ def test__dct_name_idx():
 
 
 if __name__ == '__main__':
-    # test__reactant_names()
+    test__reactant_names()
     # test__product_names()
     # test__high_p_parameters()
     # test__low_p_parameters()
@@ -247,11 +258,11 @@ if __name__ == '__main__':
     # test__plog_parameters()
     # test__buffer_enhance_factors()
     # test__units()
-    test__high_p_rate_constants()
-    test__lindemann_rate_constants()
-    test__troe_rate_constants()
-    test__chebyshev_rate_constants()
-    test__plog_rate_constants()
+    # test__high_p_rate_constants()
+    # test__lindemann_rate_constants()
+    # test__troe_rate_constants()
+    # test__chebyshev_rate_constants()
+    # test__plog_rate_constants()
     # test__reactant_and_product_names()
     # test__data_strings()
     # test__dct_name_idx()
