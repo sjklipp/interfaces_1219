@@ -25,7 +25,7 @@ def rpht_output(file_name):
                 real_freqs.append(val)
             else:
                 # If current val higher than previous, it is an imag. number
-                if freqs[i] < freqs[i-1]:
+                if freqs[i] <= freqs[i-1]:
                     real_freqs.append(val)
                 else:
                     imag_freqs.append(val)
