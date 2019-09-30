@@ -18,13 +18,13 @@ def _read_file(file_name):
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 
-MECH1_PATH = os.path.join(PATH, '../mechparser/data/syngas')
+MECH1_PATH = os.path.join(PATH, '../data/syngas')
 MECH1_STR = _read_file(os.path.join(
     MECH1_PATH, 'mechanism_green.txt'))
 MECH1_CSV_STR = _read_file(os.path.join(
     MECH1_PATH, 'smiles_green.csv'))
 
-MECH2_PATH = os.path.join(PATH, '../mechparser/data/syngas')
+MECH2_PATH = os.path.join(PATH, '../data/syngas')
 MECH2_STR = _read_file(os.path.join(
     MECH2_PATH, 'mechanism_elte_2016_ijck.txt'))
 MECH2_CSV_STR = _read_file(os.path.join(
@@ -75,7 +75,7 @@ def test__compare_thermo():
             m2_name = idx
         elif INDEX == 'inchi':
             print('\n\nInCHI: ', idx)
-            m1_name, m2_name = mparser.compare.therm.get_mech_name_for_species(
+            m1_name, m2_name = mparser.compare.thermo.mech_name_for_species(
                 MECH1_CSV_STR, MECH2_CSV_STR, idx)
         print('M1 Name: ', m1_name)
         print('M2 Name: ', m2_name)
@@ -93,5 +93,5 @@ def test__compare_thermo():
         print('M2 Heat Capacity', m2_vals[3])
 
 
-if __name__ == '__main_':
+if __name__ == '__main__':
     test__compare_thermo()

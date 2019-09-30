@@ -48,6 +48,75 @@ def calculate_reaction_rates(mech1_rxn_dct, mech2_rxn_dct,
     return reaction_dct
 
 
+def _assess_reaction_match(m1_key, m2_dct):
+    """ assess whether the reaction should be flipped
+    """
+
+    [m1_rcts, m1_prds] = m1_key
+    m1_rct_comb = list(itertools.combinations(m1_rcts, len(m1_rcts)))
+    m1_prd_comb = list(itertools.combinations(m1_prds, len(m1_prds)))
+
+    for rxn in m2_dct:
+        [m2_rcts, m2_prds] = rxn
+        if m2_rcts in m1_rct_comb and m2_prds in m1_prd_comb:
+            flip_rxn = False
+            m2_key = rxn
+            break
+        elif m2_rcts in m1_prd_comb and m2_prds in m1_rct_comb:
+            m2_key = rxn
+            flip_rxn = True
+            break
+        else:
+            m2_key = ()
+            flip_rxn = None
+
+    ret = m2_key, flip_rxn
+
+    return ret
+
+
+def _reverse_reaction_rates(ktp_dct, thermo_dct, rxn, temps):
+    """ use the equilibrium constant to reverse the reaction rates
+    """
+
+    [rct_idxs, prd_idxs] = rxn
+    k_equils = _calculate_equilibrium_constant(
+        thermo_dct, rct_idxs, prd_idxs, temps)
+
+    rev_ktp_dct = {}
+    for pressure, rates in ktp_dct.items():
+        rev_rates = []
+        for rate, k_equil in zip(rates, k_equils):
+            rev_rates.append(rate / k_equil)
+        rev_ktp_dct[pressure] = rev_rates
+
+    return rev_ktp_dct
+
+
+def _calculate_equilibrium_constant(thermo_dct, rct_idxs, prd_idxs, temps):
+    """ use the thermo parameters to obtain the equilibrium
+        constant
+    """
+
+    k_equils = []
+    for temp in temps:
+        rct_gibbs = 0.0
+        for rct in rct_idxs:
+            rct_gibbs += mechparser.thermo.calculate_gibbs(
+                thermo_dct[rct], temp)
+        prd_gibbs = 0.0
+        for prd in prd_idxs:
+            prd_gibbs += mechparser.thermo.calculate_gibbs(
+                thermo_dct[prd], temp)
+
+        rxn_gibbs = prd_gibbs - rct_gibbs
+
+        k_equils.append(
+            np.exp(-rxn_gibbs / (RC * temp)))
+
+    return k_equils
+
+
 # Functions to build dictionaries
 def build_name_dcts(mech1_str, mech2_str):
     """ builds the reaction dictionaries indexed by names
@@ -86,84 +155,12 @@ def build_inchi_dcts(mech1_str, mech2_str,
         mech2_reaction_block, mech2_name_dct)
 
     return mech1_reaction_dct, mech2_reaction_dct
-
-
-def get_reaction_units(mech1_str, mech2_str):
-    """ get reaction units
-    """
-
-    mech1_reaction_block = mechparser.util.clean_up_whitespace(
-        mechparser.mechanism.reaction_block(mech1_str))
-    mech1_units = mechparser.reaction.units(
-        mech1_reaction_block)
-
-    mech2_reaction_block = mechparser.util.clean_up_whitespace(
-        mechparser.mechanism.reaction_block(mech2_str))
-    mech2_units = mechparser.reaction.units(
-        mech2_reaction_block)
-
-    return mech1_units, mech2_units
-
-
-def _assess_reaction_match(m1_key, m2_dct):
-    """ assess whether the reaction should be flipped
-    """
-
-    [m1_rcts, m1_prds] = m1_key
-    m1_rct_comb = list(itertools.combinations(m1_rcts))
-    m1_prd_comb = list(itertools.combinations(m1_prds))
-
-    for rxn in m2_dct:
-        [m2_rcts, m2_prds] = rxn
-        if m2_rcts in m1_rct_comb and m2_prds in m1_prd_comb:
-            flip_rxn = False
-            m2_key = rxn
-        elif m2_rcts in m1_prd_comb and m2_prds in m1_rct_comb:
-            m2_key = rxn
-            flip_rxn = True
-        else:
-            m2_key = ()
-            flip_rxn = None
-
-    ret = m2_key, flip_rxn
-
-    return ret
-
-
-def _reverse_reaction_rates(ktp_dct, thermo_dct, rxn, temps):
-    """ use the equilibrium constant to reverse the reaction rates
-    """
-
-    [rct_idxs, prd_idxs] = rxn
-    k_equils = _calculate_equilibrium_constant(
-        thermo_dct, rct_idxs, prd_idxs, temps)
-
-    rev_ktp_dct = {}
-    for pressure, rates in ktp_dct.items():
-        rev_rates = []
-        for rate, k_equil in rates, k_equils:
-            rev_rates.append(rate / k_equil)
-        rev_ktp_dct[pressure] = rev_rates
-
-    return rev_ktp_dct
-
-
-def _calculate_equilibrium_constant(thermo_dct, rct_idxs, prd_idxs, temp):
-    """ use the thermo parameters to obtain the equilibrium
-        constant
-    """
-
-    rct_gibbs = 0.0
-    for rct in rct_idxs:
-        rct_gibbs += mechparser.thermo.calculate_gibbs(
-            thermo_dct[rct], temp)
-    prd_gibbs = 0.0
-    for prd in prd_idxs:
-        prd_gibbs += mechparser.thermo.calculate_gibbs(
-            thermo_dct[prd], temp)
-
-    rxn_gibbs = prd_gibbs - rct_gibbs
-
-    k_equil = np.exp(-rxn_gibbs / (RC * temp))
-
-    return k_equil
+# def get_mech_names_for_species(mech1_csv_str, mech2_csv_str, ich):
+#     """ build dictionaries to get the name for a given InCHI string
+#     """
+#     mech1_inchi_dct = mechparser.mechanism.species_inchi_name_dct(
+#         mech1_csv_str)
+#     mech2_inchi_dct = mechparser.mechanism.species_inchi_name_dct(
+#         mech2_csv_str)
+#
+#

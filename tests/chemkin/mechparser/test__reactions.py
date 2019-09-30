@@ -24,14 +24,14 @@ SYNGAS_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
     SYNGAS_REACTION_BLOCK)
 REACTION = SYNGAS_REACTION_STRS[20]
 
-TEST_PATH = os.path.join(PATH, '../data')
-TEST_MECH_STR = _read_file(os.path.join(TEST_PATH, 'test.txt'))
-
-TEST_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
-    chemkin_io.mechparser.mechanism.reaction_block(TEST_MECH_STR))
-TEST_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
-    TEST_REACTION_BLOCK)
-TEST_REACTION = TEST_REACTION_STRS[0]
+# TEST_PATH = os.path.join(PATH, '../data')
+# TEST_MECH_STR = _read_file(os.path.join(TEST_PATH, 'test.txt'))
+#
+# TEST_REACTION_BLOCK = chemkin_io.mechparser.util.clean_up_whitespace(
+#     chemkin_io.mechparser.mechanism.reaction_block(TEST_MECH_STR))
+# TEST_REACTION_STRS = chemkin_io.mechparser.reaction.data_strings(
+#     TEST_REACTION_BLOCK)
+# TEST_REACTION = TEST_REACTION_STRS[0]
 
 TROE_REACTION = SYNGAS_REACTION_STRS[0]
 LINDEMANN_REACTION = SYNGAS_REACTION_STRS[2]
@@ -60,8 +60,8 @@ PRESSURES2 = np.array([0.0100, 0.0700, 0.987])
 # print(TROE_REACTION)
 # print('\nchebyshev')
 # print(CHEBYSHEV_REACTION)
-# print('\nplog')
-# print(PLOG_REACTION)
+print('\nplog')
+print(PLOG_REACTION)
 
 
 def test__reactant_names():
@@ -204,7 +204,7 @@ def test__plog_rate_constants():
     """ test chemkin_io.mechparser.reaction.calculate_rate_constants
         for a reaction with only high-pressure and PLog params
     """
-    units = ('cal/moles', 'moles')
+    units = ('cal/mole', 'moles')
     ktp_dct = chemkin_io.mechparser.reaction.calculate_rate_constants(
         PLOG_REACTION, T_REF, units, TEMPS, pressures=PRESSURES2)
     print('\nPLog rate_constants')
@@ -249,7 +249,7 @@ def test__dct_name_idx():
 
 
 if __name__ == '__main__':
-    test__reactant_names()
+    # test__reactant_names()
     # test__product_names()
     # test__high_p_parameters()
     # test__low_p_parameters()
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     # test__lindemann_rate_constants()
     # test__troe_rate_constants()
     # test__chebyshev_rate_constants()
-    # test__plog_rate_constants()
+    test__plog_rate_constants()
     # test__reactant_and_product_names()
     # test__data_strings()
     # test__dct_name_idx()

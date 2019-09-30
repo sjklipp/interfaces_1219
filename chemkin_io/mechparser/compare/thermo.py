@@ -133,7 +133,7 @@ def build_inchi_dcts(mech1_str, mech2_str,
     return mech1_thermo_dct, mech2_thermo_dct
 
 
-def get_mech_name_for_species(mech1_csv_str, mech2_csv_str, ich):
+def mech_name_for_species(mech1_csv_str, mech2_csv_str, ich):
     """ build dictionaries to get the name for a given InCHI string
     """
 
