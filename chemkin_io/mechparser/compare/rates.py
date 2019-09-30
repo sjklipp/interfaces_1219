@@ -155,23 +155,6 @@ def build_inchi_dcts(mech1_str, mech2_str,
         mech2_reaction_block, mech2_name_dct)
 
     return mech1_reaction_dct, mech2_reaction_dct
-
-
-def get_reaction_units(mech1_str, mech2_str):
-    """ get reaction units
-    """
-
-    mech1_reaction_block = mechparser.util.clean_up_whitespace(
-        mechparser.mechanism.reaction_block(mech1_str))
-    mech1_units = mechparser.reaction.units(
-        mech1_reaction_block)
-
-    mech2_reaction_block = mechparser.util.clean_up_whitespace(
-        mechparser.mechanism.reaction_block(mech2_str))
-    mech2_units = mechparser.reaction.units(
-        mech2_reaction_block)
-
-    return mech1_units, mech2_units
 # def get_mech_names_for_species(mech1_csv_str, mech2_csv_str, ich):
 #     """ build dictionaries to get the name for a given InCHI string
 #     """

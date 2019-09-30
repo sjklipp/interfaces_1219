@@ -4,11 +4,22 @@
 
 import itertools
 import numpy as np
+from qcelemental import constants as qcc
 import autoparse.pattern as app
 import autoparse.find as apf
 from autoparse import cast as ap_cast
 from chemkin_io.mechparser import util
 import ratefit
+
+
+# Constants and Conversion factors
+# NAVO = qcc.constants.avogadro_constant
+NAVO = 6.0221409e+23
+CAL2KCAL = qcc.conversion_factor('cal/mol', 'kcal/mol')
+J2KCAL = qcc.conversion_factor('J/mol', 'kcal/mol')
+KJ2KCAL = qcc.conversion_factor('kJ/mol', 'kcal/mol')
+KEL2KCAL = qcc.conversion_factor('kelvin', 'kcal/mol')
+
 
 # Various strings needed to parse the data sections of the Reaction block
 CHEMKIN_ARROW = (app.maybe(app.escape('<')) + app.escape('=') +
@@ -64,6 +75,9 @@ def all_rate_constants(block_str):
 def units(block_str):
     """ get the units for the rate parameters
     """
+    # print('block string')
+    # print(block_str)
+    # print(block_str.strip().splitlines()[0])
     units_str = block_str.strip().splitlines()[0]
     units_lst = units_str.split()
     if units_lst:
@@ -359,7 +373,7 @@ def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     # print(plog_params)
 
     # Calculate high_pressure rates
-    highp_params = _update_params(highp_params, rxn_units)
+    highp_params = _update_params_units(highp_params, rxn_units)
     highp_ks = ratefit.fxns.arrhenius(highp_params, t_ref, temps)
     rate_constants['high'] = highp_ks
 
@@ -374,14 +388,15 @@ def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     if plog_params is not None:
         updated_plog_params = []
         for params in plog_params:
-            updated_plog_params.append(_update_params(params, rxn_units))
+            updated_plog_params.append(
+                [params[0]] + _update_params_units(params[1:], rxn_units))
         pdep_dct = _plog(updated_plog_params, pressures, temps, t_ref)
 
     elif chebyshev_params is not None:
         pdep_dct = _chebyshev(chebyshev_params, pressures, temps)
 
     elif lowp_params is not None:
-        lowp_params = _update_params(lowp_params, rxn_units)
+        lowp_params = _update_params_units(lowp_params, rxn_units)
         lowp_ks = ratefit.fxns.arrhenius(lowp_params, t_ref, temps)
         if troe_params is not None:
             pdep_dct = _troe(troe_params, highp_ks, lowp_ks, pressures, temps)
@@ -396,16 +411,24 @@ def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     return rate_constants
 
 
-def _update_params(params, rxn_units):
+def _update_params_units(params, rxn_units):
     """ change the units if necessary
         only needed for highp, lowp, and plog
     """
-    # Figure out converstion factors
-    if rxn_units[0] == 'cal/mole':
-        ea_conv_factor = 1000.0
+    # Determine converstion factor for Ea Units
+    ea_units = rxn_units[0]
+    if ea_units == 'cal/mole':
+        ea_conv_factor = CAL2KCAL
+    elif ea_units == 'joules/mole':
+        ea_conv_factor = J2KCAL
+    elif ea_units == 'kjoules/mole':
+        ea_conv_factor = KJ2KCAL
+    elif ea_units == 'kelvin':
+        ea_conv_factor = KEL2KCAL
     else:
         ea_conv_factor = 1.0
 
+    # Determine converstion factor for A Units
     if rxn_units[1] == 'molecules':
         a_conv_factor = NAVO
     else:
@@ -414,12 +437,12 @@ def _update_params(params, rxn_units):
     # update units of params
     if params is not None:
         params[2] *= ea_conv_factor
-        if len(params) == 6:
-            params[5] *= ea_conv_factor
+        # if len(params) == 6:
+        #     params[5] *= ea_conv_factor
 
         params[0] *= a_conv_factor
-        if len(params) == 6:
-            params[3] *= a_conv_factor
+        # if len(params) == 6:
+        #     params[3] *= a_conv_factor
 
     return params
 

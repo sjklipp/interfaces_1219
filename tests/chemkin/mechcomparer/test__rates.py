@@ -30,7 +30,7 @@ TEMPS = np.array([500.0, 1000.0, 1500.0])
 # TEMPS = [300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
 #          1300.0, 1400.0, 1500.0, 1600.0, 1700.0, 1800.0, 1900.0, 2000.0,
 #          2300.0, 2400.0, 2500.0, 2600.0, 2700.0, 2800.0, 2900.0, 3000.0]
-PRESSURES = np.array([1.0, 5.0, 10.0])
+PRESSURES = np.array([1.0, 4.0, 5.0])
 
 
 def test__compare_rates():
@@ -61,8 +61,12 @@ def test__compare_rates():
         print(val)
 
     # Calculate units to keep all comparisons straight...
-    m1_units, m2_units = mparser.compare.rates.get_reaction_units(
-        MECH1_STR, MECH2_STR)
+    m1_units = mparser.mechanism.reaction_units(MECH1_STR)
+    m2_units = mparser.mechanism.reaction_units(MECH2_STR)
+    print('\n\nMech1 Units')
+    print(m1_units)
+    print('\n\nMech2 Units')
+    print(m2_units)
 
     # Rate constant
     ktp_dct = mparser.compare.rates.calculate_reaction_rates(

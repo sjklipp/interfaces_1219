@@ -42,6 +42,18 @@ def thermo_block(mech_str):
     return block_str
 
 
+def reaction_units(mech_str):
+    """ reaction units
+    """
+    units = util.reaction_units(
+        string=_clean_up(mech_str),
+        start_pattern=app.one_of_these(['REACTIONS', 'REAC']),
+        units_pattern=app.one_or_more(
+            app.one_of_these([app.LETTER, app.escape('/')])),
+    )
+    return units
+
+
 def species_name_inchi_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
@@ -49,8 +61,13 @@ def species_name_inchi_dct(csv_str):
     data = pandas.read_csv(csv_file)
 
     spc_dct = {}
-    ichs = [inchi(smiles) for smiles in data.smiles]
-    spc_dct = dict(zip(data.name, ichs))
+    if hasattr(data, 'inchi'):
+        spc_dct = dict(zip(data.name, data.inchis))
+    elif hasattr(data, 'smiles'):
+        ichs = [inchi(smiles) for smiles in data.smiles]
+        spc_dct = dict(zip(data.name, ichs))
+    else:
+        raise ValueError
 
     return spc_dct
 
@@ -62,8 +79,13 @@ def species_inchi_name_dct(csv_str):
     data = pandas.read_csv(csv_file)
 
     spc_dct = {}
-    ichs = [inchi(smiles) for smiles in data.smiles]
-    spc_dct = dict(zip(ichs, data.name))
+    if hasattr(data, 'inchi'):
+        spc_dct = dict(zip(data.name, data.inchi))
+    elif hasattr(data, 'smiles'):
+        ichs = [inchi(smiles) for smiles in data.smiles]
+        spc_dct = dict(zip(data.name, ichs))
+    else:
+        raise ValueError
 
     return spc_dct
 
