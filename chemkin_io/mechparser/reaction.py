@@ -351,12 +351,12 @@ def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     troe_params = troe_parameters(rxn_str)
     chebyshev_params = chebyshev_parameters(rxn_str)
     plog_params = plog_parameters(rxn_str)
-    print('\nlocated params')
-    print(highp_params)
-    print(lowp_params)
-    print(troe_params)
-    print(chebyshev_params)
-    print(plog_params)
+    # print('\nlocated params')
+    # print(highp_params)
+    # print(lowp_params)
+    # print(troe_params)
+    # print(chebyshev_params)
+    # print(plog_params)
 
     # Calculate high_pressure rates
     highp_params = _update_params(highp_params, rxn_units)

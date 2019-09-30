@@ -6,7 +6,7 @@ from chemkin_io.mechparser import species
 from chemkin_io.mechparser import reaction
 from chemkin_io.mechparser import thermo
 from chemkin_io.mechparser import util
-# from chemkin_io.mechparser import compare_thermo as 
+from chemkin_io.mechparser import compare
 
 
 __all__ = [
@@ -15,5 +15,5 @@ __all__ = [
     'reaction',
     'thermo',
     'util',
-#     'thermo_comp'
+    'compare'
 ]
