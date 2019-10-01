@@ -86,6 +86,9 @@ def test__compare_rates():
             print('Mech2 ks: ', k2)
             print(' ')
 
+    print('\n\n\n\n\n\n')
+    print(ktp_dct)
+
 
 if __name__ == '__main__':
     test__compare_rates()
