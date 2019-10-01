@@ -33,10 +33,10 @@ MECH2_CSV_STR = _read_file(os.path.join(
 INDEX = 'inchi'
 
 # Temperatures to run
-# TEMPS = [500.0, 1000.0, 1500.0]
-TEMPS = [300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
-         1300.0, 1400.0, 1500.0, 1600.0, 1700.0, 1800.0, 1900.0, 2000.0,
-         2300.0, 2400.0, 2500.0, 2600.0, 2700.0, 2800.0, 2900.0, 3000.0]
+TEMPS = [500.0, 1000.0, 1500.0]
+# TEMPS = [300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0, 1000.0,
+#          1300.0, 1400.0, 1500.0, 1600.0, 1700.0, 1800.0, 1900.0, 2000.0,
+#          2300.0, 2400.0, 2500.0, 2600.0, 2700.0, 2800.0, 2900.0, 3000.0]
 
 
 def test__compare_thermo():
@@ -92,6 +92,8 @@ def test__compare_thermo():
         print('M1 Heat Capacity', m1_vals[3])
         print('M2 Heat Capacity', m2_vals[3])
 
+    print('\n\n\n\n\n\n')
+    print(thm_vals_dct)
 
 if __name__ == '__main__':
     test__compare_thermo()

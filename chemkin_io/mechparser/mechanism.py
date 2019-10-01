@@ -4,8 +4,8 @@
 from io import StringIO
 import pandas
 import autoparse.pattern as app
-from automol.smiles import inchi
-from automol.inchi import smiles
+from automol.smiles import inchi as _inchi
+from automol.inchi import smiles as _smiles
 from chemkin_io.mechparser import util
 
 
@@ -58,17 +58,16 @@ def reaction_units(mech_str):
 def species_name_inchi_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
     if hasattr(data, 'InChi'):
         spc_dct = dict(zip(data.name, data.InChi))
     elif hasattr(data, 'SMILES'):
-        smiles = [inchi(smiles) for smiles in data.SMILES]
+        smiles = [_inchi(smiles) for smiles in data.SMILES]
         spc_dct = dict(zip(data.name, smiles))
     else:
-        raise ValueError
+        print('No "InChi" or "SMILES" column in csv file')
 
     return spc_dct
 
@@ -76,17 +75,16 @@ def species_name_inchi_dct(csv_str):
 def species_name_smiles_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
     if hasattr(data, 'SMILES'):
         spc_dct = dict(zip(data.name, data.SMILES))
     elif hasattr(data, 'InChi'):
-        ichs = [smiles(inchi) for ich in data.InChi]
+        ichs = [_smiles(ich) for ich in data.InChi]
         spc_dct = dict(zip(data.name, ichs))
     else:
-        raise ValueError
+        print('No "SMILES" or "InCHi" column in csv file')
 
     return spc_dct
 
@@ -94,14 +92,13 @@ def species_name_smiles_dct(csv_str):
 def species_name_mult_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
     if hasattr(data, 'mult'):
         spc_dct = dict(zip(data.name, data.mult))
     else:
-        raise ValueError
+        print('No "mult" column in csv file')
 
     return spc_dct
 
@@ -109,8 +106,7 @@ def species_name_mult_dct(csv_str):
 def species_name_charge_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
     if hasattr(data, 'charge'):
@@ -124,8 +120,7 @@ def species_name_charge_dct(csv_str):
 def species_name_sens_dct(csv_str):
     """ build a dictionary of name idx and inchi entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
     if hasattr(data, 'sens'):
@@ -139,19 +134,26 @@ def species_name_sens_dct(csv_str):
 def species_inchi_name_dct(csv_str):
     """ build a dictionary of inchi idx and name entry
     """
-    csv_file = StringIO(csv_str)
-    data = pandas.read_csv(csv_file, comment='!')
+    data = _read_csv(csv_str)
 
     spc_dct = {}
-    if hasattr(data, 'inchi'):
-        spc_dct = dict(zip(data.name, data.inchi))
-    elif hasattr(data, 'smiles'):
-        ichs = [inchi(smiles) for smiles in data.smiles]
+    if hasattr(data, 'InChi'):
+        spc_dct = dict(zip(data.name, data.InChi))
+    elif hasattr(data, 'SMILES'):
+        ichs = [_inchi(smiles) for smiles in data.SMILES]
         spc_dct = dict(zip(data.name, ichs))
     else:
         raise ValueError
 
     return spc_dct
+
+
+def _read_csv(csv_str):
+    """ read the csv file:
+    """
+    csv_file = StringIO(csv_str)
+    data = pandas.read_csv(csv_file, comment='!', quotechar="'")
+    return data
 
 
 def _clean_up(mech_str):
