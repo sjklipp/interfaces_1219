@@ -61,13 +61,13 @@ def species_name_inchi_dct(csv_str):
     data = _read_csv(csv_str)
 
     spc_dct = {}
-    if hasattr(data, 'InChi'):
-        spc_dct = dict(zip(data.name, data.InChi))
+    if hasattr(data, 'InChI'):
+        spc_dct = dict(zip(data.name, data.InChI))
     elif hasattr(data, 'SMILES'):
         smiles = [_inchi(smiles) for smiles in data.SMILES]
         spc_dct = dict(zip(data.name, smiles))
     else:
-        print('No "InChi" or "SMILES" column in csv file')
+        print('No "InChI" or "SMILES" column in csv file')
 
     return spc_dct
 
@@ -80,11 +80,11 @@ def species_name_smiles_dct(csv_str):
     spc_dct = {}
     if hasattr(data, 'SMILES'):
         spc_dct = dict(zip(data.name, data.SMILES))
-    elif hasattr(data, 'InChi'):
-        ichs = [_smiles(ich) for ich in data.InChi]
+    elif hasattr(data, 'InChI'):
+        ichs = [_smiles(ich) for ich in data.InChI]
         spc_dct = dict(zip(data.name, ichs))
     else:
-        print('No "SMILES" or "InCHi" column in csv file')
+        print('No "SMILES" or "InChI" column in csv file')
 
     return spc_dct
 
@@ -137,8 +137,8 @@ def species_inchi_name_dct(csv_str):
     data = _read_csv(csv_str)
 
     spc_dct = {}
-    if hasattr(data, 'InChi'):
-        spc_dct = dict(zip(data.name, data.InChi))
+    if hasattr(data, 'InChI'):
+        spc_dct = dict(zip(data.name, data.InChI))
     elif hasattr(data, 'SMILES'):
         ichs = [_inchi(smiles) for smiles in data.SMILES]
         spc_dct = dict(zip(data.name, ichs))
