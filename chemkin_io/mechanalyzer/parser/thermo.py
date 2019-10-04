@@ -2,10 +2,10 @@
 """
 
 
-import numpy as np
 import autoparse.pattern as app
 import autoparse.find as apf
-from chemkin_io.mechparser import util
+from chemkin_io.mechanalyzer.parser import util
+
 
 RC = 1.98720425864083e-3  # in kcal/mol.K
 
@@ -131,114 +131,3 @@ def _coefficients_for_specific_temperature(thm_dstr, temp):
         # raise ValueError('Temperature outside range of NASA polynomial')
 
     return cfts
-
-
-# functions which calculate quantiies using data from the thermo section #
-def mech_thermo(nasa_dct, temps):
-    """ Loop over the the Mech1 thermo entries
-    """
-
-    # Calculate all thermo quanties with mech1 keys existing
-    mech_thermo_dct = {}
-    for name, thermo_dstr in nasa_dct.items():
-
-        # Calculate the thermo values for mech1
-        enthalpy, heat_capacity, entropy, gibbs, = [], [], [], []
-        for temp in temps:
-            enthalpy.append(
-                mechparser.thermo.calculate_enthalpy(
-                    thermo_dstr, temp))
-            heat_capacity.append(
-                mechparser.thermo.calculate_heat_capacity(
-                    thermo_dstr, temp))
-            entropy.append(
-                mechparser.thermo.calculate_entropy(
-                    thermo_dstr, temp))
-            gibbs.append(
-                mechparser.thermo.calculate_gibbs(
-                    thermo_dstr, temp))
-
-        mech_thermo_dct[name] = [enthalpy, heat_capacity, entropy, gibbs]
-
-    return mech_thermo_dct
-
-
-def calculate_enthalpy(thm_dstr, temp):
-    """ Calculate the Enthalpy [H(T)] of a species using the
-        coefficients of its NASA polynomial
-    """
-
-    cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
-
-    if cfts is not None:
-        enthalpy = (
-            cfts[0] +
-            ((cfts[1] * temp) / 2.0) +
-            ((cfts[2] * temp**2) / 3.0) +
-            ((cfts[3] * temp**3) / 4.0) +
-            ((cfts[4] * temp**4) / 5.0) +
-            (cfts[5] / temp)
-        )
-        enthalpy *= (RC * temp)
-    else:
-        enthalpy = 0.0
-
-    return enthalpy
-
-
-def calculate_entropy(thm_dstr, temp):
-    """ Calculate the Entropy [S(T)] of a species using the
-        coefficients of its NASA polynomial
-    """
-    cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
-
-    if cfts is not None:
-        entropy = (
-            (cfts[0] * np.log(temp)) +
-            (cfts[1] * temp) +
-            ((cfts[2] * temp**2) / 2.0) +
-            ((cfts[3] * temp**3) / 3.0) +
-            ((cfts[4] * temp**4) / 4.0) +
-            (cfts[6])
-        )
-        entropy *= RC
-    else:
-        entropy = 0.0
-
-    return entropy
-
-
-def calculate_gibbs(thm_dstr, temp):
-    """ Calculate the Gibbs Free Energy [H(T)] of a species using the
-        coefficients of its NASA polynomial
-    """
-
-    enthalpy = calculate_enthalpy(thm_dstr, temp)
-    entropy = calculate_entropy(thm_dstr, temp)
-    if enthalpy is not None and entropy is not None:
-        gibbs = enthalpy - (entropy * temp)
-    else:
-        gibbs = None
-
-    return gibbs
-
-
-def calculate_heat_capacity(thm_dstr, temp):
-    """ Calculate the Heat Capacity [Cp(T)] of a species using the
-        coefficients of its NASA polynomial
-    """
-    cfts = _coefficients_for_specific_temperature(thm_dstr, temp)
-
-    if cfts is not None:
-        heat_capacity = (
-            cfts[0] +
-            (cfts[1] * temp) +
-            (cfts[2] * temp**2) +
-            (cfts[3] * temp**3) +
-            (cfts[4] * temp**4)
-        )
-        heat_capacity *= RC
-    else:
-        heat_capacity = 0.0
-
-    return heat_capacity
