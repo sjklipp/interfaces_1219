@@ -142,6 +142,11 @@ def mech_name_for_species(mech1_csv_str, mech2_csv_str, ich):
     mech2_inchi_dct = mechparser.mechanism.species_inchi_name_dct(
         mech2_csv_str)
 
+    # print('m1 dct')
+    # for key, vals in mech1_inchi_dct.items():
+    #     print(key)
+    #     print(vals)
+
     if ich in mech1_inchi_dct:
         mech1_name = mech1_inchi_dct[ich]
     else:

@@ -81,19 +81,20 @@ def test__compare_thermo():
         print('M2 Name: ', m2_name)
 
         # Print all of the thermo quantities
-        m1_vals = thm_vals_dct[idx]['m1']
-        m2_vals = thm_vals_dct[idx]['m2']
-        print('\nM1 Enthalpy', m1_vals[0])
-        print('M2 Enthalpy', m2_vals[0])
-        print('M1 Entropy', m1_vals[1])
-        print('M2 Entropy', m2_vals[1])
-        print('M1 Gibbs', m1_vals[2])
-        print('M2 Gibbs', m2_vals[2])
-        print('M1 Heat Capacity', m1_vals[3])
-        print('M2 Heat Capacity', m2_vals[3])
+        # m1_vals = thm_vals_dct[idx]['m1']
+        # m2_vals = thm_vals_dct[idx]['m2']
+        # print('\nM1 Enthalpy', m1_vals[0])
+        # print('M2 Enthalpy', m2_vals[0])
+        # print('M1 Entropy', m1_vals[1])
+        # print('M2 Entropy', m2_vals[1])
+        # print('M1 Gibbs', m1_vals[2])
+        # print('M2 Gibbs', m2_vals[2])
+        # print('M1 Heat Capacity', m1_vals[3])
+        # print('M2 Heat Capacity', m2_vals[3])
 
-    print('\n\n\n\n\n\n')
-    print(thm_vals_dct)
+    # print('\n\n\n\n\n\n')
+    # print(thm_vals_dct)
+
 
 if __name__ == '__main__':
     test__compare_thermo()
