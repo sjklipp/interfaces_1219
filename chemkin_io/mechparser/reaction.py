@@ -48,36 +48,33 @@ NAVO = 6.02214076e23
 
 # Functions which act on the entire thermo block of mechanism file #
 #                               exclude_names=('OHV', 'CHV', 'CH(6)')):
-def reactant_and_product_names(block_str,
-                               exclude_names=()):
-    """ reactants and products, by species_names
-    """
-
-    rxn_strs = data_strings(block_str)
-    rct_names_lst = list(map(reactant_names, rxn_strs))
-    prd_names_lst = list(map(product_names, rxn_strs))
-    rxn_names_lst = tuple(filter(
-        lambda x: not any(name in exclude_names for name in x[0] + x[1]),
-        zip(rct_names_lst, prd_names_lst)))
-
-    return rxn_names_lst
-
-
-def all_rate_constants(block_str):
-    """ get the rate constants
-    """
-    rxn_strs = data_strings(block_str)
-    highp_k_lst = list(map(high_p_parameters, rxn_strs))
-
-    return highp_k_lst
+# def reactant_and_product_names(block_str,
+#                                exclude_names=()):
+#     """ reactants and products, by species_names
+#     """
+# 
+#     rxn_strs = data_strings(block_str)
+#     rct_names_lst = list(map(reactant_names, rxn_strs))
+#     prd_names_lst = list(map(product_names, rxn_strs))
+#     rxn_names_lst = tuple(filter(
+#         lambda x: not any(name in exclude_names for name in x[0] + x[1]),
+#         zip(rct_names_lst, prd_names_lst)))
+# 
+#     return rxn_names_lst
+# 
+# 
+# def all_rate_constants(block_str):
+#     """ get the rate constants
+#     """
+#     rxn_strs = data_strings(block_str)
+#     highp_k_lst = list(map(high_p_parameters, rxn_strs))
+# 
+#     return highp_k_lst
 
 
 def units(block_str):
     """ get the units for the rate parameters
     """
-    # print('block string')
-    # print(block_str)
-    # print(block_str.strip().splitlines()[0])
     units_str = block_str.strip().splitlines()[0]
     units_lst = units_str.split()
     if units_lst:
@@ -354,6 +351,18 @@ def _split_reagent_string(rgt_str):
 
 
 # calculator functions
+def mech_rate_constants(rxn_dct, units, t_ref, temps, pressures):
+    """ calculate the reactions rates for a whole block via a dict
+    """
+
+    ktp_dct = {}
+    for name, rxn_dstr in rxn_dct.items():
+        ktp_dct[name] = mechparser.reaction.calculate_rate_constants(
+            rxn_dstr, t_ref, units, temps, pressures=pressures)
+
+    return ktp_dct
+
+
 def calculate_rate_constants(rxn_str, t_ref, rxn_units, temps, pressures=None):
     """ calculate the rate constant using the rxn_string
     """
