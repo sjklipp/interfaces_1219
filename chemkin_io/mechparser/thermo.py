@@ -134,6 +134,35 @@ def _coefficients_for_specific_temperature(thm_dstr, temp):
 
 
 # functions which calculate quantiies using data from the thermo section #
+def mech_thermo(nasa_dct, temps):
+    """ Loop over the the Mech1 thermo entries
+    """
+
+    # Calculate all thermo quanties with mech1 keys existing
+    mech_thermo_dct = {}
+    for name, thermo_dstr in nasa_dct.items():
+
+        # Calculate the thermo values for mech1
+        enthalpy, heat_capacity, entropy, gibbs, = [], [], [], []
+        for temp in temps:
+            enthalpy.append(
+                mechparser.thermo.calculate_enthalpy(
+                    thermo_dstr, temp))
+            heat_capacity.append(
+                mechparser.thermo.calculate_heat_capacity(
+                    thermo_dstr, temp))
+            entropy.append(
+                mechparser.thermo.calculate_entropy(
+                    thermo_dstr, temp))
+            gibbs.append(
+                mechparser.thermo.calculate_gibbs(
+                    thermo_dstr, temp))
+
+        mech_thermo_dct[name] = [enthalpy, heat_capacity, entropy, gibbs]
+
+    return mech_thermo_dct
+
+
 def calculate_enthalpy(thm_dstr, temp):
     """ Calculate the Enthalpy [H(T)] of a species using the
         coefficients of its NASA polynomial

@@ -6,8 +6,8 @@ import numpy as np
 import pandas
 import ratefit
 
-TEMPS = np.array([
-    300., 600., 900., 1200., 1500., 1800., 2100., 2400., 2700., 3000.])
+TEMPS = np.array([300., 600., 900., 1200., 1500.,
+                  1800., 2100., 2400., 2700., 3000.])
 PRESSURES = np.array([0.1, 0.9869, 2.0, 5.0])
 T_REF = 1.0
 
@@ -23,23 +23,24 @@ PLOG_DCT = {
 np.set_printoptions(precision=15)
 
 
-def _read_csv():
-    """ read csv values from arrhenius.csv
+def _read_csv(filename):
+    """ read csv values from file
     """
-    csv_file = open('plog.csv', 'r')
+    csv_file = open(filename, 'r')
     data = pandas.read_csv(csv_file, comment='!', quotechar="'")
     csv_file.close()
     return data
 
 
 def test__plog():
-    """ test ratefit.fxns.single_arrhenius
+    """ test ratefit.fxns.plog
     """
     plog_ktps = ratefit.fxns.plog(PLOG_DCT, T_REF, PRESSURES, TEMPS)
-    for k in plog_ktps.items():
-        print(k)
-    # data = _read_csv()
-    # assert np.allclose(calc_ks, np.array(data.SingleArr), atol=0.01)
+    data = _read_csv('./data/plog.csv')
+    assert np.allclose(plog_ktps[0.1], np.array(data.ktp1), atol=0.01)
+    assert np.allclose(plog_ktps[0.9869], np.array(data.ktp2), atol=0.01)
+    assert np.allclose(plog_ktps[2.0], np.array(data.ktp3), atol=0.01)
+    assert np.allclose(plog_ktps[5.0], np.array(data.ktp4), atol=0.01)
 
 
 if __name__ == '__main__':
