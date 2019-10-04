@@ -6,7 +6,7 @@ import pandas
 import autoparse.pattern as app
 from automol.smiles import inchi as _inchi
 from automol.inchi import smiles as _smiles
-from chemkin_io.mechparser import util
+from chemkin_io.mechanalyzer.parser import util
 
 
 def species_block(mech_str):
