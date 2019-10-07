@@ -4,7 +4,7 @@ compare thermo
 
 import os
 import numpy as np
-from chemkin_io import mechparser as mparser
+from chemkin_io.calculator import combine
 
 
 # Get mechanism information
@@ -22,6 +22,7 @@ MECH2_PATH = os.path.join(PATH, '../data/test')
 MECH2_STR = _read_file(os.path.join(MECH2_PATH, 'm2.txt'))
 MECH2_CSV_STR = _read_file(os.path.join(MECH2_PATH, 'm2.csv'))
 
+# Set index for the data dictionaries for the mechanisms
 INDEX = 'inchi'
 
 # Temperatures and Pressures to run
@@ -41,53 +42,43 @@ def test__compare_rates():
     # thermo data strings for each species, k data strings for each reaction
     # Dictionaries indexed by the given mechanism names or InCHI string
     if INDEX == 'name':
-        _, m2_thm_dct = mparser.compare.thermo.build_name_dcts(
-            MECH1_STR, MECH2_STR)
-        m1_rxn_dct, m2_rxn_dct = mparser.compare.rates.build_name_dcts(
-            MECH1_STR, MECH2_STR)
+        _, mech2_thermo_dct = combine.build_thermo_name_dcts(
+            MECH1_STR, MECH2_STR, TEMPS)
+        mech1_ktp_dct, mech2_ktp_dct = combine.build_reaction_name_dcts(
+            MECH1_STR, MECH2_STR,
+            T_REF, TEMPS, PRESSURES)
     elif INDEX == 'inchi':
-        _, m2_thm_dct = mparser.compare.thermo.build_inchi_dcts(
-            MECH1_STR, MECH2_STR, MECH1_CSV_STR, MECH2_CSV_STR)
-        m1_rxn_dct, m2_rxn_dct = mparser.compare.rates.build_inchi_dcts(
-            MECH1_STR, MECH2_STR, MECH1_CSV_STR, MECH2_CSV_STR)
+        _, mech2_thermo_dct = combine.build_thermo_inchi_dcts(
+            MECH1_STR, MECH2_STR, MECH1_CSV_STR, MECH2_CSV_STR, TEMPS)
+        mech1_ktp_dct, mech2_ktp_dct = combine.build_reaction_inchi_dcts(
+            MECH1_STR, MECH2_STR, MECH1_CSV_STR, MECH2_CSV_STR,
+            T_REF, TEMPS, PRESSURES)
 
-    print('\nMech1 reaction dct')
-    for key, val in m1_rxn_dct.items():
+    #print('\nMech1 reaction dct')
+    for key, val in mech1_ktp_dct.items():
         print(key)
         print(val)
-    print('\n\nMech2 reaction dct')
-    for key, val in m2_rxn_dct.items():
+    #print('\n\nMech2 reaction dct')
+    for key, val in mech2_ktp_dct.items():
         print(key)
         print(val)
-
-    # Calculate units to keep all comparisons straight...
-    m1_units = mparser.mechanism.reaction_units(MECH1_STR)
-    m2_units = mparser.mechanism.reaction_units(MECH2_STR)
-    print('\n\nMech1 Units')
-    print(m1_units)
-    print('\n\nMech2 Units')
-    print(m2_units)
 
     # Rate constant
-    ktp_dct = mparser.compare.rates.calculate_reaction_rates(
-        m1_rxn_dct, m2_rxn_dct,
-        m1_units, m2_units,
-        m2_thm_dct,
-        T_REF, TEMPS, PRESSURES)
+    ktp_dct = combine.mechanism_rates(
+        mech1_ktp_dct, mech2_ktp_dct,
+        mech2_thermo_dct,
+        TEMPS)
 
     # print dict
     print('\n\nktp dct')
     for rxn, mechs in ktp_dct.items():
         print(rxn)
-        m1, m2 = mechs['m1'], mechs['m2']
-        for (p1, k1), (p2, k2) in zip(m1.items(), m2.items()):
-            print('Pressure: ', p1, p2)
-            print('Mech1 ks: ', k1)
-            print('Mech2 ks: ', k2)
+        mech1, mech2 = mechs['mech1'], mechs['mech2']
+        for (pr1, ktp1), (pr2, ktp2) in zip(mech1.items(), mech2.items()):
+            print('Pressure: ', pr1, pr2)
+            print('Mech1 ks: ', ktp1)
+            print('Mech2 ks: ', ktp2)
             print(' ')
-
-    print('\n\n\n\n\n\n')
-    print(ktp_dct)
 
 
 if __name__ == '__main__':
