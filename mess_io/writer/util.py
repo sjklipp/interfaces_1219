@@ -197,9 +197,5 @@ def is_atom_in_str(species_data_str):
     """ searches for an atom in the str
     """
 
-    if 'Atom' in species_data_str:
-        isatom = True
-    else:
-        isatom = False
-
+    isatom = bool('Atom' in species_data_str)
     return isatom
