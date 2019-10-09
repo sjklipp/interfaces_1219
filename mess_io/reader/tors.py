@@ -23,7 +23,7 @@ def freqs(output_string):
 
     # Obtain each frequency from the output string
     tors_freqs = [float(val)
-             for val in apf.all_captures(pattern, output_string)]
+                  for val in apf.all_captures(pattern, output_string)]
 
     return tors_freqs
 
@@ -45,6 +45,6 @@ def zpves(output_string):
 
     # Obtain each ZPVE from the output string
     tors_zpes = [float(val)
-            for val in apf.all_captures(pattern, output_string)]
+                 for val in apf.all_captures(pattern, output_string)]
 
     return tors_zpes

@@ -129,21 +129,18 @@ def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy,
     return sadpt_str
 
 
-def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy,
-           tunnel=''):
-    """ Writes a TS section containing IRC information
+def ts_variational(ts_label, reac_label, prod_label, irc_pt_strs, tunnel=''):
+    """ Writes a TS section containing variational information
     """
 
-    # Concatenate all of the IRC point strings
+    # Concatenate all of the variational point strings and indent them
     ts_data = '\n'.join(irc_pt_strs)
-
-    # Indent the TS IRC string
     ts_data = util.indent(ts_data, 4)
     if tunnel != '':
         tunnel = util.indent(tunnel, 4)
 
     # Create dictionary to fill template
-    irc_keys = {
+    var_keys = {
         'ts_label': ts_label,
         'reac_label': reac_label,
         'prod_label': prod_label,
@@ -152,11 +149,11 @@ def ts_irc(ts_label, reac_label, prod_label, irc_pt_strs, zero_energy,
         'tunnel': tunnel
     }
 
-    # Set template name and path for a TS with an IRC
-    template_file_name = 'ts_irc.mako'
+    # Set template name and path for a TS with an variational
+    template_file_name = 'ts_var.mako'
     template_file_path = os.path.join(RXNCHAN_PATH, template_file_name)
 
-    # Build transition state with IRC string
-    irc_str = Template(filename=template_file_path).render(**irc_keys)
+    # Build transition state with variational string
+    var_str = Template(filename=template_file_path).render(**var_keys)
 
     return irc_str

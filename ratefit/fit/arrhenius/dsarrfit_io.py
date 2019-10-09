@@ -78,8 +78,7 @@ def read_params(output_string, fit, conv_factor=1.000):
                 params_str = lines[lines.index(line)-3]
                 break
 
-    # Format params string for double fit if necessary since printing is weird
-    if fit == 'double':
+        # Format params string for dbl fit if necessary since printing is weird
         if len(params_str.split()) < 6:
             # add white space after first exponent value, if needed, to str1
             eidx = [m.start() for m in re.finditer('E', params_str)]
