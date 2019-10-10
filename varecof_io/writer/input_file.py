@@ -92,19 +92,11 @@ def divsur(rdists,
     t1_string = util.format_values_string(
         't1', t1angs, conv_factor=RAD2DEG)
     t2_string = util.format_values_string(
-        't2', t1angs, conv_factor=RAD2DEG)
-    t3_string = util.format_values_string(
-        't3', t2angs, conv_factor=RAD2DEG)
-    t4_string = util.format_values_string(
-        't4', t2angs, conv_factor=RAD2DEG)
+        't2', t2angs, conv_factor=RAD2DEG)
     p1_string = util.format_values_string(
         'p1', p1angs, conv_factor=RAD2DEG)
     p2_string = util.format_values_string(
-        'p2', p1angs, conv_factor=RAD2DEG)
-    p3_string = util.format_values_string(
-        'p3', p2angs, conv_factor=RAD2DEG)
-    p4_string = util.format_values_string(
-        'p4', p2angs, conv_factor=RAD2DEG)
+        'p2', p2angs, conv_factor=RAD2DEG)
 
     # Fromat the frames
     frame1 = ' '.join([str(val) for val in frame1])
@@ -127,13 +119,13 @@ def divsur(rdists,
     if d2dists:
         ncycles += 1
     if p1angs:
-        ncycles += 2
+        ncycles += 1
     if p2angs:
-        ncycles += 2
+        ncycles += 1
     if t1angs:
-        ncycles += 2
+        ncycles += 1
     if t2angs:
-        ncycles += 2
+        ncycles += 1
 
     # Determine the string of distance cycles
     if d1dists and d2dists:
@@ -142,8 +134,8 @@ def divsur(rdists,
         dist_coords_string += 'r12 = r-(d1+d2)/2\n'
         dist_coords_string += 'r22 = r-(d1+d2)/2'
     elif d1dists and not d2dists:
-        dist_coords_string = 'r11 = r-d1\n'
-        dist_coords_string += 'r21 = r-d1'
+        dist_coords_string = 'r11 = r-d1/2\n'
+        dist_coords_string += 'r21 = r-d1/2'
     else:
         dist_coords_string = 'r11 = r'
 
@@ -162,12 +154,8 @@ def divsur(rdists,
         'd2_string': d2_string,
         't1_string': t1_string,
         't2_string': t2_string,
-        't3_string': t3_string,
-        't4_string': t4_string,
         'p1_string': p1_string,
         'p2_string': p2_string,
-        'p3_string': p3_string,
-        'p4_string': p4_string
     }
 
     # Set template name and path for the global keywords section
@@ -235,7 +223,7 @@ def structure(geo1, geo2):
     return struct_str
 
 
-def tml(memory, basis, method, wfn, inf_sep_energy):
+def tml(memory, basis, wfn, method, inf_sep_energy):
     """ writes the tml file used as the template for the electronic structure
         calculation
         currently, we assume the use of molpro
