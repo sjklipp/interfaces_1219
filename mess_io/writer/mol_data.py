@@ -6,7 +6,6 @@ import os
 from mako.template import Template
 from mess_io.writer import util
 
-
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
 SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
@@ -124,13 +123,12 @@ def core_rotd(sym_factor, ne_file, stoich):
     return core_rotd_str
 
 
-def rotor_hindered(group, axis, symmetry, potential):
+def rotor_hindered(group, axis, symmetry, potential, dummy_rem=None):
     """ Writes the section for a single hindered rotor.
     """
-
     # Format the sections
-    rotor_hind_group = util.format_rotor_key_defs(group)
-    rotor_hind_axis = util.format_rotor_key_defs(axis)
+    rotor_hind_group = util.format_rotor_key_defs(group, dummy_rem)
+    rotor_hind_axis = util.format_rotor_key_defs(axis, dummy_rem)
     rotor_hind_npotential, rotor_hind_potential = util.format_rotor_potential(potential)
 
     # Create dictionary to fill template
