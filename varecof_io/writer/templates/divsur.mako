@@ -50,17 +50,5 @@ ${p2_string}
 % if t2_string != '':
 ${t2_string}
 % endif
-% if p3_string != '':
-${p3_string}
-% endif
-% if t3_string != '':
-${t3_string}
-% endif
-% if p4_string != '':
-${p4_string}
-% endif
-% if t4_string != '':
-${t4_string}
-% endif
 
 EndSurface

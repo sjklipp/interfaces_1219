@@ -45,7 +45,7 @@ def format_coords(geo):
     if geom.is_atom(geo):
         geo_str = '{0:<4s}{1:<6d}'.format(symbols[0], masses[0])
     else:
-        geo_str = ''
+        geo_str = '{0} \n'.format(str(natoms))
         for symbol, mass, coords in zip(symbols, masses, coordinates):
             coords = [coord * BOHR2ANG for coord in coords]
             coords_str = '{0:>14.8f}{1:>14.8f}{2:>14.8f}'.format(
@@ -89,34 +89,34 @@ def format_pivot_xyz_string(idx, npivot, xyzP, phi_dependence=False):
         z_val = '  z{0} = {1:.3f}'.format(atom_idx, xyzP[2])
         pivot_xyz_string = (x_val + y_val + z_val)
     elif npivot > 1 and not phi_dependence:
-        x_val1 = 'x{0} = {1:.3f} + d{2}*cos(t{0})'.format(
-            atom_idx, xyzP[0], d_idx)
-        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(t{0})'.format(
-            atom_idx, xyzP[1], d_idx)
+        x_val1 = 'x{0} = {1:.3f} + d{2}*cos(t{3})'.format(
+            atom_idx, xyzP[0], d_idx, atom_idx)
+        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(t{3})'.format(
+            atom_idx, xyzP[1], d_idx, atom_idx)
         z_val1 = '  z{0} = 0.000'.format(
             atom_idx)
-        x_val2 = 'x{0} = {1:.3f} - d{2}*cos(t{0})'.format(
-            atom_idx+1, xyzP[0], d_idx)
-        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(t{0})'.format(
-            atom_idx+1, xyzP[1], d_idx)
+        x_val2 = 'x{0} = {1:.3f} - d{2}*cos(t{3})'.format(
+            atom_idx+1, xyzP[0], d_idx, atom_idx)
+        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(t{3})'.format(
+            atom_idx+1, xyzP[1], d_idx, atom_idx)
         z_val2 = '  z{0} = 0.000'.format(
             atom_idx+1)
         pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
                             x_val2 + y_val2 + z_val2)
     else:
         # Not sure if this implementation is any good
-        x_val1 = 'x{0} = {1:.3f} + d{2}*sin(p{0})*cos(t{0})'.format(
-            atom_idx, xyzP[0], d_idx)
-        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(p{0})*sin(t{0})'.format(
-            atom_idx, xyzP[1], d_idx)
-        z_val1 = '  z{0} = {1:.3f} + d{2}*cos(p{0})'.format(
-            atom_idx, xyzP[2], d_idx)
-        x_val2 = 'x{0} = {1:.3f} - d{2}*sin(p{0})*cos(t{0})'.format(
-            atom_idx+1, xyzP[0], d_idx)
-        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(p{0})*sin(t{0})'.format(
-            atom_idx+1, xyzP[1], d_idx)
-        z_val2 = '  z{0} = {1:.3f} + d{2}*cos(p{0})'.format(
-            atom_idx+1, xyzP[2], d_idx)
+        x_val1 = 'x{0} = {1:.3f} + d{2}*sin(p{3})*cos(t{3})'.format(
+            atom_idx, xyzP[0], d_idx, atom_idx)
+        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(p{3})*sin(t{3})'.format(
+            atom_idx, xyzP[1], d_idx, atom_idx)
+        z_val1 = '  z{0} = {1:.3f} + d{2}*cos(p{3})'.format(
+            atom_idx, xyzP[2], d_idx, atom_idx)
+        x_val2 = 'x{0} = {1:.3f} - d{2}*sin(p{3})*cos(t{3})'.format(
+            atom_idx+1, xyzP[0], d_idx, atom_idx)
+        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(p{3})*sin(t{3})'.format(
+            atom_idx+1, xyzP[1], d_idx, atom_idx)
+        z_val2 = '  z{0} = {1:.3f} + d{2}*cos(p{3})'.format(
+            atom_idx+1, xyzP[2], d_idx, atom_idx)
         pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
                             x_val2 + y_val2 + z_val2)
 
