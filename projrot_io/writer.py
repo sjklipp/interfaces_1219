@@ -54,7 +54,7 @@ def rpht_input(geom, grad, hess,
     return rpht_string
 
 
-def rotors(axis, group):
+def rotors(axis, group, dummy_rem=None):
     """ Write the sections that defines the rotors section
     """
 
@@ -62,7 +62,12 @@ def rotors(axis, group):
     pivota = axis[0]
     pivotb = axis[1]
     atomsintopa = len(group)
-    topaatoms = '  '.join([str(val) for val in group])
+    if dummy_rem is not None:
+        pivota = int(pivota - dummy_rem[pivota-1])
+        pivotb = int(pivotb - dummy_rem[pivotb-1])
+        topaatoms = '  '.join([str(int(val-dummy_rem[val-1])) for val in group])
+    else:    
+        topaatoms = '  '.join([str(val) for val in group])
 
     # Build the rotors_str
     rotors_str = '{0:<32s}{1:<4d}\n'.format('pivotA', pivota)

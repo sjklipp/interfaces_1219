@@ -78,14 +78,18 @@ def freqs_format(freqs):
     return nfreqs, freq_string
 
 
-def format_rotor_key_defs(hind_rot_keyword_vals):
+def format_rotor_key_defs(hind_rot_keyword_vals, dummy_rem=None):
     """ formats Group, Axis, Symmetry keywords
     """
 
     # Build string containing the values of each keyword
     hind_rot_keyword_string = ''
     for vals in hind_rot_keyword_vals:
-        hind_rot_keyword_string += '{0:<4d}'.format(vals)
+        if dummy_rem is not None:
+            print('in mess_io:', vals, dummy_rem)
+            hind_rot_keyword_string += '{0:<4d}'.format(int(vals - dummy_rem[vals-1]))
+        else:
+            hind_rot_keyword_string += '{0:<4d}'.format(vals)
 
     return hind_rot_keyword_string
 
