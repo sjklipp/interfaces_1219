@@ -17,17 +17,12 @@ def rpht_output(file_name):
     # Build lists for the real and imaginary frequencies
     real_freqs = []
     imag_freqs = []
-    for i, val in enumerate(freqs):
+    for freq in freqs:
         # Ignore zeros
-        if val != 0.0:
-            # Always include the first element (so logic later works)
-            if i == 0:
-                real_freqs.append(val)
+        if freq != 0.0:
+            if freq > 0.0:
+                real_freqs.append(freq)
             else:
-                # If current val higher than previous, it is an imag. number
-                if freqs[i] <= freqs[i-1]:
-                    real_freqs.append(val)
-                else:
-                    imag_freqs.append(val)
+                imag_freqs.append(freq)
 
     return real_freqs, imag_freqs

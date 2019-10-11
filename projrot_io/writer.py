@@ -17,31 +17,32 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
-def rpht_input(geom, grad, hess,
+def rpht_input(geoms, grads, hessians,
+               saddle_idx=1,
                rotors_str='',
                coord_proj='cartesian'):
     """ Write the ProjRot input file
     """
 
     # Format the molecule info
-    natoms = len(geom)
-    geom_str = format_geom_str(geom)
-    grad_str = format_grad_str(geom, grad)
-    hess_str = format_hessian_str(hess)
+    nsteps = len(geoms)
+    natoms = len(geoms[0])
+    data_str = _write_data_str(geoms, grads, hessians)
     nrotors = rotors_str.count('pivotA')
 
-    # Check what coordinate system to do projections in
+    # Check input into the function
+    assert all(len(lst) == nsteps for lst in (geoms, grads, hessians))
     assert coord_proj in ('cartesian', 'internal')
 
     # Create a fill value dictionary
     rpht_keys = {
         'natoms': natoms,
+        'nsteps': nsteps,
+        'saddle_idx': saddle_idx,
+        'coord_proj': coord_proj,
         'nrotors': nrotors,
         'rotors_str': rotors_str,
-        'geom_str': geom_str,
-        'grad_str': grad_str,
-        'hess_str': hess_str,
-        'coord_proj': coord_proj
+        'data_str': data_str
     }
 
     # Set template name and path for an atom
@@ -52,6 +53,20 @@ def rpht_input(geom, grad, hess,
     rpht_string = Template(filename=template_file_path).render(**rpht_keys)
 
     return rpht_string
+
+
+def rpht_path_coord_en(coords, energy, bnd1, bnd2):
+    """ Write the ProjRot file containing path data
+    """
+    assert all(lst for lst in (coords, energy, bnd1, bnd2))
+    assert len(coords) == len(energy) == len(bnd1) == len(bnd2)
+
+    path_str = 'Point Coordinate Energy Bond1 Bond2'
+    for i, (crd, ene, bd1, bd2) in enumerate(zip(coords, energy, bnd1, bnd2)):
+        path_str += '{0:>3d}{1:>9.5f}{2:11.9f}{3:8.5f}{4:8.5f}\n'.format(
+            str(i+1), crd, ene, bd1, bd2)
+
+    return path_str
 
 
 def rotors(axis, group):
@@ -73,7 +88,24 @@ def rotors(axis, group):
     return rotors_str
 
 
-def format_geom_str(geo):
+def _write_data_str(geoms, grads, hessians):
+    """ Combine all of the data information into a string
+    """
+
+    data_str = ''
+    for i, (geo, grad, hess) in enumerate(zip(geoms, grads, hessians)):
+        data_str += 'Step    {0}\n'.format(str(i+1))
+        data_str += 'geometry\n'
+        data_str += _format_geom_str(geo)
+        data_str += 'gradient\n'
+        data_str += _format_grad_str(geo, grad)
+        data_str += 'Hessian\n'
+        data_str += _format_hessian_str(hess)
+
+    return data_str
+
+
+def _format_geom_str(geo):
     """ Write the geometry section of the input file
         geometry in Angstroms
     """
@@ -91,7 +123,7 @@ def format_geom_str(geo):
     return geom_str
 
 
-def format_grad_str(geom, grad):
+def _format_grad_str(geom, grad):
     """ Write the gradient section of the input file
         grads in Hartrees/Bohr
     """
@@ -111,7 +143,7 @@ def format_grad_str(geom, grad):
     return full_grads_str
 
 
-def format_hessian_str(hess):
+def _format_hessian_str(hess):
     """ Write the Hessian section of the input file
     """
 
