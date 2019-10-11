@@ -153,7 +153,7 @@ def _read_name_mult(data):
     return spc_dct
 
 
-def _read_name_charge(data, fill):
+def _read_name_charge(data):
     """ get dct[name]=charge """
     fill = 0
     if hasattr(data, 'charge'):
