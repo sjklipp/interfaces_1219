@@ -127,7 +127,7 @@ def get_reduced_basis(basis_ich, species_formula):
     """
 
     # Get the basis formulae list
-    basis_formulae = [util.inchi_formula(spc) for spc in basis_ich]
+    basis_formulae = [automol.inchi.formula(spc) for spc in basis_ich]
 
     reduced_basis = []
     for i, basis_formula in enumerate(basis_formulae):
@@ -158,10 +158,12 @@ def calc_coefficients(basis, mol_atom_dict):
         
     # Initialize an natoms x natoms matrix
     nbasis = len(basis)
+    print('basis test:', basis) 
     basis_mat = np.zeros((nbasis, nbasis))
 
     # Get the basis formulae list
-    basis_formulae = [util.inchi_formula(spc) for spc in basis]
+    basis_formulae = [automol.inchi.formula(spc) for spc in basis]
+    print('basis formulae:', basis_formulae)
     #basis_atom_dict = [automol.geom.formula(automol.inchi.geom(spc) for spc in basis]
     for spc in basis_formulae:
         basis_atom_dict = util.get_atom_counts_dict(spc)
@@ -412,7 +414,7 @@ def cbhtwo(ich):
 
 
 def get_basis(ich):
-    formula  = util.inchi_formula(ich)
+    formula  = automol.inchi.formula(ich)
     atm_dict = util.get_atom_counts_dict(formula)
     return select_basis(atm_dict)
 

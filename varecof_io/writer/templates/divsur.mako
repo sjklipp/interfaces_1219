@@ -27,11 +27,14 @@ Distances
 
 ${dist_coords_string}
 
-Conditions 0
+Conditions ${nconditions}
+${conditions_string}
 
 Cycles ${ncycles}
 
-${r_string}
+${r1_string}
+% if r2_string != '':
+${r2_string}
 % if d1_string != '':
 ${d1_string}
 % endif
