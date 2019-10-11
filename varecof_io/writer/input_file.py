@@ -63,17 +63,20 @@ def tst(nsamp_max, nsamp_min, flux_err, pes_size,
     return tst_str
 
 
-def divsur(rdists,
+def divsur(r1dists,
            npivot1,
            npivot2,
            xyz_pivot1,
            xyz_pivot2,
            frame1=[0, 0, 0, 0],
            frame2=[0, 0, 0, 0],
+           r2dists=(),
            d1dists=(), d2dists=(),
            t1angs=(), t2angs=(),
            p1angs=(), p2angs=(),
-           phi_dependence=False):
+           phi_dependence=False,
+           **conditions
+           ):
     """ Writes the divsur.inp file for VaReCoF
         that contains info on the dividing surfaces.
         :param float distances: List of temperatures (in Angstrom)
@@ -83,8 +86,10 @@ def divsur(rdists,
 
     # Format values strings for the coordinates
     # Function returns the empty string if list is empty
-    r_string = util.format_values_string(
-        'r', rdists, conv_factor=ANG2BOHR)
+    r1_string = util.format_values_string(
+        'r1', rdists, conv_factor=ANG2BOHR)
+    r2_string = util.format_values_string(
+        'r2', rdists, conv_factor=ANG2BOHR)
     d1_string = util.format_values_string(
         'd1', d1dists, conv_factor=ANG2BOHR)
     d2_string = util.format_values_string(
@@ -114,6 +119,8 @@ def divsur(rdists,
 
     # Calculate the number of cycles
     ncycles = 1
+    if r2dists:
+        ncycles += 1
     if d1dists:
         ncycles += 1
     if d2dists:
@@ -129,15 +136,23 @@ def divsur(rdists,
 
     # Determine the string of distance cycles
     if d1dists and d2dists:
-        dist_coords_string = 'r11 = r-(d1+d2)/2\n'
-        dist_coords_string += 'r21 = r-(d1+d2)/2\n'
-        dist_coords_string += 'r12 = r-(d1+d2)/2\n'
-        dist_coords_string += 'r22 = r-(d1+d2)/2'
+        dist_coords_string = 'r11 = r1-(d1+d2)/2\n'
+        dist_coords_string += 'r21 = r1-(d1+d2)/2\n'
+        dist_coords_string += 'r12 = r2-(d1+d2)/2\n'
+        dist_coords_string += 'r22 = r2-(d1+d2)/2'
     elif d1dists and not d2dists:
-        dist_coords_string = 'r11 = r-d1/2\n'
-        dist_coords_string += 'r21 = r-d1/2'
+        dist_coords_string = 'r11 = r1-d1/2\n'
+        dist_coords_string += 'r21 = r1-d1/2'
     else:
-        dist_coords_string = 'r11 = r'
+        dist_coords_string = 'r11 = r1'
+
+    # Build string for conditions
+    conditions_str = ''
+    nconditions = len(conditions.keys)
+    if 'delta_r' in conditions:
+        alpha = str(conditions['delta_r'])
+        conditions_string += '(r2-r1) < 0.01 + {0}\n'.format(alpha)
+        conditions_string += '(r2-r1) > 0.01 + {0}'.format(alpha)
 
     # Create dictionary to fill template
     divsur_keys = {
@@ -147,9 +162,12 @@ def divsur(rdists,
         'pivot_xyz_string2': pivot_xyz_string2,
         'frame1': frame1,
         'frame2': frame2,
-        'dist_coords_string': dist_coords_string,
+        'dist_coords_string': dist_coords_string, 
+        'nconditions': nconditions,
+        'conditions_string': conditions_string,
         'ncycles': ncycles,
-        'r_string': r_string,
+        'r1_string': r1_string,
+        'r2_string': r2_string,
         'd1_string': d1_string,
         'd2_string': d2_string,
         't1_string': t1_string,
