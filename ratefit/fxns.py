@@ -7,6 +7,7 @@ from scipy.special import eval_chebyt
 
 
 RC = 1.98720425864083e-3  # Gas Constant in kcal/mol.K
+RC2 = 0.0820573660809596  # Gas Constant in L.atm/mol.K
 
 
 def single_arrhenius(a_par, n_par, ea_par,
@@ -76,7 +77,7 @@ def lindemann_rate_constants(highp_ks, lowp_ks, pressure, temps):
 
 
 def troe(highp_ks, lowp_ks, pressures, temps,
-         alpha, ts1, ts3, ts2=None):
+         alpha, ts3, ts1, ts2=None):
     """ calculate pressure-dependence constants according to Troe
         model; no value for high
     """
@@ -84,20 +85,19 @@ def troe(highp_ks, lowp_ks, pressures, temps,
     for pressure in pressures:
         ktp_dct[pressure] = troe_rate_constants(
             highp_ks, lowp_ks, pressure, temps,
-            alpha, ts1, ts3, ts2)
+            alpha, ts3, ts1, ts2)
 
     return ktp_dct
 
 
 def troe_rate_constants(highp_ks, lowp_ks, pressure, temp,
-                        alpha, ts1, ts3, ts2=None):
+                        alpha, ts3, ts1, ts2=None):
     """ calculate pressure-dependence constants according to Troe
         model
     """
     # Calculate the pr term and broadening factor
     pr_term = _pr_term(highp_ks, lowp_ks, pressure, temp)
-    f_term = _f_broadening_term(alpha, pr_term, temp, ts1, ts3, ts2)
-
+    f_term = _f_broadening_term(pr_term, alpha, ts3, ts1, ts2, temp)
     # Calculate Troe rate constants
     ktps = highp_ks * (pr_term / (1.0 + pr_term)) * f_term
 
@@ -118,7 +118,7 @@ def plog(plog_dct, t_ref, pressures, temps):
 def plog_rate_constants(plog_dct, t_ref, pressure, temps):
     """ calculate the rate constant using a dictionary of plog params
     """
-    plog_pressures = [key for key in plog_dct.keys()]
+    plog_pressures = [pressure for pressure in plog_dct]
 
     # Check if pressure is in plog dct; use plog pressure for numerical stab
     pressure_defined = False
@@ -202,11 +202,11 @@ def _pr_term(highp_rateks, lowp_rateks, pressure, temp):
     """ calculate the corrective pr term used for Lindemann and Troe
         pressure-dependent forms
     """
-    pr_term = (lowp_rateks / highp_rateks) * (pressure / (RC * temp))
+    pr_term = (lowp_rateks / highp_rateks) * (pressure / (RC2 * temp))
     return pr_term
 
 
-def _f_broadening_term(alpha, pr_term, temp, ts1, ts3, ts2):
+def _f_broadening_term(pr_term, alpha, ts3, ts1, ts2, temp):
     """ calculate the F broadening factor used for Troe
         pressure-dependent forms
     """

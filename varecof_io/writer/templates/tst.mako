@@ -21,8 +21,8 @@ pes_size        ${pes_size}
 opt_method      none
 
 sampling        multifacet
-face            0
-face_symm       1
+face            ${faces}
+face_symm       ${face_symms}
 ds_inp_file     divsur.inp
 ds_out_file     divsur.out
 
