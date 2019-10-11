@@ -17,7 +17,8 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
 def tst(nsamp_max, nsamp_min, flux_err, pes_size,
-        ener_grid=[], amom_grid=[]):
+        faces=[0], face_symms=1,
+        ener_grid=(), amom_grid=()):
     """ Writes the tst.inp file for VaReCoF
         :param int nsamp_max: maximum number of samples
         :param int nsamp_min: minimum number of samples
@@ -35,13 +36,11 @@ def tst(nsamp_max, nsamp_min, flux_err, pes_size,
     else:
         assert len(amom_grid) == 4
 
-    ener_grid = 'ener_grid{0:>8d}{1:>9d}{2:>11.2f}{3:>7d}'.format(
-        ener_grid[0], ener_grid[1], ener_grid[2], ener_grid[3])
-    ener_grid += '     Kelvin  # energy grid'
+    ener_grid = util.format_grids_string(ener_grid, 'ener', 'Kelvin')
+    amom_grid = util.format_grids_string(amom_grid, 'amom', 'Kelvin')
 
-    amom_grid = 'amom_grid{0:>8d}{1:>9d}{2:>11.2f}{3:>7d}'.format(
-        amom_grid[0], amom_grid[1], amom_grid[2], amom_grid[3])
-    amom_grid += '     au      # angular momentum grid'
+    # Set the faces
+    faces = util.format_faces_string(faces)
 
     # Create dictionary to fill template
     tst_keys = {
@@ -50,7 +49,9 @@ def tst(nsamp_max, nsamp_min, flux_err, pes_size,
         'nsamp_max': nsamp_max,
         'nsamp_min': nsamp_min,
         'flux_err': flux_err,
-        'pes_size': pes_size
+        'pes_size': pes_size,
+        'faces': faces,
+        'face_symms': face_symms
     }
 
     # Set template name and path for the global keywords section

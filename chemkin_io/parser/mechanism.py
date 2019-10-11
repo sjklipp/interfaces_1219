@@ -89,7 +89,7 @@ def reaction_units(mech_str):
     return units
 
 
-def spc_name_dct(csv_str, entry, fill=None):
+def spc_name_dct(csv_str, entry):
     """ build a dictionary of name idx and inchi entry
     """
     data = _read_csv(csv_str)
@@ -101,7 +101,7 @@ def spc_name_dct(csv_str, entry, fill=None):
     elif entry == 'mult':
         spc_dct = _read_name_mult(data)
     elif entry == 'charge':
-        spc_dct = _read_name_charge(data, fill)
+        spc_dct = _read_name_charge(data)
     elif entry == 'sens':
         spc_dct = _read_name_sensitivity(data)
     else:
@@ -155,7 +155,7 @@ def _read_name_mult(data):
 
 def _read_name_charge(data, fill):
     """ get dct[name]=charge """
-
+    fill = 0
     if hasattr(data, 'charge'):
         spc_dct = dict(zip(data.name, data.charge))
     else:

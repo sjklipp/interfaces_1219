@@ -58,6 +58,25 @@ def format_coords(geo):
     return natoms, geo_str
 
 
+def format_grids_string(grid, name, units):
+    """ format the string using the grids for
+        energy and angular momentum for tst.inp file
+    """
+    grid_str = '{0}_grid{1:>8d}{2:>9d}{3:>11.2f}{4:>7d}'.format(
+        name, grid[0], grid[1], grid[2], grid[3])
+    grid_str += '     {0:<8s}# {1} grid'.format(units, name)
+
+    return grid_str
+
+
+def format_faces_string(faces):
+    """ format faces keyword
+    """
+    faces_str = ' '.join(faces)
+
+    return faces_str
+
+
 def format_values_string(coord, values, conv_factor=1.0):
     """ format the values string for the divsur.inp file
     """

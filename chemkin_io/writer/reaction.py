@@ -2,6 +2,7 @@
 Writes strings containing the rate parameters
 """
 
+
 def plog(reaction, rate_params_dct, err_dct):
     """ Write the string containing the fitting parameters
         formatted for CHEMKIN input files

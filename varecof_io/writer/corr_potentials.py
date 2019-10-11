@@ -12,7 +12,7 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
-def species(rvalues, potentials, bnd_idx, bnd_sym,
+def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
             species_name=None, pot_labels=[]):
     """ Writes string for correction potential for some species Fortran file
         :return : String for the mol_corr.f file
@@ -21,8 +21,8 @@ def species(rvalues, potentials, bnd_idx, bnd_sym,
 
     npot = len(potentials)
     npot_terms = len(potentials[0])
-    [aidx, bidx] = bnd_idx
-    [asym, bsym] = bnd_sym
+    [aidx, bidx] = bnd_frm_idxs
+    [asym, bsym] = bnd_frm_syms
 
     assert npot > 0
     assert all(len(potential) == npot_terms for potential in potentials)
@@ -139,16 +139,16 @@ def auxiliary():
     return pot_aux_str
 
 
-def makefile(fortran_compiler, species_corr_potentials=None):
+def makefile(fortran_compiler, pot_file_names=None):
     """ Writes string for a makefile to compile correction potentials
         :return : String for the makefile
         :rtype: string
     """
 
     # Set species name
-    if species_corr_potentials is not None:
+    if pot_file_names is not None:
         corr_potential_names = ''
-        for potential in species_corr_potentials:
+        for potential in pot_file_names:
             corr_potential_names += '{0}_corr.f '.format(potential)
     else:
         corr_potential_names = 'species_corr.f'
