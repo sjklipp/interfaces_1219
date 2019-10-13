@@ -10,6 +10,7 @@ from ratefit.fxns import single_arrhenius
 from ratefit.fxns import double_arrhenius
 from ratefit.fxns import lindemann
 from ratefit.fxns import troe
+from ratefit.err import assess_pressure_dependence
 from ratefit.err import calc_sse_and_mae
 from ratefit import fit
 
@@ -19,6 +20,7 @@ __all__ = [
     'double_arrhenius',
     'lindemann',
     'troe',
+    'assess_pressure_dependence',
     'calc_sse_and_mae',
     'fit'
 ]
