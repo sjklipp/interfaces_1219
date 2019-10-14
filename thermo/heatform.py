@@ -243,7 +243,8 @@ def cbhzed(ich):
         gra = (atm_dic, {})
         frag = automol.graph.inchi(gra)
         _add2dic(frags, frag)
-
+    print('cbhzed frags', frags)
+    print(_balance_frags(ich, frags))
     return _balance_frags(ich, frags)
 
 
@@ -419,16 +420,47 @@ def get_basis(ich):
     return select_basis(atm_dict)
 
 
+def get_basic(ich):
+    formula_dct  = automol.inchi.formula_dct(ich)
+    spc_bas = select_basis(formula_dct)
+    if len(spc_bas) == 1 and ich == spc_bas[0]:
+        clist = [1]
+    else:
+        clist = calc_coefficients(spc_bas, formula_dct)
+    return spc_bas, clist
+
+
 def get_cbhzed(ich):
-    return list(cbhzed(ich).keys())
+    frags = cbhzed(ich)
+    fraglist = []
+    clist = []
+    for frag in frags:
+        fraglist.append(frag)
+        clist.append(frags[frag])
+    return fraglist, clist
+    #return list(cbhzed(ich).keys())
 
 
 def get_cbhone(ich):
-    return list(cbhone(ich).keys())
+    frags = cbhone(ich)
+    fraglist = []
+    clist = []
+    for frag in frags:
+        fraglist.append(frag)
+        clist.append(frags[frag])
+    return fraglist, clist
+    #return list(cbhone(ich).keys())
 
 
 def get_cbhtwo(ich):
-    return list(cbhtwo(ich).keys())
+    frags = cbhtwo(ich)
+    fraglist = []
+    clist = []
+    for frag in frags:
+        fraglist.append(frag)
+        clist.append(frags[frag])
+    return fraglist, clist
+    #return list(cbhtwo(ich).keys())
 
 
 def _add2dic(dic, key, val=1):
