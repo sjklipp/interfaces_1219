@@ -22,7 +22,7 @@ opt_method      none
 
 sampling        multifacet
 face            ${faces}
-face_symm       ${face_symms}
+face_symm       ${faces_symm}
 ds_inp_file     divsur.inp
 ds_out_file     divsur.out
 

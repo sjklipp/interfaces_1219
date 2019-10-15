@@ -17,7 +17,7 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
 def tst(nsamp_max, nsamp_min, flux_err, pes_size,
-        faces=[0], face_symms=1,
+        faces=[0], faces_symm=1,
         ener_grid=(), amom_grid=()):
     """ Writes the tst.inp file for VaReCoF
         :param int nsamp_max: maximum number of samples
@@ -35,7 +35,6 @@ def tst(nsamp_max, nsamp_min, flux_err, pes_size,
         amom_grid = [0, 4, 1.10, 40]
     else:
         assert len(amom_grid) == 4
-
     ener_grid = util.format_grids_string(ener_grid, 'ener', 'Kelvin')
     amom_grid = util.format_grids_string(amom_grid, 'amom', 'Kelvin')
 
@@ -51,7 +50,7 @@ def tst(nsamp_max, nsamp_min, flux_err, pes_size,
         'flux_err': flux_err,
         'pes_size': pes_size,
         'faces': faces,
-        'face_symms': face_symms
+        'faces_symm': faces_symm
     }
 
     # Set template name and path for the global keywords section
