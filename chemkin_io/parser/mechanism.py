@@ -169,11 +169,14 @@ def _read_name_charge(data):
 
 def _read_name_sensitivity(data):
     """ get dct[name]=sensitivity """
-    spc_dct = {}
+    fill = 0.
     if hasattr(data, 'sens'):
         spc_dct = dict(zip(data.name, data.sens))
     else:
-        spc_dct = {}
+        if fill is not None:
+            spc_dct = dict(zip(data.name, [fill for name in data.name]))
+        else:
+            spc_dct = {}
 
     return spc_dct
 
