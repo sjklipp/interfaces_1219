@@ -39,7 +39,8 @@ def format_coords(geo):
     # Get the geometry information
     symbols = geom.symbols(geo)
     coordinates = geom.coordinates(geo)
-    masses = [int(ptab.to_mass(symbol)) for symbol in symbols]
+    masses = [int(ptab.to_mass(symbol)) if symbol != 'X' else 0
+              for symbol in symbols]
 
     # Build a string with the formatted coordinates string
     if geom.is_atom(geo):
@@ -70,7 +71,7 @@ def format_grids_string(grid, name, units):
 
 
 def format_faces_string(faces):
-    """ format faces keyword
+    """ format faces keywords
     """
     faces_str = ' '.join(faces)
 
@@ -140,3 +141,35 @@ def format_pivot_xyz_string(idx, npivot, xyzP, phi_dependence=False):
                             x_val2 + y_val2 + z_val2)
 
     return pivot_xyz_string
+
+
+def format_corrpot_dist_string(aidx, bidx, asym, bsym):
+    """ set distance string for two atoms for the file
+    """
+    lasym, lbsym = asym.lower(), bsym.lower()
+
+    dist_string = (
+        "      n{0} = {1}".format(lasym, aidx),
+        "      n{0} = {1}".format(lbsym, bidx),
+        "      r{0}{1} = dsqrt( (x(1,n{2})-x(1,n{3}))**2 +".format(asym, bsym, lbsym, lasym),
+        "     x             (x(2,n{0})-x(2,n{1}))**2 +".format(lbsym, lasym),
+        "     x             (x(3,n{0})-x(3,n{1}))**2 +".format(lbsym, lasym),
+        "",
+        "r{0}{1} = r{0}{1}*0.52917".format(asym, bsym)
+    )
+
+    return dist_string
+
+
+def format_comp_dist_string(sym1, sym2, name):
+    """ build string that has the distance comparison
+    """
+
+    comp_string = (
+        "      if (r{0}{1}.lt.rAB) then".format(sym1, sym2),
+        "        {0}_corr = 100.0".format(name),
+        "        return",
+        "      endif"
+    )
+
+    return comp_string

@@ -25,14 +25,12 @@ ${dv_vals}
 
       ipot = iparm(1)
 
-      na = ${aidx}
-      nb = ${bidx}
+      ${bond_dist_string}
 
-      r${asym}${bsym} = dsqrt( (x(1,nb)-x(1,na))**2 +
-     x             (x(2,nb)-x(2,na))**2 +
-     x             (x(3,nb)-x(3,na))**2 )
-
-      r${asym}${bsym} = r${asym}${bsym}*0.52917
+## Set strings if there are distance comparisons to adjust potential
+% for i in range(comp_distance_strings):
+comp_distance_strings[i]
+% endfor
 
 ## Append the lines for setting all the values
       delmlt = 1.0d0
@@ -43,7 +41,7 @@ ${dv_vals}
       endif
 
 ## Append the lines for declaring the spline functions
-${spline}
+${spline_strings}
 
       ${species_name}_corr = ${species_name}_corr*delmlt/627.5095
 

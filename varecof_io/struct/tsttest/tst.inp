@@ -1,28 +1,28 @@
 tmpr_grid       50      10       1.05     61     Kelvin  # temperature grid
-${ener_grid}
-${amom_grid}
+ener_grid       0       10       1.05    179     Kelvin  # energy grid
+amom_grid       0       4        1.1     40      au      # angular momentum grid
 
-pot_smp_max     ${nsamp_max} 
-pot_smp_min     ${nsamp_min} 
+pot_smp_max     5000
+pot_smp_min     2000
 tot_smp_max     100000
 tot_smp_min     1000
 pot_smp_len     1
 
-flux_rel_err    ${flux_err}       nu
+flux_rel_err    10      nu
 flux_out_mode   ej-resolved
 min_atom_dist   1.5     Bohr
-priority_exp    0.      nu
+priority_exp    0.   nu
 
-pot_name        molpro          # potential to use
+pot_name        molpro      # potential to use
 pot_type        molpro          #  potential type
 pot_file        molpro.inp
-pes_size        ${pes_size}
+pes_size        6
 
 opt_method      none
 
 sampling        multifacet
-face            ${faces}
-face_symm       ${faces_symm}
+face            0 1
+face_symm       2 1
 ds_inp_file     divsur.inp
 ds_out_file     divsur.out
 
@@ -42,3 +42,5 @@ save_time       3000
 flux_debug      0
 comm_debug      0
 nice            0
+
+

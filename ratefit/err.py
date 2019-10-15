@@ -31,9 +31,10 @@ def calc_sse_and_mae(calc_ks, fit_ks):
     return sse, mean_abs_err, max_abs_err
 
 
-def pdep_dependence(pdep_dct, plow=None, tol1=20, tol2=20):
+def assess_pressure_dependence(pdep_dct, temps, temp_compare,
+                               tolerance=20.0, plow=None, phigh=None):
     """ Assess how much the rate constants change from
-        a low-pressure regime
+        a low-pressure to high-pressure regime
     """
     # Get a list of the sorted pressures
     pressures = [pressure for pressure in pdep_dct
@@ -43,17 +44,21 @@ def pdep_dependence(pdep_dct, plow=None, tol1=20, tol2=20):
     # Set the lowest pressure if not specified by user
     if plow is None:
         plow = min(pressures)
+    if phigh is None:
+        phigh = max(pressures)
+
+    # Get idxs of rate constants corresponding to the temps for comparison
+    # Get idxs corresponding to k(T) vals in each k(T, P) pdep_dct entry
+    temps.sort()
+    temp_idxs = [np.where(temps == temp)[0][0] for temp in temp_compare]
 
     # See changes
-    within_tolerance = True
-    for i, pressure in enumerate(pressures):
-        if i != len(pressures) + 1:
-            ktplow = pdep_dct[pressures[i]]
-            ktphigh = pdep_dct[pressures[i+1]]
-            abs_err = np.abs(ktplow - ktphigh) / ktplow
-            mean_abs_err = np.mean(abs_err) * 100.0
-            max_abs_err = np.max(abs_err) * 100.0
-            if mean_abs_err > tol1 and max_abs_err > tol2:
-                within_tolerance = False
+    is_pressure_dependent = False
+    for idx in temp_idxs:
+        ktp_low = pdep_dct[plow][idx]
+        ktp_high = pdep_dct[phigh][idx]
+        ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
+        if ktp_dif > tolerance:
+            is_pressure_dependent = True
 
-    return within_tolerance
+    return is_pressure_dependent

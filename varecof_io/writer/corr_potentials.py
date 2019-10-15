@@ -5,6 +5,7 @@ Writes the fortran files needed for the correction potential
 import os
 import subprocess
 from mako.template import Template
+from varecof_io.writer import util
 
 
 # OBTAIN THE PATH TO THE DIRECTORY CONTAINING THE TEMPLATES #
@@ -12,8 +13,8 @@ SRC_PATH = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
-def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
-            species_name=None, pot_labels=[]):
+def species(rvalues, potentials, bnd_frm_idxs,
+            dist_comp_idxs=[], species_name=None, pot_labels=[]):
     """ Writes string for correction potential for some species Fortran file
         :return : String for the mol_corr.f file
         :rtype: string
@@ -22,7 +23,7 @@ def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
     npot = len(potentials)
     npot_terms = len(potentials[0])
     [aidx, bidx] = bnd_frm_idxs
-    [asym, bsym] = bnd_frm_syms
+    asym, bsym = 'A', 'B'
 
     assert npot > 0
     assert all(len(potential) == npot_terms for potential in potentials)
@@ -39,7 +40,7 @@ def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
                 str(i+1), label)
     pot_labels_str = pot_labels_str.rstrip()
 
-    # strings to initialize the potential variables in the Fortran subroutine
+    # Strings to initialize the potential variables in the Fortran subroutine
     npot = len(potentials)
     npot_terms = len(potentials[0])
     dv_defs = ''
@@ -47,7 +48,7 @@ def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
         dv_defs += 'dv{0}({1}),'.format(str(i+1), npot_terms)
     dv_defs = dv_defs[:-1]
 
-    # definitions of all of all the correction potential distances
+    # Definitions of all of all the correction potential distances
     rvals = ''
     for i, rval in enumerate(rvalues):
         rvals += '      data rinp({0}) / {1:.3f} /\n'.format(
@@ -56,13 +57,27 @@ def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
     rmin = min(rvalues)
     rmax = max(rvalues)
 
-    # definitions of all of all the correction potential energies
+    # Definitions of all of all the correction potential energies
     dv_vals = ''
     for i, potential in enumerate(potentials):
         for j, term in enumerate(potential):
             dv_vals += '      data dv{0}({1}) / {2:.3f} /\n'.format(
                 str(i+1), str(j+1), term)
     dv_vals = dv_vals.rstrip()
+
+    # Build principal distance string
+    bond_distance_string = util.format_corrpot_dist_string(
+        aidx, bidx, asym, bsym)
+
+    # Build distance comparison strings
+    comp_distance_strings = []
+    for i, idxs in enumerate(dist_comp_idxs):
+        [idx1, idx2] = idxs
+        sym1, sym2 = chr(67+2*i), chr(68+2*i)
+        bond_distance_string = util.format_corrpot_dist_string(
+            idx1, idx2, sym1, sym2)
+        comp_distance_strings.append(
+            util.format_comp_dist_string(sym1, sym2, species_name))
 
     # spline fitting strings
     spline = ''
@@ -94,17 +109,19 @@ def species(rvalues, potentials, bnd_frm_idxs, bnd_frm_syms=['A', 'B'],
         'rmax': rmax,
         'aidx': aidx,
         'bidx': bidx,
-        'spline': spline
+        'bond_distance_string': bond_distance_string,
+        'comp_distance_strings': comp_distance_strings,
+        'spline_strings': spline
     }
 
-    # Set template name and path for the mol_corr template
+    # Set template name and path for the species_corr template
     template_file_name = 'species_corr.mako'
     template_file_path = os.path.join(TEMPLATE_PATH, template_file_name)
 
-    # Build mol_corr.f string
-    mol_corr_str = Template(filename=template_file_path).render(**corr_keys)
+    # Build species_corr.f string
+    spc_corr_str = Template(filename=template_file_path).render(**corr_keys)
 
-    return mol_corr_str
+    return spc_corr_str
 
 
 def dummy():
