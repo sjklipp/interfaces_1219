@@ -11,7 +11,7 @@ from mess_io.writer.rxnchan import species
 from mess_io.writer.rxnchan import well
 from mess_io.writer.rxnchan import bimolecular
 from mess_io.writer.rxnchan import ts_sadpt
-from mess_io.writer.rxnchan import ts_irc
+from mess_io.writer.rxnchan import ts_variational
 from mess_io.writer.species import atom
 from mess_io.writer.species import molecule
 from mess_io.writer.mol_data import core_rigidrotor
@@ -34,7 +34,7 @@ __all__ = [
     'well',
     'bimolecular',
     'ts_sadpt',
-    'ts_irc',
+    'ts_variational',
     'atom',
     'molecule',
     'core_rigidrotor',
