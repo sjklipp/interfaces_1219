@@ -34,7 +34,8 @@ def test__writer():
     rotors_str = projrot_io.writer.rotors(AXIS, GROUP)
 
     # Write the string for the ProjRot input
-    inp_str = projrot_io.writer.rpht_input(GEOM, GRAD, HESS,
+    inp_str = projrot_io.writer.rpht_input([GEOM], [GRAD], [HESS],
+                                           saddle_idx=1,
                                            rotors_str=rotors_str,
                                            coord_proj=COORD_PROJ)
 

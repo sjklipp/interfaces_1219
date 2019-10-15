@@ -23,6 +23,6 @@ def rpht_output(file_name):
             if freq > 0.0:
                 real_freqs.append(freq)
             else:
-                imag_freqs.append(freq)
+                imag_freqs.append(-1.0*freq)
 
     return real_freqs, imag_freqs

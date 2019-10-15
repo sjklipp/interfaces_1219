@@ -10,9 +10,9 @@ def test__reader():
     """
 
     # Set file names for various test files
-    min_freqs_file = 'min.dat'
-    one_imag_freqs_file = 'one_imag.dat'
-    two_imag_freqs_file = 'two_imag.dat'
+    min_freqs_file = 'freq_files/min.dat'
+    one_imag_freqs_file = 'freq_files/one_imag.dat'
+    two_imag_freqs_file = 'freq_files/two_imag.dat'
 
     # Obtain the real and imaginary frequencies from each file
     real_freqs1, imag_freqs1 = projrot_io.reader.rpht_output(
@@ -22,32 +22,12 @@ def test__reader():
     real_freqs3, imag_freqs3 = projrot_io.reader.rpht_output(
         two_imag_freqs_file)
 
-    # Print the frequencies from minimum file
-    print('\nFrequencies from min.dat:')
-    print('Real Frequencies:')
-    for val in real_freqs1:
-        print(val)
-    print('Imaginary Frequencies:')
-    for val in imag_freqs1:
-        print(val)
-
-    # Print the frequencies from one imag file
-    print('\nFrequencies from one_imag.dat:')
-    print('Real Frequencies:')
-    for val in real_freqs2:
-        print(val)
-    print('Imaginary Frequencies:')
-    for val in imag_freqs2:
-        print(val)
-
-    # Print the frequencies from two imag file
-    print('\nFrequencies from two_imag.dat:')
-    print('Real Frequencies:')
-    for val in real_freqs3:
-        print(val)
-    print('Imaginary Frequencies:')
-    for val in imag_freqs3:
-        print(val)
+    assert real_freqs1 == [6000.0, 5000.0, 4000.0, 3000.0, 2000.0, 1000.0]
+    assert not imag_freqs1
+    assert real_freqs2 == [6000.0, 5000.0, 4000.0, 3000.0, 2000.0]
+    assert imag_freqs2 == [1111.11]
+    assert real_freqs3 == [6000.0, 5000.0, 4000.0, 3000.0]
+    assert imag_freqs3 == [1111.11, 2222.22]
 
 
 if __name__ == '__main__':
