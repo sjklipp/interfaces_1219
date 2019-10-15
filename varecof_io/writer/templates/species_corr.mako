@@ -1,48 +1,45 @@
 
       real*8 function ${species_name}_corr(natoms,x,rparm,iparm)
-c
 c     natoms = number of atoms (not used)
 c     x = cartesian coordinates
 c     rparm (not used)
 c     iparm(1) = specifies which potential correction to use
-c     rinp = ${asym}-${bsym} distance
-% if pot_labels != '':
-${pot_labels}
-% endif
-c
       implicit real*8 (a-h,o-z)
       dimension x(3,1)
       dimension iparm(${npot})
       dimension rinp(${npot_terms})
       dimension ${dv_defs}
       dimension dv20(${npot_terms})
-      data dvp1,dvpn / 1.0d40,1.0d40 /
+c     rinp = A-B distance, where A,B are the bond forming atoms
 ${rvals}
+      data nrin / ${npot_terms} /
+c     dvN = energy value for correction potential N
+% if pot_labels != '':
+${pot_labels}
+% endif
+      data dvp1,dvpn / 1.0d40,1.0d40 /
 ${dv_vals}
 ## Append further info that is needed for atom labeling
-      data nrin / ${npot_terms} /
-      data r${asym}${bsym}min,r${asym}${bsym}max / ${rmin},${rmax} /
+c     min and max values along the rAB distance grid
+      data rABmin,rABmax / ${rmin},${rmax} /
 
-      ipot = iparm(1)
+c     Set the distance of the two atoms forming the bond in the reaction
+${bond_distance_string}
 
-      ${bond_dist_string}
-
-## Set strings if there are distance comparisons to adjust potential
-% for i in range(comp_distance_strings):
-comp_distance_strings[i]
-% endfor
-
-## Append the lines for setting all the values
-      delmlt = 1.0d0
-      if(r${asym}${bsym}.le.r${asym}${bsym}min) r${asym}${bsym} = r${asym}${bsym}min
-      if(r${asym}${bsym}.ge.r${asym}${bsym}max) then
-        delmlt = exp(-2.d0*(r${asym}${bsym}-r${asym}${bsym}max))
-        r${asym}${bsym}=r${asym}${bsym}max
-      endif
+## Set strings that modify the potential for certain distances
+% if comp_distance_strings != '':
+c     Set the distances to other atoms we must check to alter the potential
+${comp_distance_strings}
+% endif
+c     Set mult factor for potential to exponential form when sampling dist outside bounds
+${delmlt_string}
 
 ## Append the lines for declaring the spline functions
+c     Perform spline fits for each of the correction potential grids
+      ipot = iparm(1)
 ${spline_strings}
 
+c     Set the value of the correction potential
       ${species_name}_corr = ${species_name}_corr*delmlt/627.5095
 
       return
