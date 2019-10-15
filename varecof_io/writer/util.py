@@ -10,6 +10,7 @@ from automol import geom
 BOHR2ANG = qcc.conversion_factor('bohr', 'angstrom')
 
 
+# Utility functions for the structure.inp writer
 def determine_struct_type(geo):
     """ determines the linear string
     """
@@ -59,6 +60,7 @@ def format_coords(geo):
     return natoms, geo_str
 
 
+# Utility functions for the tst.inp writer
 def format_grids_string(grid, name, units):
     """ format the string using the grids for
         energy and angular momentum for tst.inp file
@@ -78,6 +80,7 @@ def format_faces_string(faces):
     return faces_str
 
 
+# Utility functions for the divsur.inp writer
 def format_values_string(coord, values, conv_factor=1.0):
     """ format the values string for the divsur.inp file
     """
@@ -91,7 +94,7 @@ def format_values_string(coord, values, conv_factor=1.0):
     return values_string
 
 
-def format_pivot_xyz_string(idx, npivot, xyzP, phi_dependence=False):
+def format_pivot_xyz_string(idx, npivot, xyzp, phi_dependence=False):
     """ format the pivot point xyz
     """
 
@@ -104,72 +107,107 @@ def format_pivot_xyz_string(idx, npivot, xyzP, phi_dependence=False):
         d_idx = 2
 
     if npivot == 1:
-        x_val = 'x{0} = {1:.3f}'.format(atom_idx, xyzP[0])
-        y_val = '  y{0} = {1:.3f}'.format(atom_idx, xyzP[1])
-        z_val = '  z{0} = {1:.3f}'.format(atom_idx, xyzP[2])
+        x_val = 'x{0} = {1:.3f}'.format(atom_idx, xyzp[0])
+        y_val = '  y{0} = {1:.3f}'.format(atom_idx, xyzp[1])
+        z_val = '  z{0} = {1:.3f}'.format(atom_idx, xyzp[2])
         pivot_xyz_string = (x_val + y_val + z_val)
     elif npivot > 1 and not phi_dependence:
-        x_val1 = 'x{0} = {1:.3f} + d{2}*cos(t{3})'.format(
-            atom_idx, xyzP[0], d_idx, atom_idx)
-        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(t{3})'.format(
-            atom_idx, xyzP[1], d_idx, atom_idx)
+        x_val1 = 'x{0} = {1:.3f} + d{2}*cos(t{0})'.format(
+            atom_idx, xyzp[0], d_idx)
+        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(t{0})'.format(
+            atom_idx, xyzp[1], d_idx)
         z_val1 = '  z{0} = 0.000'.format(
             atom_idx)
-        x_val2 = 'x{0} = {1:.3f} - d{2}*cos(t{3})'.format(
-            atom_idx+1, xyzP[0], d_idx, atom_idx)
-        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(t{3})'.format(
-            atom_idx+1, xyzP[1], d_idx, atom_idx)
+        x_val2 = 'x{0} = {1:.3f} - d{2}*cos(t{0})'.format(
+            atom_idx+1, xyzp[0], d_idx)
+        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(t{0})'.format(
+            atom_idx+1, xyzp[1], d_idx)
         z_val2 = '  z{0} = 0.000'.format(
             atom_idx+1)
         pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
                             x_val2 + y_val2 + z_val2)
     else:
         # Not sure if this implementation is any good
-        x_val1 = 'x{0} = {1:.3f} + d{2}*sin(p{3})*cos(t{3})'.format(
-            atom_idx, xyzP[0], d_idx, atom_idx)
-        y_val1 = '  y{0} = {1:.3f} + d{2}*sin(p{3})*sin(t{3})'.format(
-            atom_idx, xyzP[1], d_idx, atom_idx)
-        z_val1 = '  z{0} = {1:.3f} + d{2}*cos(p{3})'.format(
-            atom_idx, xyzP[2], d_idx, atom_idx)
-        x_val2 = 'x{0} = {1:.3f} - d{2}*sin(p{3})*cos(t{3})'.format(
-            atom_idx+1, xyzP[0], d_idx, atom_idx)
-        y_val2 = '  y{0} = {1:.3f} - d{2}*sin(p{3})*sin(t{3})'.format(
-            atom_idx+1, xyzP[1], d_idx, atom_idx)
-        z_val2 = '  z{0} = {1:.3f} + d{2}*cos(p{3})'.format(
-            atom_idx+1, xyzP[2], d_idx, atom_idx)
+        x_val1 = 'x{0} = {1:.0f} + d{2}*sin(p{0})*cos(t{0})'.format(
+            atom_idx, xyzp[0], d_idx)
+        y_val1 = '  y{0} = {1:.0f} + d{2}*sin(p{0})*sin(t{0})'.format(
+            atom_idx, xyzp[1], d_idx)
+        z_val1 = '  z{0} = {1:.0f} + d{2}*cos(p{0})'.format(
+            atom_idx, xyzp[2], d_idx)
+        x_val2 = 'x{0} = {1:.0f} - d{2}*sin(p{0})*cos(t{0})'.format(
+            atom_idx+1, xyzp[0], d_idx)
+        y_val2 = '  y{0} = {1:.0f} - d{2}*sin(p{0})*sin(t{0})'.format(
+            atom_idx+1, xyzp[1], d_idx)
+        z_val2 = '  z{0} = {1:.0f} + d{2}*cos(p{0})'.format(
+            atom_idx+1, xyzp[2], d_idx)
         pivot_xyz_string = (x_val1 + y_val1 + z_val1 + '\n' +
                             x_val2 + y_val2 + z_val2)
 
     return pivot_xyz_string
 
 
+# Utility functions for the species_corr.f correction potential writer
 def format_corrpot_dist_string(aidx, bidx, asym, bsym):
     """ set distance string for two atoms for the file
     """
     lasym, lbsym = asym.lower(), bsym.lower()
 
     dist_string = (
-        "      n{0} = {1}".format(lasym, aidx),
-        "      n{0} = {1}".format(lbsym, bidx),
-        "      r{0}{1} = dsqrt( (x(1,n{2})-x(1,n{3}))**2 +".format(asym, bsym, lbsym, lasym),
-        "     x             (x(2,n{0})-x(2,n{1}))**2 +".format(lbsym, lasym),
-        "     x             (x(3,n{0})-x(3,n{1}))**2 +".format(lbsym, lasym),
-        "",
-        "r{0}{1} = r{0}{1}*0.52917".format(asym, bsym)
-    )
+        "      n{0} = {4}\n" +
+        "      n{1} = {5}\n" +
+        "      r{2}{3} = dsqrt( (x(1,n{1})-x(1,n{0}))**2 +\n" +
+        "     x             (x(2,n{1})-x(2,n{0}))**2 +\n" +
+        "     x             (x(3,n{1})-x(3,n{0}))**2)\n" +
+        "      r{2}{3} = r{2}{3}*0.52917"
+    ).format(lasym, lbsym, asym, bsym, aidx, bidx)
 
     return dist_string
 
+
+def format_delmlt_string(asym, bsym):
+    """ set distance string for two atoms for the file
+    """
+
+    delmlt_string = (
+        "      delmlt = 1.0d0\n" +
+        "      if(r{0}{1}.le.r{0}{1}min) r{0}{1} = r{0}{1}min\n" +
+        "      if(r{0}{1}.ge.r{0}{1}max) then\n" +
+        "        delmlt = exp(-2.d0*(r{0}{1}-r{0}{1}max))\n" +
+        "        r{0}{1}=r{0}{1}max\n" +
+        "      endif"
+    ).format(asym, bsym)
+
+    return delmlt_string
 
 def format_comp_dist_string(sym1, sym2, name):
     """ build string that has the distance comparison
     """
 
     comp_string = (
-        "      if (r{0}{1}.lt.rAB) then".format(sym1, sym2),
-        "        {0}_corr = 100.0".format(name),
-        "        return",
+        "      if (r{0}{1}.lt.rAB) then\n" +
+        "        {2}_corr = 100.0\n" +
+        "        return\n" +
         "      endif"
-    )
+    ).format(sym1, sym2, name)
 
     return comp_string
+
+
+def format_spline_strings(npot, sym1, sym2, species_name):
+    """ spline fitting strings
+    """
+
+    spline_str = ''
+    for i in range(npot):
+        if i == 0:
+            ifstr = 'if'
+        else:
+            ifstr = 'else if'
+        spline_str += '      {0} (ipot.eq.{1}) then\n'.format(ifstr, str(i+1))
+        spline_str += (
+            '        call spline(rinp,dv{0},nrin,dvp1,dvpn,dv20)\n' +
+            '        call splint(rinp,dv{0},dv20,nrin,r{1}{2},{3})\n'
+        ).format(str(i+1), sym1, sym2, species_name+'_corr')
+    spline_str += '      endif'
+
+    return spline_str

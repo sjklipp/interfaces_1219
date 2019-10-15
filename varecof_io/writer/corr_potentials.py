@@ -29,7 +29,7 @@ def species(rvalues, potentials, bnd_frm_idxs,
     assert all(len(potential) == npot_terms for potential in potentials)
 
     # Set species name
-    if species_name is not None:
+    if species_name is None:
         species_name = 'species'
 
     # Put some comment lines giving a description of the correction potentials
@@ -70,35 +70,26 @@ def species(rvalues, potentials, bnd_frm_idxs,
         aidx, bidx, asym, bsym)
 
     # Build distance comparison strings
-    comp_distance_strings = []
+    comp_distance_strings = ''
     for i, idxs in enumerate(dist_comp_idxs):
         [idx1, idx2] = idxs
         sym1, sym2 = chr(67+2*i), chr(68+2*i)
-        bond_distance_string = util.format_corrpot_dist_string(
+        comp_distance_strings += util.format_corrpot_dist_string(
             idx1, idx2, sym1, sym2)
-        comp_distance_strings.append(
-            util.format_comp_dist_string(sym1, sym2, species_name))
+        comp_distance_strings += '\n'
+        comp_distance_strings += util.format_comp_dist_string(
+            sym1, sym2, species_name)
+        comp_distance_strings += '\n'
 
-    # spline fitting strings
-    spline = ''
-    for i in range(npot):
-        if i == 0:
-            spline += '      if (ipot.eq.{0}) then\n'.format(str(i+1))
-        else:
-            spline += '      else if (ipot.eq.{0}) then\n'.format(str(i+1))
-        spline += (
-            '        call spline(rinp,dv{0},nrin,dvp1,dvpn,dv20)\n'.format(
-                str(i+1)))
-        spline += (
-            '        call splint(rinp,dv{0},dv20,nrin,r{1}{2},{3})\n'.format(
-                str(i+1), asym, bsym, species_name+'_corr'))
-    spline += '      endif'
+    # Build the delmlt string
+    delmlt_string = util.format_delmlt_string(asym, bsym)
+
+    # Build the spline fitting strings
+    spline_strings = util.format_spline_strings(npot, asym, bsym, species_name)
 
     # Create dictionary to fill template
     corr_keys = {
         'species_name': species_name,
-        'asym': asym,
-        'bsym': bsym,
         'pot_labels': pot_labels_str,
         'npot': npot,
         'npot_terms': npot_terms,
@@ -111,7 +102,8 @@ def species(rvalues, potentials, bnd_frm_idxs,
         'bidx': bidx,
         'bond_distance_string': bond_distance_string,
         'comp_distance_strings': comp_distance_strings,
-        'spline_strings': spline
+        'delmlt_string': delmlt_string,
+        'spline_strings': spline_strings
     }
 
     # Set template name and path for the species_corr template
