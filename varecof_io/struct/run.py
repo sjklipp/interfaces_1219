@@ -1,11 +1,12 @@
 """ build structures and check symmetry
 """
 
+import os
 import subprocess
+from qcelemental import constants as qcc
 import automol
 import intxyz
-import numpy as np
-from qcelemental import constants as qcc
+import varecof_io
 
 
 RAD2DEG = qcc.conversion_factor('radian', 'degree')
@@ -30,11 +31,16 @@ H        0.1076035596      1.1185015807     -0.4613403950
 H       -0.9148413825     -0.6524365956     -0.4613401511                 
 F        5.2265410000     -3.0175450000     -2.1337000000"""
 
-ISO_FRAG1 = (('C', (-6.3932426071741e-08, 4.940637293352874e-08, -3.357741500804338e-07)),
-             ('H', (2.0239668684530345, -0.29640915234223403, -0.026089726037727454)),
-             ('H', (-1.2691413835305634, -1.6042239710181778, -0.026948153163021835)),
-             ('H', (-0.7548254209900506, 1.900633073954034, 0.05303821497489978)))
-ISO_FRAG2 = (('H', (0.0, 0.0, 0.0)),)
+# iso_geo1 = """C    0.000000   0.000000   0.000000
+# H   -0.539500  -0.934400   0.000000
+# H   -0.539500   0.934400   0.000000
+# H    1.079000   0.000000   0.000000"""
+iso_geo1 = """C       -0.2054901012      0.1186337111      0.0838793339                 
+H        0.1076008786     -0.0621229284      1.2083245013                 
+H        0.1076035596      1.1185015807     -0.4613403950                 
+H       -0.9148413825     -0.6524365956     -0.4613401511"""
+
+iso_geo2 = "H    0.000000   0.000000   0.000000"
 
 
 # def fragment_geometries(ts_zma, rct_zmas, bdn_frm_idxs):
@@ -51,7 +57,8 @@ def fragment_geometries():
     bnd_frm_idxs = [4, 0]
     # Get the geometries of the isolated fragments (the reactants)
     # iso_fgeos = [automol.zmatrix.geometry(zma) for zma in rct_zmas]
-    iso_fgeos = [ISO_FRAG1, ISO_FRAG2]
+    iso_fgeos = [automol.geom.from_string(iso_geo1),
+                 automol.geom.from_string(iso_geo2)]
 
     # Get the geometries for the structure.inp file
     vc_geos = []
@@ -67,10 +74,10 @@ def fragment_geometries():
                 mep_geo_wdummy = mep_geo + (dummy_row,)
                 x_idx = len(mep_geo_wdummy) - 1
                 a1_idx = 0
-                print(x_idx)
-                print(a1_idx)
-                for x in mep_geo_wdummy:
-                    print(x)
+                # print(x_idx)
+                # print(a1_idx)
+                # for x in mep_geo_wdummy:
+                #     print(x)
             else:
                 mep_geo_wdummy = (dummy_row,) + mep_geo
                 x_idx = 0
@@ -81,8 +88,11 @@ def fragment_geometries():
             xyz2 = iso_geo[a1_idx+1][1]
             xdistance = automol.geom.distance(
                 mep_geo_wdummy, x_idx, a1_idx)
+            print(x_idx, a1_idx, a1_idx+1)
             xangle = automol.geom.central_angle(
                 mep_geo_wdummy, x_idx, a1_idx, a1_idx+1)
+            print(xangle)
+            print(xangle * 180.0/3.14)
             if len(mep_geo) > 2:
                 xyz3 = iso_geo[a1_idx+2][1]
                 xdihedral = automol.geom.dihedral_angle(
@@ -92,14 +102,14 @@ def fragment_geometries():
                 xdihedral = None
 
             # Calculate the X Position for the IsoFrag structure
-            print('\ncoords')
-            print(x_idx)
-            print(np.array(xyz1) * BOHR2ANG)
-            print(np.array(xyz2) * BOHR2ANG)
-            print(np.array(xyz3) * BOHR2ANG)
-            print(xdistance * BOHR2ANG)
-            print(xangle * RAD2DEG)
-            print(xdihedral * RAD2DEG)
+            # print('\ncoords')
+            # print(x_idx)
+            # print(np.array(xyz1) * BOHR2ANG)
+            # print(np.array(xyz2) * BOHR2ANG)
+            # print(np.array(xyz3) * BOHR2ANG)
+            # print(xdistance * BOHR2ANG)
+            # print(xangle * RAD2DEG)
+            # print(xdihedral * RAD2DEG)
             xyzp = intxyz.find_xyzp(
                 xyz1, xyz2, xyz3, xdistance, xangle, xdihedral)
 
@@ -129,7 +139,7 @@ def fragment_geometries():
     print('new geo')
     for geo in vc_geos:
         print('\n')
-        print(automol.geom.string(geo))
+        print(automol.geom.string(geo).replace('X', 'F'))
 
     return vc_geos
 
@@ -138,17 +148,15 @@ def assess_face_symmetries():
     """ check the symmetry of the faces for each fragment
     """
 
-    # Get the fragment coordinates in the divsur frame
-    frag_file = open('fragments.xyz', 'w')
-    subprocess.check_call(['./conv_struct', 'divsur.inp'], stdout=frag_file)
-    frag_file.close()
+    DEVNULL = open(os.devnull, 'w')
+    subprocess.check_call(['./convert_struct', 'divsur.inp'],
+        stdout=DEVNULL, stderr=DEVNULL)
 
-    with open('fragments.xyz', 'r') as frag_file:
-        frag_lines = frag_file.readlines()
-    idxs = [i for i in range(len(frag_lines))
-            if 'Fragment' in frag_lines[i]]
-    fgeo1 = ''.join(frag_lines[idxs[0]+1:idxs[1]])
-    fgeo2 = ''.join(frag_lines[idxs[1]+1:])
+    # Read fragment geoms from divsur.out with coordinates in the divsur frame
+    with open('divsur.out', 'r') as divsur_file:
+        divsur_string = divsur_file.read()
+    fgeo1, fgeo2 = varecof_io.reader.divsur.frag_geoms_divsur_frame(
+        divsur_string)
     fgeo1 = automol.geom.from_string(fgeo1)
     fgeo2 = automol.geom.from_string(fgeo2)
 
@@ -160,10 +168,10 @@ def assess_face_symmetries():
     fgeo2_reflect = automol.geom.reflect_coordinates(
         fgeo2, [f2_dummy_idx], ['x', 'y'])
 
-    print(fgeo1)
-    print(fgeo1_reflect)
-    print(fgeo2)
-    print(fgeo2_reflect)
+    print(automol.geom.string(fgeo1)+'\n')
+    print(automol.geom.string(fgeo1_reflect)+'\n')
+    print(automol.geom.string(fgeo2)+'\n')
+    print(automol.geom.string(fgeo2_reflect)+'\n')
 
     # # Assess the coloumb spectrum for each geom
     fgeo1_sym = automol.geom.almost_equal_coulomb_spectrum(
