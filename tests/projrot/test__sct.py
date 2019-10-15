@@ -60,7 +60,7 @@ def test_sct_rpht_input():
     # Write the string for the ProjRot input
     inp_str = projrot_io.writer.rpht_input(
         GEOMS, GRADS, HESSES,
-        saddle_idx=1, rotors_str='', coord_proj=CART_PROJ)
+        saddle_idx=11, rotors_str='', coord_proj=CART_PROJ)
 
     # Print the string
     print(inp_str)
