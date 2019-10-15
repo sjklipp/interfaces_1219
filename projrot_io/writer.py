@@ -20,7 +20,8 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 def rpht_input(geoms, grads, hessians,
                saddle_idx=1,
                rotors_str='',
-               coord_proj='cartesian'):
+               coord_proj='cartesian',
+               proj_rxn_coord=False):
     """ Write the ProjRot input file
     """
 
@@ -37,31 +38,27 @@ def rpht_input(geoms, grads, hessians,
     nrotors = rotors_str.count('pivotA')
 
     # Check input into the function
-    print('projrot before asert:')
     assert all(len(lst) == nsteps for lst in (geoms, grads, hessians))
     assert coord_proj in ('cartesian', 'internal')
 
-    print('projrot before rpht_keys:')
     # Create a fill value dictionary
     rpht_keys = {
         'natoms': natoms,
         'nsteps': nsteps,
         'saddle_idx': saddle_idx,
         'coord_proj': coord_proj,
+        'prod_rxn_coord': proj_rxn_coord,
         'nrotors': nrotors,
         'rotors_str': rotors_str,
         'data_str': data_str
     }
 
     # Set template name and path for an atom
-    print('projrot before template_names:')
     template_file_name = 'rpht_input.mako'
     template_file_path = os.path.join(TEMPLATE_PATH, template_file_name)
 
     # Build a ProjRot input string
-    print('projrot before Template:')
     rpht_string = Template(filename=template_file_path).render(**rpht_keys)
-    print('projrot after rpht_string:')
 
     return rpht_string
 
@@ -69,13 +66,16 @@ def rpht_input(geoms, grads, hessians,
 def rpht_path_coord_en(coords, energy, bnd1, bnd2):
     """ Write the ProjRot file containing path data
     """
+    nsteps = len(coords)
     assert all(lst for lst in (coords, energy, bnd1, bnd2))
-    assert len(coords) == len(energy) == len(bnd1) == len(bnd2)
+    assert all(len(lst) == nsteps for lst in (energy, bnd1, bnd2))
 
-    path_str = 'Point Coordinate Energy Bond1 Bond2'
+    path_str = 'Point Coordinate Energy Bond1 Bond2\n'
     for i, (crd, ene, bd1, bd2) in enumerate(zip(coords, energy, bnd1, bnd2)):
-        path_str += '{0:>3d}{1:>9.5f}{2:11.9f}{3:8.5f}{4:8.5f}\n'.format(
-            str(i+1), crd, ene, bd1, bd2)
+        path_str += '{0:>3d}{1:>9.5f}{2:>9.5f}{3:>8.5f}{4:>8.5f}'.format(
+            i, crd, ene, bd1, bd2)
+        if i != nsteps-1:
+            path_str += '\n'
 
     return path_str
 
@@ -107,7 +107,7 @@ def rotors(axis, group, remdummy=None):
 def _write_data_str(geoms, grads, hessians):
     """ Combine all of the data information into a string
     """
-
+    nsteps = len(geoms) - 1
     data_str = ''
     for i, (geo, grad, hess) in enumerate(zip(geoms, grads, hessians)):
         data_str += 'Step    {0}\n'.format(str(i+1))
@@ -117,6 +117,8 @@ def _write_data_str(geoms, grads, hessians):
         data_str += _format_grad_str(geo, grad)
         data_str += 'Hessian\n'
         data_str += _format_hessian_str(hess)
+        if i != nsteps:
+            data_str += '\n'
 
     return data_str
 

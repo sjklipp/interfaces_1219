@@ -14,7 +14,7 @@ TEMPLATE_PATH = os.path.join(SRC_PATH, 'templates')
 
 
 def species(rvalues, potentials, bnd_frm_idxs,
-            dist_comp_idxs=[], species_name=None, pot_labels=[]):
+            dist_comp_idxs=(), pot_labels=(), species_name='mol'):
     """ Writes string for correction potential for some species Fortran file
         :return : String for the mol_corr.f file
         :rtype: string
@@ -27,10 +27,6 @@ def species(rvalues, potentials, bnd_frm_idxs,
 
     assert npot > 0
     assert all(len(potential) == npot_terms for potential in potentials)
-
-    # Set species name
-    if species_name is None:
-        species_name = 'species'
 
     # Put some comment lines giving a description of the correction potentials
     pot_labels_str = ''
