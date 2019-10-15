@@ -13,9 +13,7 @@ Maxtdev:                        0.5
 Rearrange(1=yes,0=no)           1
 SaddlePoint                     ${saddle_idx}
 ## Set if projections to be done in internal or cartesian coordinates
-% if coord_proj == 'cartesian':
-internalcoord(1=yes)            0
-% elif coord_proj == 'internal':
+% if coord_proj == 'internal':
 internalcoord(1=yes)            1
 % endif
 ds(1=noexp,0=standard)          0

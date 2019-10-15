@@ -25,15 +25,23 @@ def rpht_input(geoms, grads, hessians,
     """
 
     # Format the molecule info
+    if not isinstance(geoms, list):
+        geoms = [geoms]
+    if not isinstance(grads, list):
+        grads = [grads]
+    if not isinstance(hessians, list):
+        hessians = [hessians]
     nsteps = len(geoms)
     natoms = len(geoms[0])
     data_str = _write_data_str(geoms, grads, hessians)
     nrotors = rotors_str.count('pivotA')
 
     # Check input into the function
+    print('projrot before asert:')
     assert all(len(lst) == nsteps for lst in (geoms, grads, hessians))
     assert coord_proj in ('cartesian', 'internal')
 
+    print('projrot before rpht_keys:')
     # Create a fill value dictionary
     rpht_keys = {
         'natoms': natoms,
@@ -46,11 +54,14 @@ def rpht_input(geoms, grads, hessians,
     }
 
     # Set template name and path for an atom
+    print('projrot before template_names:')
     template_file_name = 'rpht_input.mako'
     template_file_path = os.path.join(TEMPLATE_PATH, template_file_name)
 
     # Build a ProjRot input string
+    print('projrot before Template:')
     rpht_string = Template(filename=template_file_path).render(**rpht_keys)
+    print('projrot after rpht_string:')
 
     return rpht_string
 
