@@ -20,13 +20,29 @@ GRAD = ((-4.0048955763, -0.3439866053, -0.0021431734),
         (-4.6638955748, -0.5501793084, -1.9816675556),
         (-0.8648060003, -0.1539639444, 1.8221471090))
 HESS = np.random.rand(33, 33)
+GEOMS = [GEOM for i in range(21)]
+GRADS = [GRAD for i in range(21)]
+HESSES = [HESS for i in range(21)]
 AXIS = [5, 6]
 GROUP = [7, 8, 9, 10, 11, 12]
-COORD_PROJ = 'cartesian'
+CART_PROJ = 'cartesian'
+# INT_PROJ = 'internal'
 
 
-def test__writer():
-    """ test projrot_io.writer.rotors_str and
+def test_rt_projections():
+    """ test projrot_io.writer.rpht_input
+    """
+    # Write the string for the ProjRot input
+    inp_str = projrot_io.writer.rpht_input(
+        [GEOM], [GRAD], [HESS],
+        saddle_idx=1, rotors_str='', coord_proj=CART_PROJ)
+
+    # Print the string
+    print(inp_str)
+
+
+def test_rt_hr_projections():
+    """ test projrot_io.writer.rotors_str
         test projrot_io.writer.rpht_input
     """
 
@@ -34,14 +50,14 @@ def test__writer():
     rotors_str = projrot_io.writer.rotors(AXIS, GROUP)
 
     # Write the string for the ProjRot input
-    inp_str = projrot_io.writer.rpht_input([GEOM], [GRAD], [HESS],
-                                           saddle_idx=1,
-                                           rotors_str=rotors_str,
-                                           coord_proj=COORD_PROJ)
+    inp_str = projrot_io.writer.rpht_input(
+        [GEOM], [GRAD], [HESS],
+        saddle_idx=1, rotors_str=rotors_str, coord_proj=CART_PROJ)
 
     # Print the string
     print(inp_str)
 
 
 if __name__ == '__main__':
-    test__writer()
+    test_rt_projections()
+    test_rt_hr_projections()

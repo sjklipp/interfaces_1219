@@ -23,15 +23,17 @@ reduced_mass                    1.0
 minimum_frequency               50
 anim_freq(if_Maxstep=1)         2
 ## Set projection of the reaction coordinate
-% if not proj_rxn_coord:
-onlyrotors(0=yes,1=no)          0
-proj_rea_coo(0=yes(def),1=no)   1
-% else:
+% if proj_rxn_coord:
 onlyrotors(0=yes,1=no)          1
 proj_rea_coo(0=yes(def),1=no)   0
+% else:
+onlyrotors(0=yes,1=no)          0
+proj_rea_coo(0=yes(def),1=no)   1
 % endif
 ## Define all of the rotors
 numrotors                       ${nrotors}
+% if nrotors > 0:
 ${rotors_str}
+% endif
 ## Write the geometries, gradients, and Hessians for all Steps
 ${data_str}\
