@@ -39,8 +39,8 @@ def format_coords(geo):
     # Get the geometry information
     symbols = geom.symbols(geo)
     coordinates = geom.coordinates(geo)
-    masses = [int(ptab.to_mass(symbol)) for symbol in symbols
-              if symbol != 'X' else 0]
+    masses = [int(ptab.to_mass(symbol)) if symbol != 'X' else 0
+              for symbol in symbols]
 
     # Build a string with the formatted coordinates string
     if geom.is_atom(geo):
