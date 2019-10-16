@@ -139,6 +139,19 @@ def get_temperatures(output_string):
     return temperatures, temperature_unit
 
 
+def get_pressures_input(input_string):
+    """ Reads pressures from MESS output or input as desired
+    """
+    # Get the MESS output lines
+    mess_lines = input_string.splitlines()
+    for line in mess_lines:
+        if 'PressureLst' in line:
+            pressures = [float(val) for val in line.strip().split()]
+            pressure_unit = line.strip().split('[')[1].split(']')[0]
+
+    return pressures, pressure_unit
+
+
 def get_pressures(output_string):
     """ Reads the pressures from the MESS output file corresponding
         to the pressures used in the master-equation calculation.
@@ -170,7 +183,7 @@ def get_pressures(output_string):
                     break
                 else:
                     tmp = mess_lines[j].strip().split()
-                    pressures.append(tmp[0])
+                    pressures.append(float(tmp[0]))
             break
 
     # append high pressure
