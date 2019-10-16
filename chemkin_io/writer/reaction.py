@@ -32,20 +32,20 @@ def plog(reaction, rate_params_dct, err_dct):
 
         # Build the initial string with the reaction and high-pressure params
         high_a, high_n, high_ea = rate_params_dct['high'][3*i:3*i+3]
-        p_str += '{0:<32s}{1:>10.4E}{2:>9.4f}{3:9.1f} /\n'.format(
-            reaction, high_a, high_n, high_ea)
+        p_str += '{0:<32s}{1:>10.3E}{2:>9.3f}{3:9.0f} /\n'.format(
+            reaction, high_a, high_n, 1000*high_ea)
 
         # Build the PLOG string for each pressure
         for pressure in pressures:
             pdep_a, pdep_n, pdep_ea = rate_params_dct[pressure][3*i:3*i+3]
             p_str += '{0:>18s} /{1:>10.1f}  '.format(
                 'PLOG', float(pressure))
-            p_str += '{0:>10.4E}{1:>9.4f}{2:9.1f} /\n'.format(
-                pdep_a, pdep_n, pdep_ea)
+            p_str += '{0:>10.3E}{1:>9.3f}{2:9.0f} /\n'.format(
+                pdep_a, pdep_n, 1000*pdep_ea)
 
     # writing errors
     for key, val in err_dct.items():
-        err_str = '{0:12s} {1:>6.3f}%, {2:8s} {3:>6.3f}%'.format(
+        err_str = '{0:12s} {1:>6.1f}%, {2:8s} {3:>6.1f}%'.format(
             'MeanAbsErr =', val[0], 'MaxErr =', val[1])
         p_str += '! {0:<6s}: {1}\n'.format(str(key), err_str)
 
