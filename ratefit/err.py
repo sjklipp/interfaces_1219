@@ -14,21 +14,21 @@ def calc_sse_and_mae(calc_ks, fit_ks):
     """
 
     # Only run if there are more than 2 rate constants
-    sse = 0.0
+    #sse = 0.0
     abs_err = []
     if len(calc_ks) > 2:
         for calc_k, fit_k in zip(calc_ks, fit_ks):
-            sse += (np.log(calc_k) - np.log(fit_k))**2.0
+            #sse += (np.log(calc_k) - np.log(fit_k))**2.0
             abs_err.append(np.abs((calc_k - fit_k) / calc_k))
         abs_err = np.array(abs_err, dtype=np.float64)
         mean_abs_err = np.mean(abs_err) * 100.0
         max_abs_err = np.max(abs_err) * 100.0
     else:
-        sse = None
+        #sse = None
         mean_abs_err = None
         max_abs_err = None
 
-    return sse, mean_abs_err, max_abs_err
+    return mean_abs_err, max_abs_err
 
 
 def assess_pressure_dependence(tk_dct, assess_pdep_temps,
@@ -58,27 +58,9 @@ def assess_pressure_dependence(tk_dct, assess_pdep_temps,
         temps_high = tk_dct[phigh][0]
         temp_low_idx = np.where(np.isclose(temps_low, temp_compare))[0][0]
         temp_high_idx = np.where(np.isclose(temps_high, temp_compare))[0][0]
-        print('\nplow')
-        print(plow)
-        print('phigh')
-        print(phigh)
-        print('temp_compare')
-        print(temp_compare)
-        print('temps_low')
-        print(temps_low)
-        print('temps_high')
-        print(temps_high)
-        print('temp_low_idx')
-        print(temp_low_idx)
-        print('temp_high_idx')
-        print(temp_high_idx)
         # Grab the k(T, P) vale for the approprite temp and pressure
         ktp_low = tk_dct[plow][1][temp_low_idx]
         ktp_high = tk_dct[phigh][1][temp_high_idx]
-        print('ktp_low')
-        print(ktp_low)
-        print('ktp_high')
-        print(ktp_high)
         # Calculate the % difference and see if above threshold
         ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
         if ktp_dif > tolerance:
