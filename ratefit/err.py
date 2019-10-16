@@ -31,33 +31,55 @@ def calc_sse_and_mae(calc_ks, fit_ks):
     return sse, mean_abs_err, max_abs_err
 
 
-def assess_pressure_dependence(pdep_dct, temps, temp_compare,
+def assess_pressure_dependence(tk_dct, assess_pdep_temps,
                                tolerance=20.0, plow=None, phigh=None):
     """ Assess how much the rate constants change from
         a low-pressure to high-pressure regime
+
+        tk_dct[pressure] = [temps, k(T, P)s]
+        we assume the temps and pressures give all positive, defined rates
     """
-    # Get a list of the sorted pressures
-    pressures = [pressure for pressure in pdep_dct
+    # Get list of the sorted pressures, ignoring the high-pressure limit rates
+    pressures = [pressure for pressure in tk_dct
                  if pressure != 'high']
     pressures.sort()
 
-    # Set the lowest pressure if not specified by user
+    # Set the low- and high-pressure if not specified by user
     if plow is None:
         plow = min(pressures)
     if phigh is None:
         phigh = max(pressures)
 
-    # Get idxs of rate constants corresponding to the temps for comparison
-    # Get idxs corresponding to k(T) vals in each k(T, P) pdep_dct entry
-    temps.sort()
-    print('temps, temp_compare:', temps, temp_compare)
-    temp_idxs = [np.where(temps == temp)[0][0] for temp in temp_compare]
-
-    # See changes
+    # Check % difference for k(T, P) vals
     is_pressure_dependent = False
-    for idx in temp_idxs:
-        ktp_low = pdep_dct[plow][idx]
-        ktp_high = pdep_dct[phigh][idx]
+    for temp_compare in assess_pdep_temps:
+        # For the low- and high-P, find the idx for the temp in temp_compare
+        temps_low = tk_dct[plow][0]
+        temps_high = tk_dct[phigh][0]
+        temp_low_idx = np.where(np.isclose(temps_low, temp_compare))[0][0]
+        temp_high_idx = np.where(np.isclose(temps_high, temp_compare))[0][0]
+        print('\nplow')
+        print(plow)
+        print('phigh')
+        print(phigh)
+        print('temp_compare')
+        print(temp_compare)
+        print('temps_low')
+        print(temps_low)
+        print('temps_high')
+        print(temps_high)
+        print('temp_low_idx')
+        print(temp_low_idx)
+        print('temp_high_idx')
+        print(temp_high_idx)
+        # Grab the k(T, P) vale for the approprite temp and pressure
+        ktp_low = tk_dct[plow][1][temp_low_idx]
+        ktp_high = tk_dct[phigh][1][temp_high_idx]
+        print('ktp_low')
+        print(ktp_low)
+        print('ktp_high')
+        print(ktp_high)
+        # Calculate the % difference and see if above threshold
         ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
         if ktp_dif > tolerance:
             is_pressure_dependent = True
