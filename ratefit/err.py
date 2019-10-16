@@ -50,6 +50,7 @@ def assess_pressure_dependence(pdep_dct, temps, temp_compare,
     # Get idxs of rate constants corresponding to the temps for comparison
     # Get idxs corresponding to k(T) vals in each k(T, P) pdep_dct entry
     temps.sort()
+    print('temps, temp_compare:', temps, temp_compare)
     temp_idxs = [np.where(temps == temp)[0][0] for temp in temp_compare]
 
     # See changes
