@@ -96,7 +96,7 @@ def rotors(axis, group, remdummy=None):
         topaatoms = '  '.join([str(val) for val in group])
 
     # Build the rotors_str
-    rotors_str = '{0:<32s}{1:<4d}\n'.format('pivotA', pivota)
+    rotors_str = '\n{0:<32s}{1:<4d}\n'.format('pivotA', pivota)
     rotors_str += '{0:<32s}{1:<4d}\n'.format('pivotB', pivotb)
     rotors_str += '{0:<32s}{1:<4d}\n'.format('atomsintopA', atomsintopa)
     rotors_str += '{0:<32s}{1}'.format('topAatoms', topaatoms)

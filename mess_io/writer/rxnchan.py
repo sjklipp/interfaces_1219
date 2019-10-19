@@ -145,7 +145,6 @@ def ts_variational(ts_label, reac_label, prod_label, irc_pt_strs, tunnel=''):
         'reac_label': reac_label,
         'prod_label': prod_label,
         'ts_data': ts_data,
-        'zero_energy': zero_energy,
         'tunnel': tunnel
     }
 
@@ -156,4 +155,4 @@ def ts_variational(ts_label, reac_label, prod_label, irc_pt_strs, tunnel=''):
     # Build transition state with variational string
     var_str = Template(filename=template_file_path).render(**var_keys)
 
-    return irc_str
+    return var_str

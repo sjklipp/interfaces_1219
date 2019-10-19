@@ -61,7 +61,6 @@ def pdep_ks(output_string, reactant, product, pressure, pressure_unit):
     block_str = ('Temperature-Species Rate Tables:')
     pressure_str = 'Pressure = ' + str(pressure) + ' ' + pressure_unit
 
-    print('pressure_str:', pressure_str)
     for i, line in enumerate(mess_lines):
         if block_str in line:
             for j in range(i, len(mess_lines)):
