@@ -157,7 +157,12 @@ def _dsarrfit(temps, rate_constants,
     dsarrfit_io.run_dsarrfit(dsarrfit_path)
 
     # Read the output of the single and double fit
-    dsarrfit_out_file = os.path.join(dsarrfit_path, 'arrfit.out')
+    if fit_type == 'single':
+        arrname = 'arrfit.out'
+    elif fit_type == 'double':
+        arrname = 'darrfit.out'
+
+    dsarrfit_out_file = os.path.join(dsarrfit_path, arrname)
     with open(dsarrfit_out_file, 'r') as arrfit_outfile:
         arrfit_out_str = arrfit_outfile.read()
 

@@ -1,4 +1,3 @@
-
       Program dsarrfit
 
 c Program to fit both
@@ -47,7 +46,6 @@ c with the parameters specified in that order.
 c start with single modified arrhenius  **************************************
 
 c generate initial guess if one wasn't given
-
       if (iinp.eq.0) then
          a0(3)=(log(dkht)-log(dklt))/(1.0d0/tmin-1.0d0/tmax)
          a0(1)=log(dklt*exp(a0(3)/tmin))
@@ -94,13 +92,12 @@ c print out initial guess comparison
       write (6,*) 'params'
 c     write (6,102) exp(a0(1))*(298.**a0(2)),(a0(ii),ii=2,mas)
       write (6,102) exp(a0(1)),(a0(ii),ii=2,mas)
- 102  format (1x,5g13.5)
+ 102  format (1x,5(2x,ES13.5E3))
+c 102  format (1x,5(2x,g13.5))
       write (6,102) 6.0221e23*exp(a0(1)),a0(2),a0(3)*1.987
       do it = 1 , nttot
          tempi = temp(it)
-
 c calculate reference fitted k
-
          dkfitl = a0(1)+a0(2)*log(tempi)-a0(3)/tempi
          dkfit = exp(dkfitl)
          dki=10**(dkin(it))
@@ -110,11 +107,9 @@ c calculate reference fitted k
       enddo
       go to 100
   200 continue
-
 c
 c now repeat for sum of two modified arrhenius    *****************************
 c
-
       a1inp = exp(a0(1))*(298.**a0(2))/2.0d0
       a0(2) = a0(2)-2.0d0
       a0(5) = a0(2)+4.0d0
@@ -126,9 +121,7 @@ c
      $ a0(4)*(298.**a0(5)),a0(5),a0(6)
       do it = 1 , nttot
          tempi = temp(it)
-
 c calculate reference fitted k
-
          dkfitl1 = a0(2)*log(tempi)-a0(3)/tempi
          dkfitl2 = a0(5)*log(tempi)-a0(6)/tempi
          dkfit = a0(1)*exp(dkfitl1)+a0(4)*exp(dkfitl2)
@@ -166,12 +159,11 @@ c calculate reference fitted k
       write (7,*) 'params'
       write (7,1002) a0(1)*(298.**a0(2)),a0(2),a0(3),
      $ a0(4)*(298.**a0(5)),a0(5),a0(6)
- 1002 format (1x,6g12.5)
+ 1002 format (1x,6(2x,ES16.5E3))
+c 1002 format (1x,6(2x,g12.5))
       do it = 1 , nttot
          tempi = temp(it)
-
 c calculate reference fitted k
-
          dkfitl1 = a0(2)*log(tempi)-a0(3)/tempi
          dkfitl2 = a0(5)*log(tempi)-a0(6)/tempi
          dkfit = a0(1)*exp(dkfitl1)+a0(4)*exp(dkfitl2)
@@ -195,9 +187,7 @@ c     $ dlog10(a0(4)),a0(5),a0(6)*1.987
      $ a0(4)*6.02e23,a0(5),a0(6)*1.987
       do it = 1 , nttot
          tempi = temp(it)
-
 c calculate reference fitted k
-
          dkfitl1 = a0(2)*log(tempi)-a0(3)/tempi
          dkfitl2 = a0(5)*log(tempi)-a0(6)/tempi
          dkfit = a0(1)*exp(dkfitl1)+a0(4)*exp(dkfitl2)
@@ -205,28 +195,19 @@ c calculate reference fitted k
          err = abs(dkfit-dki)*100./dki
          write (6,111) tempi,10**(dkin(it)),dkfit,err
       enddo
-
       stop
       end
-
-
-
       subroutine funcs(temp,a0,dkfit,dkda,ma)
-
       implicit real*8(a-h,o-z)
       dimension a(ma),a0(ma),dkda(ma)
       dimension dkfitp(ma),dkfitm(ma),astep(ma)
-
 c First calculate reference fitted k
-
       do ii = 1 , ma
          a(ii)=a0(ii)
       enddo
       dkfitl = a0(1)+a0(2)*log(temp)-a0(3)/temp
       dkfit = log10(exp(dkfitl))
-
 c Now calculate derivatives with respect to paramaters
-
       do ii = 1 , ma
          astep(ii) = 0.001d0*a0(ii)
          if (ii.eq.2) astep(ii)=max(0.001d0,astep(ii))
@@ -254,17 +235,11 @@ c     write (7,112) (dkfitm(ii),ii=1,ma)
      
       return
       end 
-
-
-
       subroutine funcd(temp,a0,dkfit,dkda,ma)
-
       implicit real*8(a-h,o-z)
       dimension a(ma),a0(ma),dkda(ma)
       dimension dkfitp(ma),dkfitm(ma),astep(ma)
-
 c First calculate reference fitted k
-
       do ii = 1 , ma
          a(ii)=a0(ii)
       enddo
@@ -277,9 +252,7 @@ c First calculate reference fitted k
          dkfit = dktmp*log10(abs(dktmp))/abs(dktmp)
 C        dkfit = log10(abs(a0(1)*exp(dkfitl1)+a0(4)*exp(dkfitl2)))
       endif
-
 c Now calculate derivatives with respect to paramaters
-
       do ii = 1 , ma
          astep(ii) = 0.001d0*a0(ii)
          if ((ii.eq.2).or.(ii.eq.5)) astep(ii)=max(0.001d0,astep(ii))
@@ -309,8 +282,6 @@ c     write (7,112) (dkfitm(ii),ii=1,ma)
      
       return
       end 
-
-
       SUBROUTINE mrqmin(x,y,sig,ndata,a,ia,ma,covar,alpha,nca,chisq,
      *funcs,alamda)
       INTEGER ma,nca,ndata,ia(ma),MMAX
@@ -372,8 +343,6 @@ CU    USES covsrt,gaussj,mrqcof
       return
       END
 C  (C) Copr. 1986-92 Numerical Recipes Software .
-
-
       SUBROUTINE mrqcof(x,y,sig,ndata,a,ia,ma,alpha,beta,nalp,chisq,
      *funcs)
       INTEGER ma,nalp,ndata,ia(ma),MMAX
@@ -423,8 +392,6 @@ c     EXTERNAL funcs
       return
       END
 C  (C) Copr. 1986-92 Numerical Recipes Software .
-
-
       SUBROUTINE covsrt(covar,npc,ma,ia,mfit)
       INTEGER ma,mfit,npc,ia(ma)
       REAL*8 covar(npc,npc)
@@ -455,8 +422,6 @@ C  (C) Copr. 1986-92 Numerical Recipes Software .
       return
       END
 C  (C) Copr. 1986-92 Numerical Recipes Software .
-
-
       SUBROUTINE gaussj(a,n,np,b,m,mp)
       INTEGER m,mp,n,np,NMAX
       REAL*8 a(np,np),b(np,mp)
@@ -533,4 +498,3 @@ C  (C) Copr. 1986-92 Numerical Recipes Software .
       return
       END
 C  (C) Copr. 1986-92 Numerical Recipes Software .
-

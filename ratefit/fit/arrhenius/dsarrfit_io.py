@@ -52,7 +52,7 @@ def run_dsarrfit(path):
     start_path = os.getcwd()
     os.chdir(path)
     # Set the full path to the dsarrfit executable
-    exe_path = os.path.join(SRC_PATH, 'dsarrfit', 'dsarrfit.x_cfg')
+    exe_path = os.path.join(SRC_PATH, 'dsarrfit', 'build', 'dsarrfit.x_cfg')
     # Run the executable
     subprocess.check_call([exe_path])
     os.chdir(start_path)
@@ -67,48 +67,29 @@ def read_params(output_string, fit, conv_factor=1.000):
     # Loop over the lines and find the resulting fit params line
     lines = output_string.splitlines()
     lines.reverse()
-    if fit == 'single':
-        for line in lines:
-            if line.startswith(' results for iteration'):
-                params_str = lines[lines.index(line)-3]
-                break
-    elif fit == 'double':
-        for line in lines:
-            if line.startswith(' results from sum of two modified arrhenius'):
-                params_str = lines[lines.index(line)-3]
-                break
-
-        # Format params string for dbl fit if necessary since printing is weird
-        if len(params_str.split()) < 6:
-            # add white space after first exponent value, if needed, to str1
-            eidx = [m.start() for m in re.finditer('E', params_str)]
-            idx = eidx[0]+4
-            if params_str[idx] != ' ':
-                params_str2 = params_str[:idx] + ' ' + params_str[idx:]
-            else:
-                params_str2 = params_str
-            # add white space after second exponent value, if needed, to str2
-            eidx = [m.start() for m in re.finditer('E', params_str2)]
-            idx = eidx[1]+4
-            if params_str2[idx] != ' ':
-                params_str3 = params_str2[:idx] + ' ' + params_str2[idx:]
-            else:
-                params_str3 = params_str2
-        else:
-            params_str3 = params_str
+    for line in lines:
+        if line.startswith(' results for iteration'):
+            params_str = lines[lines.index(line)-3]
+            break
 
     # Grab the fitting parameters; multiply Ea param by given conversion factor
     # Multiple A by given conversion factor
     # Multiply Ea/R term by R to get Ea
-    if fit == 'single':
-        fit_params = [float(param) for param in params_str.split()]
-        fit_params[0] *= conv_factor
-        fit_params[2] *= RC
-    elif fit == 'double':
-        fit_params = [float(param) for param in params_str3.split()]
-        fit_params[0] *= conv_factor
+    fit_params = [float(param) for param in params_str.split()]
+    # print(fit_params)
+    fit_params[0] *= conv_factor
+    fit_params[2] *= RC
+    if fit == 'double':
         fit_params[3] *= conv_factor
-        fit_params[2] *= RC
         fit_params[5] *= RC
 
+    # print(fit_params)
+
     return fit_params
+
+
+if __name__ == '__main__':
+    with open('0/darrfit.out', 'r') as f:
+        output_string = f.read()
+    fit = 'double'
+    read_params(output_string, fit, conv_factor=1.000)
