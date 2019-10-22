@@ -8,13 +8,8 @@ def plog(reaction, rate_params_dct, err_dct):
         formatted for CHEMKIN input files
     """
 
-    # High-pressure rates required?
-    assert 'high' in rate_params_dct.keys()
-
-    # Find number of fitting parameters
-    nparams = len(rate_params_dct['high'])
-
-    # Make sure that you have 3 params (single fxn) or 6 params (double fxn)
+    # Find nparams and ensure there are correct num in each dct entry
+    nparams = len(next(iter(rate_params_dct.values())))
     assert nparams in (3, 6)
     assert all(len(params) == nparams for params in rate_params_dct.values())
 
@@ -22,6 +17,13 @@ def plog(reaction, rate_params_dct, err_dct):
     pressures = [pressure for pressure in rate_params_dct.keys()
                  if pressure != 'high']
     pressures.sort()
+
+    # Add fake high pressure values if they are not in the dictionary
+    if 'high' not in rate_params_dct:
+        if nparams == 3:
+            rate_params_dct['high'] = [1.00, 0.00, 0.00]
+        elif nparams == 3:
+            rate_params_dct['high'] = [1.00, 0.00, 0.00, 1.00, 0.00, 0.00]
 
     # Next is the reaction string and high-pressure params
     # Loop will build second ('DUPLICATE') section if double fit performed
