@@ -67,23 +67,38 @@ def read_params(output_string, fit, conv_factor=1.000):
     # Loop over the lines and find the resulting fit params line
     lines = output_string.splitlines()
     lines.reverse()
-    for line in lines:
-        if line.startswith(' results for iteration'):
-            params_str = lines[lines.index(line)-3]
-            break
+    params_str = ''
+    if fit == 'single':
+        for line in lines:
+            if line.startswith(' results for iteration'):
+                params_str = lines[lines.index(line)-3]
+                break
+    elif fit == 'double':
+        for line in lines:
+            if line.startswith(' results from sum of two modified arrhenius'):
+                params_str = lines[lines.index(line)-3]
+                break
 
-    # Grab the fitting parameters; multiply Ea param by given conversion factor
-    # Multiple A by given conversion factor
-    # Multiply Ea/R term by R to get Ea
-    fit_params = [float(param) for param in params_str.split()]
-    # print(fit_params)
-    fit_params[0] *= conv_factor
-    fit_params[2] *= RC
-    if fit == 'double':
+    # Assess status of fits (single always assumed True for now)
+    single_fit_success = True
+    double_fit_success = False
+    if fit == 'double' and params_str:
+        double_fit_success = True
+
+    # Grab the fitting parameters
+    # Multiple A by given conversion factor and Ea/R term by R to get Ea
+    if fit == 'single' and single_fit_success:
+        fit_params = [float(param) for param in params_str.split()]
+        fit_params[0] *= conv_factor
+        fit_params[2] *= RC
+    elif fit == 'double' and double_fit_success:
+        fit_params = [float(param) for param in params_str.split()]
+        fit_params[0] *= conv_factor
+        fit_params[2] *= RC
         fit_params[3] *= conv_factor
         fit_params[5] *= RC
-
-    # print(fit_params)
+    elif fit == 'double' and not double_fit_success:
+        fit_params = []
 
     return fit_params
 
