@@ -56,14 +56,61 @@ def assess_pressure_dependence(tk_dct, assess_pdep_temps,
         # For the low- and high-P, find the idx for the temp in temp_compare
         temps_low = tk_dct[plow][0]
         temps_high = tk_dct[phigh][0]
-        temp_low_idx = np.where(np.isclose(temps_low, temp_compare))[0][0]
-        temp_high_idx = np.where(np.isclose(temps_high, temp_compare))[0][0]
-        # Grab the k(T, P) vale for the approprite temp and pressure
-        ktp_low = tk_dct[plow][1][temp_low_idx]
-        ktp_high = tk_dct[phigh][1][temp_high_idx]
-        # Calculate the % difference and see if above threshold
-        ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
-        if ktp_dif > tolerance:
-            is_pressure_dependent = True
+        print(temps_low)
+        print(temps_high)
+        temp_low_match = np.where(np.isclose(temps_low, temp_compare))[0]
+        temp_high_match = np.where(np.isclose(temps_high, temp_compare))[0]
+        print(temp_low_idx)
+        print(temp_high_idx)
+        if temp_low_match.size > 0 and temp_high_match.size > 0:
+            temp_low_idx = temp_low_match[0]
+            temp_high_idx = temp_high_match[0]
+            # Grab the k(T, P) vale for the approprite temp and pressure
+            ktp_low = tk_dct[plow][1][temp_low_idx]
+            ktp_high = tk_dct[phigh][1][temp_high_idx]
+            # Calculate the % difference and see if above threshold
+            ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
+            if ktp_dif > tolerance:
+                is_pressure_dependent = True
 
     return is_pressure_dependent
+
+
+if __name__ == '__main__':
+    PAIRS = [
+        [800, 27103.4],
+        [900, 193348],
+        [1000, 955781],
+        [1100, 3.60E+06],
+        [1200, 1.10E+07],
+        [1300, 2.85E+07],
+        [1400, 6.51E+07],
+        [1500, 1.34E+08],
+        [1600, 2.52E+08],
+        [1700, 4.43E+08],
+        [1800, 7.34E+08],
+        [1900, 1.16E+09],
+        [2000, 1.74E+09],
+        [2100, 2.53E+09],
+        [2200, 3.56E+09],
+        [2300, 4.86E+09],
+        [2400, 6.48E+09],
+        [2500, 8.45E+09],
+        [2600, 1.08E+10],
+        [2700, 1.36E+10],
+        [2800, 1.68E+10],
+        [2900, 2.06E+10],
+        [3000, 2.48E+10]
+    ]
+    
+    KTP_DCT = {
+    #     1:  [[pair[0] for pair in PAIRS], [pair[1] for pair in PAIRS]],
+    #     10:  [[pair[0] for pair in PAIRS], [pair[1] for pair in PAIRS]],
+    #      10:  [[pair[0] for pair in PAIRS2], [pair[1] for pair in PAIRS2]],
+          10:  np.array([[pair[0] for pair in PAIRS], [pair[1] for pair in PAIRS]]),
+    #     100:  [[pair[0] for pair in PAIRS], [pair[1] for pair in PAIRS]],
+    #     'high':  numpy.array([[pair[0] for pair in PAIRS], [pair[1] for pair in PAIRS]]),
+    }
+    
+    assess_pressure_dependence(KTP_DCT, [1000.0],
+                               tolerance=20.0, plow=None, phigh=None)
