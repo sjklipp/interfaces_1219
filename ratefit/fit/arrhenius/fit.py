@@ -148,12 +148,10 @@ def _dsarrfit(temps, rate_constants,
     ratefit_inp_str = dsarrfit_io.write_input(
         temps, rate_constants, a_guess, n_guess, ea_guess)
     dsarrfit_inp_file = os.path.join(dsarrfit_path, 'arrfit.dat')
-    print('writing dsarrfit input in {}'.format(dsarrfit_path))
     with open(dsarrfit_inp_file, 'w') as arrfit_infile:
         arrfit_infile.write(ratefit_inp_str)
 
     # Run the ratefit program
-    print('running dsarrfit')
     dsarrfit_io.run_dsarrfit(dsarrfit_path)
 
     # Read the output of the single and double fit
