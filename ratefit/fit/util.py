@@ -36,7 +36,7 @@ def get_valid_tk(temps, rate_constants,
                 valid_k.append(rate_constant)
 
     # Convert the lists to numpy arrays
-    valid_t = np.array(valid_t, dtype=np.float64)
-    valid_k = np.array(valid_k, dtype=np.float64)
+    valid_t = np.array([valid_t], dtype=np.float64)
+    valid_k = np.array([valid_k], dtype=np.float64)
 
     return valid_t, valid_k
