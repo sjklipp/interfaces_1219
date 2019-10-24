@@ -60,8 +60,8 @@ def assess_pressure_dependence(tk_dct, assess_pdep_temps,
         print(temps_high)
         temp_low_match = np.where(np.isclose(temps_low, temp_compare))[0]
         temp_high_match = np.where(np.isclose(temps_high, temp_compare))[0]
-        print(temp_low_idx)
-        print(temp_high_idx)
+        #print(temp_low_idx)
+        #print(temp_high_idx)
         if temp_low_match.size > 0 and temp_high_match.size > 0:
             temp_low_idx = temp_low_match[0]
             temp_high_idx = temp_high_match[0]
