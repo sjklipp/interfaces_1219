@@ -22,7 +22,7 @@ def plog(reaction, rate_params_dct, err_dct):
     if 'high' not in rate_params_dct:
         if nparams == 3:
             rate_params_dct['high'] = [1.00, 0.00, 0.00]
-        elif nparams == 3:
+        elif nparams == 6:
             rate_params_dct['high'] = [1.00, 0.00, 0.00, 1.00, 0.00, 0.00]
 
     # Next is the reaction string and high-pressure params
