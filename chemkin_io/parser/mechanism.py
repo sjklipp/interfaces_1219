@@ -24,11 +24,13 @@ def species_block(mech_str):
 def reaction_block(mech_str):
     """ reaction block
     """
+    # print(mech_str)
     block_str = util.block(
         string=_clean_up(mech_str),
         start_pattern=app.one_of_these(['REACTIONS', 'REAC']),
         end_pattern='END'
     )
+    # print(block_str)
     return block_str
 
 
