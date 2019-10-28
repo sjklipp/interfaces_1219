@@ -20,7 +20,7 @@ AXES_DCTS = [
 ]
 
 
-def build(ktp_dct, temps, names=None):
+def build(ktp_dct, temps, plot_dir='rate_plots', names=None):
     """ run over the dictionary for plotting
     """
 
@@ -30,6 +30,10 @@ def build(ktp_dct, temps, names=None):
     # Set names to dict values if ther aren't anything
     if names is None:
         names = [key for key in ktp_dct]
+
+    # Make the directory that holds the plots if it doesn't exist
+    if not os.path.exists(plot_dir):
+        os.mkdir(plot_dir)
 
     # Plot the rate constants for each reaction
     reactions = list(ktp_dct.keys())
@@ -66,15 +70,15 @@ def build(ktp_dct, temps, names=None):
         file_name_str += '{0:40s}{1}\n'.format('reaction', file_name)
 
         # build and save the figure to a PDF
-        fig.savefig('rate_plots/{0}.pdf'.format(file_name), dpi=100)
+        fig.savefig('{0}/{1}.pdf'.format(plot_dir, file_name), dpi=100)
         plt.close(fig)
 
-    # Write file relating plot.pdf names to reaction names
-    with open('names.txt', 'w') as name_file:
-        name_file.write(file_name_str)
-
     # Collate all of the pdfs together
-    _collate_pdfs()
+    _collate_pdfs(plot_dir)
+
+    # Write file relating plot.pdf names to reaction names
+    with open(os.path.join(plot_dir, 'names.txt'), 'w') as name_file:
+        name_file.write(file_name_str)
 
 
 def _build_figure(nreactions):
@@ -110,7 +114,7 @@ def _build_axes(ax_col, reaction_mech_dcts, isbimol, temps):
                               for reaction in reaction_mech_dcts]
     reaction_pressures_union = _get_union_pressures(reaction_pressures_lst)
 
-    # Plot the data
+    # Plot the data, setting formatting options for the axes
     _full_plot(ax_col[0], reaction_mech_dcts, reaction_pressures_lst, temps)
     _ratio_plot(ax_col[1], reaction_mech_dcts, reaction_pressures_union, temps)
     ax_col[0].set(**_set_axes_labels(AXES_DCTS[0], isbimol, bottom=False))
@@ -122,10 +126,10 @@ def _full_plot(ax_obj, mech_ktp_dcts, mech_pressures, temps):
     """
     for i, ktp_dct in enumerate(mech_ktp_dcts):
         for j, pressure in enumerate(mech_pressures[i]):
-            ax_obj.plot((1.0/temps), np.log(ktp_dct[pressure]),
+            ax_obj.plot((1000.0/temps), np.log10(ktp_dct[pressure]),
                         color=COLORS[j], linestyle=LINESTYLES[i],
                         label='M'+str(i+1)+'-'+str(pressure))
-    ax_obj.legend(loc='lower right')
+    ax_obj.legend(loc='upper right')
 
 
 def _ratio_plot(ax_obj, mech_ktp_dcts, pressures, temps):
@@ -135,11 +139,11 @@ def _ratio_plot(ax_obj, mech_ktp_dcts, pressures, temps):
     for i, pressure in enumerate(pressures):
         m1_ktp = np.array(m1_ktp_dct[pressure])
         m2_ktp = np.array(m2_ktp_dct[pressure])
-        ratios = np.log(m1_ktp / m2_ktp)
-        ax_obj.plot((1.0/temps), ratios,
+        ratios = m1_ktp / m2_ktp
+        ax_obj.plot((1000.0/temps), ratios,
                     color=COLORS[i], linestyle=LINESTYLES[0],
                     label=pressure)
-    ax_obj.legend(loc='lower right')
+    ax_obj.legend(loc='upper left')
 
 
 def _get_sorted_pressures(unsorted_pressures):
@@ -148,7 +152,8 @@ def _get_sorted_pressures(unsorted_pressures):
     pressures = [pressure for pressure in unsorted_pressures
                  if pressure != 'high']
     pressures.sort()
-    pressures.append('high')
+    # Don't append 'high' to the dict to avoid plotting HighP rates
+    # pressures.append('high')
     return pressures
 
 
@@ -176,10 +181,11 @@ def _set_axes_labels(axes_dct, isbimol, bottom):
         units = '1/s'
 
     if bottom:
-        axes_dct['xlabel'] = '1/T (1/K)'
-        axes_dct['ylabel'] = 'ln (k1/k2)'
+        axes_dct['xlabel'] = '1000/T (1000/K)'
+        axes_dct['ylabel'] = 'k1/k2'
+#        axes_dct['yscale'] = 'log'
     else:
-        axes_dct['ylabel'] = 'ln k({0})'.format(units)
+        axes_dct['ylabel'] = 'log10 k({0})'.format(units)
 
     return axes_dct
 
@@ -204,13 +210,14 @@ def _set_figure_title(fig_obj, reactions_lst):
     fig_obj.suptitle(fig_title)
 
 
-def _collate_pdfs():
+def _collate_pdfs(plot_dir):
     """ collate all of the pdfs together
     """
-    plots = os.listdir('rate_plots')
+    plots = [directory for directory in os.listdir(plot_dir)
+             if 'pdf' in directory]
     plots.sort(key=lambda x: int(x.replace('r', '').replace('.pdf', '')))
     plots.append('all_rates.pdf')
-    plots = [os.path.join('rate_plots', name) for name in plots]
+    plots = [os.path.join(plot_dir, name) for name in plots]
 
     command = ['pdfunite'] + plots
     subprocess.call(command)

@@ -104,7 +104,8 @@ def read_params(output_string, fit, conv_factor=1.000):
 
 
 if __name__ == '__main__':
-    with open('0/darrfit.out', 'r') as f:
+    with open('ex/0/arrfit.out', 'r') as f:
         output_string = f.read()
     fit = 'double'
-    read_params(output_string, fit, conv_factor=1.000)
+    print(read_params(output_string, fit, conv_factor=1.000))
+

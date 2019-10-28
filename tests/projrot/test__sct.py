@@ -69,10 +69,18 @@ def test_sct_rpht_input():
 def test_sct_coord_en():
     """ test projrot_io.writer.rpht_path_coord_en
     """
-    # Write the string for the ProjRot input
+    # Write the string withoutp bnd1 and bnd2 vals
     en_str = projrot_io.writer.rpht_path_coord_en(
         RXN_PATH_COORDS, RXN_PATH_ENERGIES,
-        RCT_DISTS, PRD_DISTS)
+        bnd1=None, bnd2=None)
+
+    # Print the string
+    print(en_str)
+
+    # Write the string with bnd1 and bnd2 vals
+    en_str = projrot_io.writer.rpht_path_coord_en(
+        RXN_PATH_COORDS, RXN_PATH_ENERGIES,
+        bnd1=RCT_DISTS, bnd2=PRD_DISTS)
 
     # Print the string
     print(en_str)

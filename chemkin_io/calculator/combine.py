@@ -42,9 +42,8 @@ def mechanism_thermo(mech1_thermo_dct, mech2_thermo_dct):
     return total_thermo_dct
 
 
-def mechanism_rates(mech1_ktp_dct, mech2_ktp_dct,
-                    mech2_thermo_dct,
-                    temps):
+def mechanism_rates(mech1_ktp_dct, mech2_ktp_dct, temps,
+                    mech2_thermo_dct=None):
     """ calculate the reactions rates for two mech files
     """
 
@@ -63,6 +62,7 @@ def mechanism_rates(mech1_ktp_dct, mech2_ktp_dct,
             if not reverse_rates:
                 mech2_ktp = mech2_ktp_dct[mech1_name]
             else:
+                assert mech2_thermo_dct is not None
                 mech2_ktp = _reverse_reaction_rates(
                     mech2_ktp_dct, mech2_thermo_dct, mech2_name_match, temps)
         else:
@@ -85,15 +85,23 @@ def build_thermo_name_dcts(mech1_str, mech2_str, temps):
     """ builds the thermo dictionaries indexed by names
     """
 
-    mech1_thermo_block = chemkin_io.parser.util.clean_up_whitespace(
-        chemkin_io.parser.mechanism.thermo_block(mech1_str))
-    mech1_thermo_dct = thermo.mechanism(
-        mech1_thermo_block, temps)
+    mech1_thermo_block = chemkin_io.parser.mechanism.thermo_block(mech1_str)
+    if mech1_thermo_block is not None:
+        mech1_thermo_block = chemkin_io.parser.util.clean_up_whitespace(
+            mech1_thermo_block)
+        mech1_thermo_dct = thermo.mechanism(
+            mech1_thermo_block, temps)
+    else:
+        mech1_thermo_dct = None
 
-    mech2_thermo_block = chemkin_io.parser.util.clean_up_whitespace(
-        chemkin_io.parser.mechanism.thermo_block(mech2_str))
-    mech2_thermo_dct = thermo.mechanism(
-        mech2_thermo_block, temps)
+    mech2_thermo_block = chemkin_io.parser.mechanism.thermo_block(mech2_str)
+    if mech2_thermo_block is not None:
+        mech2_thermo_block = chemkin_io.parser.util.clean_up_whitespace(
+            mech2_thermo_block)
+        mech2_thermo_dct = thermo.mechanism(
+            mech2_thermo_block, temps)
+    else:
+        mech2_thermo_dct = None
 
     return mech1_thermo_dct, mech2_thermo_dct
 

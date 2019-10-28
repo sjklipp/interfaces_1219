@@ -63,10 +63,16 @@ def rpht_input(geoms, grads, hessians,
     return rpht_string
 
 
-def rpht_path_coord_en(coords, energy, bnd1, bnd2):
+def rpht_path_coord_en(coords, energy, bnd1=None, bnd2=None):
     """ Write the ProjRot file containing path data
     """
     nsteps = len(coords)
+
+    # Build bnd1 and bnd2 lists with fake values if they have not been set
+    bnd1 = bnd1 if bnd1 is not None else [1.00 for val in coords]
+    bnd2 = bnd2 if bnd2 is not None else [1.00 for val in coords]
+
+    # Check that all the lists are not empty and have the same length
     assert all(lst for lst in (coords, energy, bnd1, bnd2))
     assert all(len(lst) == nsteps for lst in (energy, bnd1, bnd2))
 

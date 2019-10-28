@@ -6,10 +6,11 @@
 # read the scoords, and energies
 # for iso, beta: dist_atc_prd=0.0
 
-def reaction_coord_distances():
-    """ calculate the distances of the reaction coordinate
+
+def sct():
+    """ do the sct
     """
-    dist_atc_rct = dist(atcent-atreax)
-    dist_atc_prd = dist(atcent-atprdx)
+
+    # Check if desired MEP grid exists
 
 

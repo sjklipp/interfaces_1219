@@ -52,3 +52,10 @@ def plog(reaction, rate_params_dct, err_dct):
         p_str += '! {0:<6s}: {1}\n'.format(str(key), err_str)
 
     return p_str
+
+
+if __name__ == '__main__':
+    reaction = 'CH3+H=CH4'
+    dct = {1.0: [1.0,2.0, 3.0, 2.0,3.0,4.0] }
+    dct2 = {1.0: [1.0,2.0,3.0, 2.0,3.0,4.0] }
+    print(plog(reaction, dct, dct2))
