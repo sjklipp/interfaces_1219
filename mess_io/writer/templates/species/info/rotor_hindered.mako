@@ -1,4 +1,8 @@
 Rotor  Hindered
+% if geom:
+  Geometry[angstrom]   ${natom}
+${geom}
+% endif
   Group                ${group}
   Axis                 ${axis}
   Symmetry             ${symmetry}

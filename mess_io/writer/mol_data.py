@@ -21,7 +21,7 @@ def core_rigidrotor(geom1, sym_factor, interp_emax=''):
     natom1, geom1 = util.geom_format(geom1)
 
     # Create dictionary to fill template
-    core_rigrot_keys = {
+    core_keys = {
         'sym_factor': sym_factor,
         'natom1': natom1,
         'geom1': geom1,
@@ -33,7 +33,7 @@ def core_rigidrotor(geom1, sym_factor, interp_emax=''):
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build core section string
-    core_rigrot_str = Template(filename=template_file_path).render(**core_rigrot_keys)
+    core_rigrot_str = Template(filename=template_file_path).render(**core_keys)
 
     return core_rigrot_str
 
@@ -47,7 +47,7 @@ def core_multirotor(geom1, sym_factor, pot_surf, int_rot,
     natom1, geom1 = util.geom_format(geom1)
 
     # Create dictionary to fill template
-    core_multrot_keys = {
+    core_keys = {
         'sym_factor': sym_factor,
         'natom1': natom1,
         'geom1': geom1,
@@ -62,9 +62,9 @@ def core_multirotor(geom1, sym_factor, pot_surf, int_rot,
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build core section string
-    core_multrot_str = Template(filename=template_file_path).render(**core_multrot_keys)
+    core_mulrot_str = Template(filename=template_file_path).render(**core_keys)
 
-    return core_multrot_str
+    return core_mulrot_str
 
 
 def core_phasespace(geom1, geom2, sym_factor, stoich,
@@ -81,7 +81,7 @@ def core_phasespace(geom1, geom2, sym_factor, stoich,
     geom2 = util.indent(geom2, 2)
 
     # Create dictionary to fill template
-    core_phasespace_keys = {
+    core_keys = {
         'sym_factor': sym_factor,
         'natom1': natom1,
         'geom1': geom1,
@@ -97,9 +97,9 @@ def core_phasespace(geom1, geom2, sym_factor, stoich,
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build core section string
-    core_phasespace_str = Template(filename=template_file_path).render(**core_phasespace_keys)
+    core_pst_str = Template(filename=template_file_path).render(**core_keys)
 
-    return core_phasespace_str
+    return core_pst_str
 
 
 def core_rotd(sym_factor, ne_file, stoich):
@@ -107,7 +107,7 @@ def core_rotd(sym_factor, ne_file, stoich):
     """
 
     # Set values and template based on core type
-    core_rotd_keys = {
+    core_keys = {
         'sym_factor': sym_factor,
         'ne_file': ne_file,
         'stoich': stoich
@@ -118,26 +118,35 @@ def core_rotd(sym_factor, ne_file, stoich):
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build core section string
-    core_rotd_str = Template(filename=template_file_path).render(**core_rotd_keys)
+    core_rotd_str = Template(filename=template_file_path).render(**core_keys)
 
     return core_rotd_str
 
 
-def rotor_hindered(group, axis, symmetry, potential, dummy_rem=None):
+def rotor_hindered(group, axis, symmetry, potential,
+                   geom=None, dummy_rem=None):
     """ Writes the section for a single hindered rotor.
     """
     # Format the sections
-    rotor_hind_group = util.format_rotor_key_defs(group, dummy_rem)
-    rotor_hind_axis = util.format_rotor_key_defs(axis, dummy_rem)
-    rotor_hind_npotential, rotor_hind_potential = util.format_rotor_potential(potential)
+    rotor_group = util.format_rotor_key_defs(group, dummy_rem)
+    rotor_axis = util.format_rotor_key_defs(axis, dummy_rem)
+    rotor_npotential, rotor_potential = util.format_rotor_potential(potential)
+
+    # Format the geom
+    natom, geom = util.geom_format(geom)
+
+    # Indent the geometry strings
+    geom = util.indent(geom, 4)
 
     # Create dictionary to fill template
-    rotor_hind_keys = {
-        'group': rotor_hind_group,
-        'axis': rotor_hind_axis,
+    rotor_keys = {
+        'group': rotor_group,
+        'axis': rotor_axis,
         'symmetry': symmetry,
-        'npotential': rotor_hind_npotential,
-        'potential': rotor_hind_potential
+        'npotential': rotor_npotential,
+        'potential': rotor_potential,
+        'natom': natom,
+        'geom': geom
     }
 
     # Set template name and path for a hindered rotor section
@@ -145,13 +154,13 @@ def rotor_hindered(group, axis, symmetry, potential, dummy_rem=None):
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build rotor section string
-    rotor_hind_str = Template(filename=template_file_path).render(**rotor_hind_keys)
+    rotor_hind_str = Template(filename=template_file_path).render(**rotor_keys)
 
     return rotor_hind_str
 
 
 def rotor_internal(group, axis, symmetry,
-                   rotor_id='',
+                   rotor_id='', geom=None,
                    mass_exp_size=5, pot_exp_size=5,
                    hmin=13, hmax=101,
                    grid_size=100):
@@ -159,20 +168,28 @@ def rotor_internal(group, axis, symmetry,
     """
 
     # Format the sections
-    rotor_int_group = util.format_rotor_key_defs(group)
-    rotor_int_axis = util.format_rotor_key_defs(axis)
+    rotor_group = util.format_rotor_key_defs(group)
+    rotor_axis = util.format_rotor_key_defs(axis)
+
+    # Format the geom
+    natom, geom = util.geom_format(geom)
+
+    # Indent the geometry strings
+    geom = util.indent(geom, 4)
 
     # Create dictionary to fill template
-    rotor_int_keys = {
-        'group': rotor_int_group,
-        'axis': rotor_int_axis,
+    rotor_keys = {
+        'group': rotor_group,
+        'axis': rotor_axis,
         'rotor_id': rotor_id,
         'symmetry': symmetry,
         'mass_exp_size': mass_exp_size,
         'pot_exp_size': pot_exp_size,
         'hmin': hmin,
         'hmax': hmax,
-        'grid_size': grid_size
+        'grid_size': grid_size,
+        'natom': natom,
+        'geom': geom
     }
 
     # Set template name and path for a internal rotor section
@@ -180,7 +197,7 @@ def rotor_internal(group, axis, symmetry,
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build rotor section string
-    rotor_int_str = Template(filename=template_file_path).render(**rotor_int_keys)
+    rotor_int_str = Template(filename=template_file_path).render(**rotor_keys)
 
     return rotor_int_str
 
@@ -190,7 +207,7 @@ def tunnel_eckart(imag_freq, well_depth1, well_depth2):
     """
 
     # Create dictionary to fill template
-    tunnel_eckart_keys = {
+    tunnel_keys = {
         'imag_freq': imag_freq,
         'well_depth1': well_depth1,
         'well_depth2': well_depth2
@@ -201,9 +218,9 @@ def tunnel_eckart(imag_freq, well_depth1, well_depth2):
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build tunnel section string
-    tunnel_eckart_str = Template(filename=template_file_path).render(**tunnel_eckart_keys)
+    tunnel_str = Template(filename=template_file_path).render(**tunnel_keys)
 
-    return tunnel_eckart_str
+    return tunnel_str
 
 
 def tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
@@ -211,7 +228,7 @@ def tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
     """
 
     # Create dictionary to fill template
-    tunnel_sct_keys = {
+    tunnel_keys = {
         'imag_freq': imag_freq,
         'cutoff_energy': cutoff_energy,
         'tunnel_file': tunnel_file
@@ -222,6 +239,6 @@ def tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
     template_file_path = os.path.join(SPEC_INFO_PATH, template_file_name)
 
     # Build tunnel section string
-    tunnel_sct_str = Template(filename=template_file_path).render(**tunnel_sct_keys)
+    tunnel_str = Template(filename=template_file_path).render(**tunnel_keys)
 
-    return tunnel_sct_str
+    return tunnel_str

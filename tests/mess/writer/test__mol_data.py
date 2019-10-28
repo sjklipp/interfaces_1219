@@ -177,11 +177,11 @@ def test__tunnel_sct_writer():
 
 
 if __name__ == '__main__':
-    test__core_rigidrotor_writer()
-    test__core_multirotor_writer()
-    test__core_phasespace_writer()
-    test__core_rotd_writer()
+    # test__core_rigidrotor_writer()
+    # test__core_multirotor_writer()
+    # test__core_phasespace_writer()
+    # test__core_rotd_writer()
     test__rotor_hindered_writer()
     test__rotor_internal_writer()
-    test__tunnel_eckart_writer()
-    test__tunnel_sct_writer()
+    # test__tunnel_eckart_writer()
+    # test__tunnel_sct_writer()
