@@ -20,7 +20,7 @@ AXES_DCTS = [
 ]
 
 
-def build(ktp_dct, temps, names=None):
+def build(ktp_dct, temps, plot_dir='rate_plots', names=None):
     """ run over the dictionary for plotting
     """
 
@@ -30,6 +30,10 @@ def build(ktp_dct, temps, names=None):
     # Set names to dict values if ther aren't anything
     if names is None:
         names = [key for key in ktp_dct]
+
+    # Make the directory that holds the plots if it doesn't exist
+    if not os.path.exists(plot_dir):
+        os.mkdir(plot_dir)
 
     # Plot the rate constants for each reaction
     reactions = list(ktp_dct.keys())
@@ -66,15 +70,15 @@ def build(ktp_dct, temps, names=None):
         file_name_str += '{0:40s}{1}\n'.format('reaction', file_name)
 
         # build and save the figure to a PDF
-        fig.savefig('rate_plots/{0}.pdf'.format(file_name), dpi=100)
+        fig.savefig('{0}/{1}.pdf'.format(plot_dir, file_name), dpi=100)
         plt.close(fig)
 
-    # Write file relating plot.pdf names to reaction names
-    with open('names.txt', 'w') as name_file:
-        name_file.write(file_name_str)
-
     # Collate all of the pdfs together
-    _collate_pdfs()
+    _collate_pdfs(plot_dir)
+
+    # Write file relating plot.pdf names to reaction names
+    with open(os.path.join(plot_dir, 'names.txt'), 'w') as name_file:
+        name_file.write(file_name_str)
 
 
 def _build_figure(nreactions):
@@ -179,7 +183,7 @@ def _set_axes_labels(axes_dct, isbimol, bottom):
     if bottom:
         axes_dct['xlabel'] = '1000/T (1000/K)'
         axes_dct['ylabel'] = 'k1/k2'
-        axes_dct['yscale'] = 'log'
+#        axes_dct['yscale'] = 'log'
     else:
         axes_dct['ylabel'] = 'log10 k({0})'.format(units)
 
@@ -206,13 +210,14 @@ def _set_figure_title(fig_obj, reactions_lst):
     fig_obj.suptitle(fig_title)
 
 
-def _collate_pdfs():
+def _collate_pdfs(plot_dir):
     """ collate all of the pdfs together
     """
-    plots = os.listdir('rate_plots')
+    plots = [directory for directory in os.listdir(plot_dir)
+             if 'pdf' in directory]
     plots.sort(key=lambda x: int(x.replace('r', '').replace('.pdf', '')))
     plots.append('all_rates.pdf')
-    plots = [os.path.join('rate_plots', name) for name in plots]
+    plots = [os.path.join(plot_dir, name) for name in plots]
 
     command = ['pdfunite'] + plots
     subprocess.call(command)
