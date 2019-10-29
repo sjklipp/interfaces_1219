@@ -20,6 +20,9 @@ def species(species_label, species_data, zero_energy):
 
     # Indent the string containing all of data for the well
     species_data = util.indent(species_data, 2)
+    
+    # Format the precision of the zero energy
+    zero_energy = '{0:<8.2f}'.format(zero_energy)
 
     # Create dictionary to fill template
     species_keys = {
@@ -44,6 +47,9 @@ def well(well_label, well_data, zero_energy):
 
     # Indent the string containing all of data for the well
     well_data = util.indent(well_data, 4)
+
+    # Format the precision of the zero energy
+    zero_energy = '{0:<8.2f}'.format(zero_energy)
 
     # Create dictionary to fill template
     well_keys = {
@@ -76,6 +82,9 @@ def bimolecular(bimol_label,
     # Determine if species is an atom
     isatom1 = util.is_atom_in_str(species1_data)
     isatom2 = util.is_atom_in_str(species2_data)
+    
+    # Format the precision of the ground energy
+    ground_energy = '{0:<8.2f}'.format(ground_energy)
 
     # Create dictionary to fill template
     bimol_keys = {
@@ -108,6 +117,9 @@ def ts_sadpt(ts_label, reac_label, prod_label, ts_data, zero_energy,
     ts_data = util.indent(ts_data, 2)
     if tunnel != '':
         tunnel = util.indent(tunnel, 4)
+    
+    # Format the precision of the zero energy
+    zero_energy = '{0:<8.2f}'.format(zero_energy)
 
     # Create dictionary to fill template
     ts_sadpt_keys = {

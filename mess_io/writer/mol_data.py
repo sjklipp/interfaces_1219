@@ -205,6 +205,10 @@ def rotor_internal(group, axis, symmetry,
 def tunnel_eckart(imag_freq, well_depth1, well_depth2):
     """ Writes the tunneling section assuming an Eckart model
     """
+    # Format the imaginary frequency and well-depth values
+    imag_freq = '{0:<8.0f}'.format(imag_freq)
+    well_depth1 = '{0:<8.2f}'.format(well_depth1)
+    well_depth2 = '{0:<8.2f}'.format(well_depth2)
 
     # Create dictionary to fill template
     tunnel_keys = {
@@ -226,6 +230,9 @@ def tunnel_eckart(imag_freq, well_depth1, well_depth2):
 def tunnel_sct(imag_freq, cutoff_energy, tunnel_file):
     """ Writes the tunneling section accounting for small curvature tunneling
     """
+
+    # Format the imaginary frequency value
+    imag_freq = '{0:<8.0f}'.format(imag_freq)
 
     # Create dictionary to fill template
     tunnel_keys = {
