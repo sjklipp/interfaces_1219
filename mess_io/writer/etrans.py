@@ -31,9 +31,9 @@ def energy_transfer(exp_factor, exp_power, exp_cutoff,
     """
 
     # Put the values into a string
-    epsilon_str = '{0:<10.3f} {1:<10.3f}'.format(eps1, eps2)
-    sigma_str = '{0:<10.3f} {1:<10.3f}'.format(sig1, sig2)
-    mass_str = '{0:<10.3f} {1:<10.3f}'.format(mass1, mass2)
+    epsilon_str = '{0:<10.1f} {1:<10.1f}'.format(eps1, eps2)
+    sigma_str = '{0:<10.2f} {1:<10.2f}'.format(sig1, sig2)
+    mass_str = '{0:<10.1f} {1:<10.1f}'.format(mass1, mass2)
 
     # Create dictionary to fill template
     energy_trans_keys = {

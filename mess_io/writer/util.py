@@ -45,7 +45,7 @@ def geom_format(geom):
     # Build geom string; converting the coordinates to angstrom
     geom_string = ''
     for (asymb, xyz) in geom:
-        geom_string += '{:s}   {:>12.8f}  {:>12.8f}  {:>12.8f}\n'.format(
+        geom_string += '{:s}   {:>10.5f}  {:>10.5f}  {:>10.5f}\n'.format(
                         asymb, *tuple([val*0.529177 for val in xyz]))
 
     # Remove final newline character
@@ -68,9 +68,9 @@ def freqs_format(freqs):
     freq_string = ''
     for i, freq in enumerate(freqs):
         if ((i+1) % 6) == 0 and (i+1) != len(freqs):
-            freq_string += '{0:<10.2f}\n'.format(freq)
+            freq_string += '{0:<8.0f}\n'.format(int(freq))
         else:
-            freq_string += '{0:<10.2f}'.format(freq)
+            freq_string += '{0:<8.0f}'.format(freq)
 
     # Indent the lines
     freq_string = indent(freq_string, 4)

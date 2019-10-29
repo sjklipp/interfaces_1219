@@ -11,22 +11,19 @@ def calc_sse_and_mae(calc_ks, fit_ks):
             the nonlinear solver
         (2) also get the mean absolute error (MAE), which is written
             to the plog file
+        Only need to assess error if there are 2 or more rate constants 
     """
 
-    # Only run if there are more than 2 rate constants
-    #sse = 0.0
     abs_err = []
-    # if len(calc_ks) > 2:
-    for calc_k, fit_k in zip(calc_ks, fit_ks):
-        #sse += (np.log(calc_k) - np.log(fit_k))**2.0
-        abs_err.append(np.abs((calc_k - fit_k) / calc_k))
-    abs_err = np.array(abs_err, dtype=np.float64)
-    mean_abs_err = np.mean(abs_err) * 100.0
-    max_abs_err = np.max(abs_err) * 100.0
-    #else:
-    #    #sse = None
-    #    mean_abs_err = None
-    #    max_abs_err = None
+    if len(calc_k) > 2:
+        for calc_k, fit_k in zip(calc_ks, fit_ks):
+            abs_err.append(np.abs((calc_k - fit_k) / calc_k))
+        abs_err = np.array(abs_err, dtype=np.float64)
+        mean_abs_err = np.mean(abs_err) * 100.0
+        max_abs_err = np.max(abs_err) * 100.0
+    else:
+        mean_abs_err = 0.0
+        max_abs_err = 0.0
 
     return mean_abs_err, max_abs_err
 
@@ -56,12 +53,8 @@ def assess_pressure_dependence(tk_dct, assess_pdep_temps,
         # For the low- and high-P, find the idx for the temp in temp_compare
         temps_low = tk_dct[plow][0]
         temps_high = tk_dct[phigh][0]
-        print(temps_low)
-        print(temps_high)
         temp_low_match = np.where(np.isclose(temps_low, temp_compare))[0]
         temp_high_match = np.where(np.isclose(temps_high, temp_compare))[0]
-        #print(temp_low_idx)
-        #print(temp_high_idx)
         if temp_low_match.size > 0 and temp_high_match.size > 0:
             temp_low_idx = temp_low_match[0]
             temp_high_idx = temp_high_match[0]
