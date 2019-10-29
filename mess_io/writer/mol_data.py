@@ -124,19 +124,19 @@ def core_rotd(sym_factor, ne_file, stoich):
 
 
 def rotor_hindered(group, axis, symmetry, potential,
-                   geom=None, dummy_rem=None):
+                   remdummy=None, geom=None):
     """ Writes the section for a single hindered rotor.
     """
     # Format the sections
-    rotor_group = util.format_rotor_key_defs(group, dummy_rem)
-    rotor_axis = util.format_rotor_key_defs(axis, dummy_rem)
+    rotor_group = util.format_rotor_key_defs(group, remdummy)
+    rotor_axis = util.format_rotor_key_defs(axis, remdummy)
     rotor_npotential, rotor_potential = util.format_rotor_potential(potential)
 
     # Format the geom
-    natom, geom = util.geom_format(geom)
-
-    # Indent the geometry strings
-    geom = util.indent(geom, 4)
+    natom = 1
+    if geom is not None:
+        natom, geom = util.geom_format(geom)
+        geom = util.indent(geom, 4)
 
     # Create dictionary to fill template
     rotor_keys = {
@@ -172,10 +172,10 @@ def rotor_internal(group, axis, symmetry,
     rotor_axis = util.format_rotor_key_defs(axis)
 
     # Format the geom
-    natom, geom = util.geom_format(geom)
-
-    # Indent the geometry strings
-    geom = util.indent(geom, 4)
+    natom = 1
+    if geom is not None:
+        natom, geom = util.geom_format(geom)
+        geom = util.indent(geom, 4)
 
     # Create dictionary to fill template
     rotor_keys = {
