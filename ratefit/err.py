@@ -15,7 +15,7 @@ def calc_sse_and_mae(calc_ks, fit_ks):
     """
 
     abs_err = []
-    if len(calc_k) > 2:
+    if len(calc_ks) > 2:
         for calc_k, fit_k in zip(calc_ks, fit_ks):
             abs_err.append(np.abs((calc_k - fit_k) / calc_k))
         abs_err = np.array(abs_err, dtype=np.float64)
