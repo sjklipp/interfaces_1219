@@ -3,7 +3,7 @@ Writes strings containing the rate parameters
 """
 
 
-def plog(reaction, rate_params_dct, err_dct):
+def plog(reaction, rate_params_dct, temp_dct=None, err_dct=None):
     """ Write the string containing the fitting parameters
         formatted for CHEMKIN input files
     """
@@ -12,7 +12,7 @@ def plog(reaction, rate_params_dct, err_dct):
     nparams = len(next(iter(rate_params_dct.values())))
     assert nparams in (3, 6)
     assert all(len(params) == nparams for params in rate_params_dct.values())
-
+  
     # Obtain a list of the pressures and sort from low to high pressure
     pressures = [pressure for pressure in rate_params_dct.keys()
                  if pressure != 'high']
@@ -45,17 +45,54 @@ def plog(reaction, rate_params_dct, err_dct):
             p_str += '{0:>10.3E}{1:>9.3f}{2:9.0f} /\n'.format(
                 pdep_a, pdep_n, 1000*pdep_ea)
 
-    # writing errors
-    for key, val in err_dct.items():
-        err_str = '{0:12s} {1:>6.1f}%, {2:8s} {3:>6.1f}%'.format(
-            'MeanAbsErr =', val[0], 'MaxErr =', val[1])
-        p_str += '! {0:<6s}: {1}\n'.format(str(key), err_str)
+    # Write string showing the temp fit range and fit errors
+    if temp_dct or err_dct:
+        p_str += _fit_info_str(pressures, temp_dct, err_dct)
 
     return p_str
+
+
+def _fit_info_str(pressures, temp_dct, err_dct):
+    """ Write the string detailing the temperatures and errors associated
+        with the rate constant fits at each pressure
+    """
+
+    # Check the temp and err dcts have same presures as rate_dcts
+    temp_dct = temp_dct if temp_dct else {}
+    if temp_dct:
+        assert set(pressures) == set(temp_dct.keys())
+    err_dct = err_dct if err_dct else {}
+    if err_dct:
+        assert set(pressures) == set(err_dct.keys())
+   
+    # Write string showing the temp fit range and fit errors
+    info_str = ''
+    for pressure in pressures:
+        if err_dct:
+            [mean_err, max_err] = err_dct[pressure]
+            err_str = '{0:15s} {1:>6.1f}%, {2:11s} {3:>6.1f}%'.format(
+                'FitMeanAbsErr =', mean_err, 'FitMaxErr =', max_err)
+            info_str += '! {0:<6s}: {1}\n'.format(str(pressure), err_str)
+        if temp_dct:
+            [min_temp, max_temp] = temp_dct[pressure]
+            temp_range_str = '{0:12s} {1:>.0f}-{2:<.0f} K'.format(
+                'FitTempRange =', min_temp, max_temp)
+            info_str += '! {0:<6s}: {1}\n'.format(str(pressure), temp_range_str)
+
+    return info_str
 
 
 if __name__ == '__main__':
     reaction = 'CH3+H=CH4'
     dct = {1.0: [1.0,2.0, 3.0, 2.0,3.0,4.0] }
-    dct2 = {1.0: [1.0,2.0,3.0, 2.0,3.0,4.0] }
-    print(plog(reaction, dct, dct2))
+    dct2 = {1.0: [1.0,2000.0] }
+    tdct = {1.0: [100.0, 300] }
+    print(plog(reaction, dct, temp_dct=tdct, err_dct=dct2))
+    print('\n')
+    print(plog(reaction, dct, temp_dct=tdct))
+    print('\n')
+    print(plog(reaction, dct, err_dct=dct2))
+    print('\n')
+    print(plog(reaction, dct))
+    print('\n')
+
