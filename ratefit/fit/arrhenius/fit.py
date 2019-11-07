@@ -16,14 +16,14 @@ def single(temps, rate_constants, t_ref, method,
     """ call the single arrhenius fitter
     """
 
-    if method == 'dsarrfit':
+    if method == 'python' or len(rate_constants) <= 3:
+        fit_params = _single_arrhenius_numpy(
+            temps, rate_constants, t_ref)
+    elif method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
             temps, rate_constants, a_guess, n_guess, ea_guess,
             'single', dsarrfit_path, a_conv_factor)
-    elif method == 'python':
-        fit_params = _single_arrhenius_numpy(
-            temps, rate_constants, t_ref)
     else:
         raise NotImplementedError
 
@@ -36,7 +36,10 @@ def double(temps, rate_constants, t_ref, method,
     """ call the double arrhenius fitter
     """
 
-    if method == 'dsarrfit':
+    if len(rate_constants) <= 3:
+        fit_params = _single_arrhenius_numpy(
+            temps, rate_constants, t_ref)
+    elif method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
             temps, rate_constants, a_guess, n_guess, ea_guess,
@@ -54,6 +57,9 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
     """ this subroutine takes in a vector of rate constants and
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
+
+    temps = temps[0]
+    rate_constants = rate_constants[0]
 
     # consider several cases depending on the number of valid rate constants
     # no k is positive, so return all zeros
