@@ -97,7 +97,7 @@ def data_strings(block_str):
     """
     rxn_strs = util.headlined_sections(
         string=block_str.strip(),
-        headline_pattern=CHEMKIN_ARROW,
+        headline_pattern=CHEMKIN_ARROW
     )
     return rxn_strs
 

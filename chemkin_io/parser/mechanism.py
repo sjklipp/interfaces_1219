@@ -21,16 +21,14 @@ def species_block(mech_str):
     return block_str
 
 
-def reaction_block(mech_str):
+def reaction_block(mech_str, remove_comments=True):
     """ reaction block
     """
-    # print(mech_str)
     block_str = util.block(
-        string=_clean_up(mech_str),
+        string=_clean_up(mech_str, remove_comments=remove_comments),
         start_pattern=app.one_of_these(['REACTIONS', 'REAC']),
         end_pattern='END'
     )
-    # print(block_str)
     return block_str
 
 
@@ -210,8 +208,9 @@ def _read_csv(csv_str):
     return data
 
 
-def _clean_up(mech_str):
-    mech_str = util.remove_line_comments(
-        mech_str, delim_pattern=app.escape('!'))
+def _clean_up(mech_str, remove_comments=True):
+    if remove_comments:
+        mech_str = util.remove_line_comments(
+            mech_str, delim_pattern=app.escape('!'))
     mech_str = util.clean_up_whitespace(mech_str)
     return mech_str
