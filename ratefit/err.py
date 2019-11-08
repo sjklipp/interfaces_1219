@@ -49,22 +49,24 @@ def assess_pressure_dependence(tk_dct, assess_pdep_temps,
 
     # Check % difference for k(T, P) vals
     is_pressure_dependent = False
-    for temp_compare in assess_pdep_temps:
-        # For the low- and high-P, find the idx for the temp in temp_compare
-        temps_low = tk_dct[plow][0]
-        temps_high = tk_dct[phigh][0]
-        temp_low_match = np.where(np.isclose(temps_low, temp_compare))[0]
-        temp_high_match = np.where(np.isclose(temps_high, temp_compare))[0]
-        if temp_low_match.size > 0 and temp_high_match.size > 0:
-            temp_low_idx = temp_low_match[0]
-            temp_high_idx = temp_high_match[0]
-            # Grab the k(T, P) vale for the approprite temp and pressure
-            ktp_low = tk_dct[plow][1][temp_low_idx]
-            ktp_high = tk_dct[phigh][1][temp_high_idx]
-            # Calculate the % difference and see if above threshold
-            ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
-            if ktp_dif > tolerance:
-                is_pressure_dependent = True
+    if plow in tk_dct and phigh in tk_dct:
+            
+        for temp_compare in assess_pdep_temps:
+            # For the low- and high-P, find the idx for the temp in temp_compare
+            temps_low = tk_dct[plow][0]
+            temps_high = tk_dct[phigh][0]
+            temp_low_match = np.where(np.isclose(temps_low, temp_compare))[0]
+            temp_high_match = np.where(np.isclose(temps_high, temp_compare))[0]
+            if temp_low_match.size > 0 and temp_high_match.size > 0:
+                temp_low_idx = temp_low_match[0]
+                temp_high_idx = temp_high_match[0]
+                # Grab the k(T, P) vale for the approprite temp and pressure
+                ktp_low = tk_dct[plow][1][temp_low_idx]
+                ktp_high = tk_dct[phigh][1][temp_high_idx]
+                # Calculate the % difference and see if above threshold
+                ktp_dif = (abs(ktp_low - ktp_high) / ktp_low) * 100.0
+                if ktp_dif > tolerance:
+                    is_pressure_dependent = True
 
     return is_pressure_dependent
 

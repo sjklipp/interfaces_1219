@@ -18,7 +18,7 @@ def single(temps, rate_constants, t_ref, method,
 
     if method == 'python' or len(rate_constants) <= 3:
         fit_params = _single_arrhenius_numpy(
-            temps, rate_constants, t_ref)
+            temps, rate_constants, t_ref, a_conv_factor)
     elif method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
@@ -38,7 +38,7 @@ def double(temps, rate_constants, t_ref, method,
 
     if len(rate_constants) <= 3:
         fit_params = _single_arrhenius_numpy(
-            temps, rate_constants, t_ref)
+            temps, rate_constants, t_ref, a_conv_factor)
     elif method == 'dsarrfit':
         assert dsarrfit_path is not None
         fit_params = _dsarrfit(
@@ -53,7 +53,47 @@ def double(temps, rate_constants, t_ref, method,
     return fit_params
 
 
-def _single_arrhenius_numpy(temps, rate_constants, t_ref):
+#def single(temps, rate_constants, t_ref, method,
+#           a_guess=8.1e-11, n_guess=-0.01, ea_guess=2000.0,
+#           dsarrfit_path=None, a_conv_factor=1.00):
+#    """ call the single arrhenius fitter
+#    """
+#
+#    if method == 'dsarrfit':
+#        assert dsarrfit_path is not None
+#        fit_params = _dsarrfit(
+#            temps, rate_constants, a_guess, n_guess, ea_guess,
+#            'single', dsarrfit_path, a_conv_factor)
+#    elif method == 'python':
+#        fit_params = _single_arrhenius_numpy(
+#            temps, rate_constants, t_ref)
+#    else:
+#        raise NotImplementedError
+#
+#    return fit_params
+#
+#
+#def double(temps, rate_constants, t_ref, method,
+#           a_guess=8.1e-11, n_guess=-0.01, ea_guess=2000.0,
+#           dsarrfit_path=None, a_conv_factor=1.00):
+#    """ call the double arrhenius fitter
+#    """
+#
+#    if method == 'dsarrfit':
+#        assert dsarrfit_path is not None
+#        fit_params = _dsarrfit(
+#            temps, rate_constants, a_guess, n_guess, ea_guess,
+#            'double', dsarrfit_path, a_conv_factor)
+#    elif method == 'python':
+#        fit_params = _double_arrhenius_scipy(
+#            temps, rate_constants, t_ref, a_guess, n_guess, ea_guess)
+#    else:
+#        raise NotImplementedError
+#
+#    return fit_params
+
+
+def _single_arrhenius_numpy(temps, rate_constants, t_ref, a_conv_factor=1.):
     """ this subroutine takes in a vector of rate constants and
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
@@ -99,6 +139,7 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref):
 
     # Pack the parameters into a list
     fit_params = [a_fit, n_fit, ea_fit]
+    fit_params[0] *= a_conv_factor
 
     return fit_params
 

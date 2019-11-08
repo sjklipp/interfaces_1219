@@ -5,7 +5,7 @@ utility functions used for the fitting functions
 import numpy as np
 
 
-def get_valid_tk(temps, rate_constants,
+def get_valid_tk(temps, rate_constants, bimol,
                  tmin=None, tmax=None):
     """ this subroutine takes in a array of rate constants and
         returns the subset of this array that is positive,
@@ -31,7 +31,11 @@ def get_valid_tk(temps, rate_constants,
         if rate_constant == '***':
             continue
         else:
-            if float(rate_constant) > 0.0 and tmin <= temp <= tmax:
+            #print('bimol:', bimol, 'rate_constant', float(rate_constant))
+            if not bimol and float(rate_constant) > 0.0 and tmin <= temp <= tmax:
+                valid_t.append(temp)
+                valid_k.append(rate_constant)
+            if bimol and float(rate_constant) > 1.e-21 and tmin <= temp <= tmax:
                 valid_t.append(temp)
                 valid_k.append(rate_constant)
 
