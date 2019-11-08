@@ -107,6 +107,9 @@ c calculate reference fitted k
       enddo
       go to 100
   200 continue
+      if (nttot.lt.4)
+         go to 8000
+      endif
 c
 c now repeat for sum of two modified arrhenius    *****************************
 c
@@ -195,6 +198,7 @@ c calculate reference fitted k
          err = abs(dkfit-dki)*100./dki
          write (6,111) tempi,10**(dkin(it)),dkfit,err
       enddo
+ 8000 continue
       stop
       end
       subroutine funcs(temp,a0,dkfit,dkda,ma)
