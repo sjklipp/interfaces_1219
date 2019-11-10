@@ -124,7 +124,7 @@ def core_rotd(sym_factor, ne_file, stoich):
 
 
 def rotor_hindered(group, axis, symmetry, potential,
-                   remdummy=None, geom=None):
+                   remdummy=None, geom=None, use_quantum_weight=False):
     """ Writes the section for a single hindered rotor.
     """
     # Format the sections
@@ -146,7 +146,8 @@ def rotor_hindered(group, axis, symmetry, potential,
         'npotential': rotor_npotential,
         'potential': rotor_potential,
         'natom': natom,
-        'geom': geom
+        'geom': geom,
+        'use_quantum_weight': use_quantum_weight
     }
 
     # Set template name and path for a hindered rotor section

@@ -18,11 +18,14 @@ def rpht_output(file_name):
     real_freqs = []
     imag_freqs = []
     for freq in freqs:
-        # Ignore zeros
+        # Ignore zeros and grab the negative vals from projrot out_str
         if freq != 0.0:
             if freq > 0.0:
                 real_freqs.append(freq)
             else:
                 imag_freqs.append(-1.0*freq)
+    
+    # Sort imaginary freqeuncies in descending order
+    imag_freqs.sort(reverse=True)
 
     return real_freqs, imag_freqs

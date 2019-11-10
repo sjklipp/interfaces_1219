@@ -66,7 +66,7 @@ def mechanism_rates(mech1_ktp_dct, mech2_ktp_dct, temps,
                 mech2_ktp = _reverse_reaction_rates(
                     mech2_ktp_dct, mech2_thermo_dct, mech2_name_match, temps)
         else:
-            mech2_ktp_dct = None
+            mech2_dct = None
 
         # Add data_entry to overal thermo dictionary
         total_ktp_dct[mech1_name] = {

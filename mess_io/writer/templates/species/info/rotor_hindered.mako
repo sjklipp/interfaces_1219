@@ -3,6 +3,9 @@ Rotor  Hindered
   Geometry[angstrom]   ${natom}
 ${geom}
 % endif
+% if use_quantum_weight:
+  UseQuantumWeight
+% endif
   Group                ${group}
   Axis                 ${axis}
   Symmetry             ${symmetry}

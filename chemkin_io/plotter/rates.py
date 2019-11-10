@@ -4,6 +4,7 @@ Plot the rates from a CHEMKIN mechanism file
 import os
 import subprocess
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -19,10 +20,22 @@ AXES_DCTS = [
     {'title': 'Ratio of rate constants'}
 ]
 
+font = {'size': 14}
+matplotlib.rc('font', **font)
+
 
 def build(ktp_dct, temps, plot_dir='rate_plots', names=None):
     """ run over the dictionary for plotting
     """
+
+    # build new dct where we only have reactions with both mechs
+    filt_ktp_dct = {}
+    for reaction, ktps in ktp_dct.items():
+        # break
+        if list(ktps['mech1'].keys()) == list(ktps['mech2'].keys()):
+            filt_ktp_dct[reaction] = ktps
+    # import sys
+    # sys.exit()
 
     # Initialize file string to species and file names
     file_name_str = '{0:40s}{1}\n'.format('Name', 'Filename')
@@ -36,7 +49,7 @@ def build(ktp_dct, temps, plot_dir='rate_plots', names=None):
         os.mkdir(plot_dir)
 
     # Plot the rate constants for each reaction
-    reactions = list(ktp_dct.keys())
+    reactions = list(filt_ktp_dct.keys())
     for i in range(0, len(reactions), 2):
 
         # Determine if plot will have two reactions in it, or one reaction
@@ -53,8 +66,8 @@ def build(ktp_dct, temps, plot_dir='rate_plots', names=None):
         for j in range(nreactions):
             # Determine the reaction dictionaries
             reaction = reactions[i+j]
-            reaction_mech_ktp_dcts = [ktp_dct[reaction]['mech1'],
-                                      ktp_dct[reaction]['mech2']]
+            reaction_mech_ktp_dcts = [filt_ktp_dct[reaction]['mech1'],
+                                      filt_ktp_dct[reaction]['mech2']]
             reaction_names.append(names[i+j])
             # Set variables needed for the plotting
             isbimol = _is_bimolecular(reaction)
@@ -97,7 +110,7 @@ def _build_figure(nreactions):
     # Set various plot options
     fig.tight_layout()
     fig.subplots_adjust(left=0.075,
-                        top=0.925, bottom=0.075,
+                        top=0.920, bottom=0.075,
                         wspace=0.2, hspace=0.175)
 
     return fig, axes
@@ -110,7 +123,7 @@ def _build_axes(ax_col, reaction_mech_dcts, isbimol, temps):
     """
 
     # Obtain a list of the pressures and sort from low to high pressure
-    reaction_pressures_lst = [_get_sorted_pressures(reaction)
+    reaction_pressures_lst = [_get_sorted_pressures(list(reaction.keys()))
                               for reaction in reaction_mech_dcts]
     reaction_pressures_union = _get_union_pressures(reaction_pressures_lst)
 
@@ -149,9 +162,13 @@ def _ratio_plot(ax_obj, mech_ktp_dcts, pressures, temps):
 def _get_sorted_pressures(unsorted_pressures):
     """ get a sorted list of pressures for the reaction
     """
-    pressures = [pressure for pressure in unsorted_pressures
-                 if pressure != 'high']
-    pressures.sort()
+    if unsorted_pressures != ['high']:
+        pressures = [pressure for pressure in unsorted_pressures
+                     if pressure != 'high']
+        pressures.sort()
+    else:
+        pressures = ['high']
+
     # Don't append 'high' to the dict to avoid plotting HighP rates
     # pressures.append('high')
     return pressures
@@ -201,7 +218,7 @@ def _set_figure_title(fig_obj, reactions_lst):
         reaction_str_lst.append('='.join(side_strs))
 
     if len(reactions_lst) == 2:
-        fig_title = '{0:^80s}{1:^80s}'.format(
+        fig_title = '{0:^60s}{1:^60s}'.format(
             reaction_str_lst[0], reaction_str_lst[1])
     else:
         fig_title = '{0:^80s}'.format(

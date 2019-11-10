@@ -23,8 +23,8 @@ PAIRS = [
 #    ['1300', '2.85E+07'],
 #    ['1400', '6.51E+07'],
     ['1500', '1.34E+08'],
-    ['1600', '2.52E+08'],
-    ['1700', '4.43E+08'],
+#    ['1600', '2.52E+08'],
+#    ['1700', '4.43E+08'],
 #     ['1800', '7.34E+08'],
 #     ['1900', '1.16E+09'],
 #     ['2000', '1.74E+09'],
@@ -60,6 +60,8 @@ def test__single_arrhenius_fit():
     print(temps)
     # Print header for python fitting
     print('\n\nSingle Arrhenius Fit with Python:')
+
+    print(calc_ks)
 
     # Run a single Arrhenius fit
     fit_params = ratefit.fit.arrhenius.single(
