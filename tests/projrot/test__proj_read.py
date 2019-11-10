@@ -27,7 +27,7 @@ def test__reader():
     assert real_freqs2 == [6000.0, 5000.0, 4000.0, 3000.0, 2000.0]
     assert imag_freqs2 == [1111.11]
     assert real_freqs3 == [6000.0, 5000.0, 4000.0, 3000.0]
-    assert imag_freqs3 == [1111.11, 2222.22]
+    assert imag_freqs3 == [2222.22, 1111.11]
 
 
 if __name__ == '__main__':
