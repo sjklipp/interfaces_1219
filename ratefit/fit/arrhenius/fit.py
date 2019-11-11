@@ -98,11 +98,9 @@ def _single_arrhenius_numpy(temps, rate_constants, t_ref, a_conv_factor=1.):
         returns the Arrhenius parameters, as well as
         the T-range over which they were fit"""
 
-    # temps = temps[0]
-    # rate_constants = rate_constants[0]
-
     # consider several cases depending on the number of valid rate constants
     # no k is positive, so return all zeros
+    print('rate constants:', rate_constants, temps)
     if rate_constants.size == 0:
         a_fit, n_fit, ea_fit = 0.0, 0.0, 0.0
 
